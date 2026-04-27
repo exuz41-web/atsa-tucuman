@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\HasResourcePermissionAccess;
 use App\Filament\Resources\AutoridadResource\Pages;
 use App\Models\Autoridad;
 use Filament\Forms;
@@ -12,6 +13,8 @@ use Filament\Tables\Table;
 
 class AutoridadResource extends Resource
 {
+    use HasResourcePermissionAccess;
+
     protected static ?string $model = Autoridad::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
@@ -23,6 +26,8 @@ class AutoridadResource extends Resource
     protected static ?string $modelLabel = 'autoridad';
 
     protected static ?string $pluralModelLabel = 'autoridades';
+
+    protected static ?string $panelScope = 'admin';
 
     public static function form(Form $form): Form
     {

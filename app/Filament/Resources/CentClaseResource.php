@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\HasResourcePermissionAccess;
 use App\Filament\Resources\CentClaseResource\Pages;
 use App\Models\CentClase;
 use App\Models\Comision;
@@ -15,6 +16,8 @@ use Filament\Tables\Table;
 
 class CentClaseResource extends Resource
 {
+    use HasResourcePermissionAccess;
+
     protected static ?string $model = CentClase::class;
     protected static ?string $navigationIcon = 'heroicon-o-calendar-days';
     protected static ?string $navigationGroup = 'Aula virtual';
@@ -22,6 +25,7 @@ class CentClaseResource extends Resource
     protected static ?string $modelLabel = 'clase';
     protected static ?string $pluralModelLabel = 'clases';
     protected static ?string $slug = 'clases';
+    protected static ?string $panelScope = 'cent';
 
     public static function form(Form $form): Form
     {
@@ -85,12 +89,12 @@ class CentClaseResource extends Resource
 
     public static function shouldRegisterNavigation(): bool
     {
-        return Filament::getCurrentPanel()?->getId() === 'cent';
+        return Filament::getCurrentPanel()?->getId() === 'cent' && static::canViewAny();
     }
 
     public static function canAccess(): bool
     {
-        return Filament::getCurrentPanel()?->getId() === 'cent';
+        return Filament::getCurrentPanel()?->getId() === 'cent' && static::canViewAny();
     }
 
     public static function getPages(): array
@@ -102,4 +106,3 @@ class CentClaseResource extends Resource
         ];
     }
 }
-

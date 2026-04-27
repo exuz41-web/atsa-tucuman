@@ -219,8 +219,8 @@ class User extends Authenticatable implements FilamentUser
 
         if (! $permission) {
             return $panel === 'cent'
-                ? $this->hasAnyPermission(['cent.*', 'cent.portal.use', 'cent.aula.manage', 'cent.alumnos.manage', 'cent.administracion.manage', 'cent.config.manage'])
-                : $this->hasAnyPermission(['admin.*', 'admin.padron.manage', 'admin.afiliacion.manage', 'admin.atencion.manage', 'admin.editor.manage', 'admin.institucion.manage', 'admin.settings.manage']);
+                ? $this->hasAnyPermission(['*', 'cent.*'])
+                : $this->hasAnyPermission(['*', 'admin.*']);
         }
 
         if ($action === 'delete' && ! $this->hasAnyPermission(['*', 'admin.*', 'cent.*'])) {

@@ -54,19 +54,21 @@ abstract class GenericResource extends Resource
         }
 
         if (static::$panelScope === null) {
-            return true;
+            return static::canViewAny();
         }
 
-        return \Filament\Facades\Filament::getCurrentPanel()?->getId() === static::$panelScope;
+        return \Filament\Facades\Filament::getCurrentPanel()?->getId() === static::$panelScope
+            && static::canViewAny();
     }
 
     public static function canAccess(): bool
     {
         if (static::$panelScope === null) {
-            return true;
+            return static::canViewAny();
         }
 
-        return \Filament\Facades\Filament::getCurrentPanel()?->getId() === static::$panelScope;
+        return \Filament\Facades\Filament::getCurrentPanel()?->getId() === static::$panelScope
+            && static::canViewAny();
     }
 
     public static function getNavigationLabel(): string

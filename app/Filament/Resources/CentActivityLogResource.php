@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\HasResourcePermissionAccess;
 use App\Filament\Resources\CentActivityLogResource\Pages;
 use App\Models\CentActivityLog;
 use Filament\Facades\Filament;
@@ -13,6 +14,8 @@ use Filament\Tables\Table;
 
 class CentActivityLogResource extends Resource
 {
+    use HasResourcePermissionAccess;
+
     protected static ?string $model = CentActivityLog::class;
     protected static ?string $navigationIcon = 'heroicon-o-clock';
     protected static ?string $navigationGroup = 'Auditoría';
@@ -20,6 +23,7 @@ class CentActivityLogResource extends Resource
     protected static ?string $modelLabel = 'actividad';
     protected static ?string $pluralModelLabel = 'auditoría';
     protected static ?string $slug = 'auditoria';
+    protected static ?string $panelScope = 'cent';
 
     public static function form(Form $form): Form
     {
@@ -52,12 +56,12 @@ class CentActivityLogResource extends Resource
 
     public static function shouldRegisterNavigation(): bool
     {
-        return Filament::getCurrentPanel()?->getId() === 'cent';
+        return Filament::getCurrentPanel()?->getId() === 'cent' && static::canViewAny();
     }
 
     public static function canAccess(): bool
     {
-        return Filament::getCurrentPanel()?->getId() === 'cent';
+        return Filament::getCurrentPanel()?->getId() === 'cent' && static::canViewAny();
     }
 
     public static function getPages(): array

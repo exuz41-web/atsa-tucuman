@@ -3,8 +3,13 @@
 namespace Tests\Feature;
 
 use App\Filament\Pages\Configuracion;
+use App\Filament\Resources\AutoridadResource;
+use App\Filament\Resources\CentActivityLogResource;
 use App\Filament\Resources\CentCuotaResource;
+use App\Filament\Resources\CentDescargaResource;
+use App\Filament\Resources\CentHorarioResource;
 use App\Filament\Resources\CentLegajoDocumentoResource;
+use App\Filament\Resources\CentSedeResource;
 use App\Filament\Resources\UserResource;
 use App\Models\Carrera;
 use App\Models\CentCuota;
@@ -220,13 +225,21 @@ class SecurityAccessTest extends TestCase
         $padron = User::factory()->create(['role' => 'afiliado', 'perfil_interno' => 'padron', 'active' => true]);
         $docente = User::factory()->create(['role' => 'docente', 'cent_role' => 'docente', 'active' => true]);
         $directivo = User::factory()->create(['role' => 'admin', 'cent_role' => 'directivo', 'active' => true]);
+        $secretaria = User::factory()->create(['role' => 'afiliado', 'perfil_interno' => 'secretaria', 'active' => true]);
+        $alumno = User::factory()->create(['role' => 'alumno', 'cent_role' => 'alumno', 'active' => true]);
 
         $this->assertTrue($admin->hasPermission('admin.backups.manage'));
         $this->assertTrue($recepcion->hasPermission('admin.afiliacion.manage'));
         $this->assertFalse($recepcion->hasPagePermission(Configuracion::class, 'admin'));
         $this->assertTrue($padron->hasResourcePermission(UserResource::class, 'admin'));
+        $this->assertTrue($secretaria->hasResourcePermission(AutoridadResource::class, 'admin'));
         $this->assertFalse($docente->hasResourcePermission(CentCuotaResource::class, 'cent'));
+        $this->assertFalse($docente->hasResourcePermission(CentSedeResource::class, 'cent'));
+        $this->assertFalse($alumno->hasResourcePermission(CentDescargaResource::class, 'cent'));
+        $this->assertFalse($alumno->hasResourcePermission(CentHorarioResource::class, 'cent'));
         $this->assertTrue($directivo->hasResourcePermission(CentLegajoDocumentoResource::class, 'cent'));
+        $this->assertTrue($directivo->hasResourcePermission(CentSedeResource::class, 'cent'));
+        $this->assertTrue($directivo->hasResourcePermission(CentActivityLogResource::class, 'cent'));
         $this->assertTrue($directivo->hasPermission('cent.reportes.manage'));
     }
 

@@ -206,12 +206,12 @@ class CentUserResource extends Resource
 
     public static function shouldRegisterNavigation(): bool
     {
-        return \Filament\Facades\Filament::getCurrentPanel()?->getId() === 'cent';
+        return \Filament\Facades\Filament::getCurrentPanel()?->getId() === 'cent' && static::canViewAny();
     }
 
     public static function canAccess(): bool
     {
-        return \Filament\Facades\Filament::getCurrentPanel()?->getId() === 'cent';
+        return \Filament\Facades\Filament::getCurrentPanel()?->getId() === 'cent' && static::canViewAny();
     }
 
     public static function getPages(): array

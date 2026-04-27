@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\HasResourcePermissionAccess;
 use App\Filament\Resources\CentDescargaResource\Pages;
 use App\Models\CentDescarga;
 use Filament\Forms;
@@ -12,6 +13,8 @@ use Filament\Tables\Table;
 
 class CentDescargaResource extends Resource
 {
+    use HasResourcePermissionAccess;
+
     protected static ?string $model = CentDescarga::class;
     protected static ?string $navigationIcon = 'heroicon-o-arrow-down-tray';
     protected static ?string $navigationGroup = 'Contenido diario – CENT';
@@ -19,6 +22,7 @@ class CentDescargaResource extends Resource
     protected static ?string $pluralModelLabel = 'descargas CENT';
     protected static ?string $slug = 'descargas-cent';
     protected static ?int $navigationSort = 6;
+    protected static ?string $panelScope = 'cent';
 
     public static function form(Form $form): Form
     {
@@ -151,4 +155,3 @@ class CentDescargaResource extends Resource
         ];
     }
 }
-

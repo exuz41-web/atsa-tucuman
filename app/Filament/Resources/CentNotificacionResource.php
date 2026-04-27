@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\HasResourcePermissionAccess;
 use App\Filament\Resources\CentNotificacionResource\Pages;
 use App\Models\CentNotificacion;
 use App\Models\CentSede;
@@ -16,6 +17,8 @@ use Filament\Tables\Table;
 
 class CentNotificacionResource extends Resource
 {
+    use HasResourcePermissionAccess;
+
     protected static ?string $model = CentNotificacion::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-bell-alert';
@@ -24,6 +27,7 @@ class CentNotificacionResource extends Resource
     protected static ?string $modelLabel = 'notificación';
     protected static ?string $pluralModelLabel = 'notificaciones';
     protected static ?string $slug = 'notificaciones';
+    protected static ?string $panelScope = 'cent';
 
     public static function form(Form $form): Form
     {
@@ -129,12 +133,12 @@ class CentNotificacionResource extends Resource
 
     public static function shouldRegisterNavigation(): bool
     {
-        return Filament::getCurrentPanel()?->getId() === 'cent';
+        return Filament::getCurrentPanel()?->getId() === 'cent' && static::canViewAny();
     }
 
     public static function canAccess(): bool
     {
-        return Filament::getCurrentPanel()?->getId() === 'cent';
+        return Filament::getCurrentPanel()?->getId() === 'cent' && static::canViewAny();
     }
 
     public static function getPages(): array

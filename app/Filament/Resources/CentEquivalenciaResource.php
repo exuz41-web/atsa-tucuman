@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\HasResourcePermissionAccess;
 use App\Filament\Resources\CentEquivalenciaResource\Pages;
 use App\Models\CentEquivalencia;
 use App\Models\User;
@@ -14,6 +15,8 @@ use Filament\Tables\Table;
 
 class CentEquivalenciaResource extends Resource
 {
+    use HasResourcePermissionAccess;
+
     protected static ?string $model = CentEquivalencia::class;
     protected static ?string $navigationIcon = 'heroicon-o-arrows-right-left';
     protected static ?string $navigationGroup = 'Académico';
@@ -21,6 +24,7 @@ class CentEquivalenciaResource extends Resource
     protected static ?string $modelLabel = 'equivalencia';
     protected static ?string $pluralModelLabel = 'equivalencias';
     protected static ?string $slug = 'equivalencias';
+    protected static ?string $panelScope = 'cent';
 
     public static function form(Form $form): Form
     {
@@ -78,12 +82,12 @@ class CentEquivalenciaResource extends Resource
 
     public static function shouldRegisterNavigation(): bool
     {
-        return Filament::getCurrentPanel()?->getId() === 'cent';
+        return Filament::getCurrentPanel()?->getId() === 'cent' && static::canViewAny();
     }
 
     public static function canAccess(): bool
     {
-        return Filament::getCurrentPanel()?->getId() === 'cent';
+        return Filament::getCurrentPanel()?->getId() === 'cent' && static::canViewAny();
     }
 
     public static function getPages(): array
@@ -95,4 +99,3 @@ class CentEquivalenciaResource extends Resource
         ];
     }
 }
-

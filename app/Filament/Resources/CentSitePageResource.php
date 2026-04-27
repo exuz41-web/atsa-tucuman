@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\HasResourcePermissionAccess;
 use App\Filament\Resources\CentSitePageResource\Pages;
 use App\Models\SitePage;
 use Filament\Facades\Filament;
@@ -26,6 +27,8 @@ use Filament\Tables\Table;
 
 class CentSitePageResource extends Resource
 {
+    use HasResourcePermissionAccess;
+
     protected static ?string $model = SitePage::class;
     protected static ?string $navigationIcon  = 'heroicon-o-paint-brush';
     protected static ?string $navigationGroup = 'Editor del sitio — CENT';
@@ -33,6 +36,7 @@ class CentSitePageResource extends Resource
     protected static ?string $modelLabel      = 'página';
     protected static ?string $pluralModelLabel = 'páginas del sitio';
     protected static ?int    $navigationSort  = 1;
+    protected static ?string $panelScope = 'cent';
 
     // ──────────────────────────────────────────────────────────────────────────
     // FORM
@@ -301,12 +305,12 @@ class CentSitePageResource extends Resource
     // ──────────────────────────────────────────────────────────────────────────
     public static function shouldRegisterNavigation(): bool
     {
-        return Filament::getCurrentPanel()?->getId() === 'cent';
+        return Filament::getCurrentPanel()?->getId() === 'cent' && static::canViewAny();
     }
 
     public static function canAccess(): bool
     {
-        return Filament::getCurrentPanel()?->getId() === 'cent';
+        return Filament::getCurrentPanel()?->getId() === 'cent' && static::canViewAny();
     }
 
     public static function getPages(): array

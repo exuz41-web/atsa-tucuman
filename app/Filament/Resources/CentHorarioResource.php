@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\HasResourcePermissionAccess;
 use App\Filament\Resources\CentHorarioResource\Pages;
 use App\Models\CentHorario;
 use Filament\Forms;
@@ -12,6 +13,8 @@ use Filament\Tables\Table;
 
 class CentHorarioResource extends Resource
 {
+    use HasResourcePermissionAccess;
+
     protected static ?string $model = CentHorario::class;
     protected static ?string $navigationIcon = 'heroicon-o-clock';
     protected static ?string $navigationGroup = 'Contenido diario – CENT';
@@ -19,6 +22,7 @@ class CentHorarioResource extends Resource
     protected static ?string $pluralModelLabel = 'horarios de cursado';
     protected static ?string $slug = 'horarios-cent';
     protected static ?int $navigationSort = 5;
+    protected static ?string $panelScope = 'cent';
 
     public static function form(Form $form): Form
     {

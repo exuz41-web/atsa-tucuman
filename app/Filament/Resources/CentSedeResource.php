@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\HasResourcePermissionAccess;
 use App\Filament\Resources\CentSedeResource\Pages;
 use App\Models\CentSede;
 use Filament\Forms;
@@ -14,11 +15,14 @@ use Illuminate\Support\Str;
 
 class CentSedeResource extends Resource
 {
+    use HasResourcePermissionAccess;
+
     protected static ?string $model = CentSede::class;
     protected static ?string $navigationIcon = 'heroicon-o-map-pin';
     protected static ?string $navigationGroup = 'CENT N°74';
     protected static ?string $modelLabel = 'sede CENT';
     protected static ?string $pluralModelLabel = 'sedes CENT';
+    protected static ?string $panelScope = 'cent';
 
     public static function form(Form $form): Form
     {
@@ -59,12 +63,12 @@ class CentSedeResource extends Resource
 
     public static function shouldRegisterNavigation(): bool
     {
-        return \Filament\Facades\Filament::getCurrentPanel()?->getId() === 'cent';
+        return \Filament\Facades\Filament::getCurrentPanel()?->getId() === 'cent' && static::canViewAny();
     }
 
     public static function canAccess(): bool
     {
-        return \Filament\Facades\Filament::getCurrentPanel()?->getId() === 'cent';
+        return \Filament\Facades\Filament::getCurrentPanel()?->getId() === 'cent' && static::canViewAny();
     }
 
     public static function getPages(): array
@@ -76,5 +80,4 @@ class CentSedeResource extends Resource
         ];
     }
 }
-
 

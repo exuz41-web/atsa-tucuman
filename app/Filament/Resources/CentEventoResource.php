@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\HasResourcePermissionAccess;
 use App\Filament\Resources\CentEventoResource\Pages;
 use App\Models\CentEvento;
 use Filament\Facades\Filament;
@@ -13,6 +14,8 @@ use Filament\Tables\Table;
 
 class CentEventoResource extends Resource
 {
+    use HasResourcePermissionAccess;
+
     protected static ?string $model = CentEvento::class;
     protected static ?string $navigationIcon = 'heroicon-o-calendar-days';
     protected static ?string $navigationGroup = 'Contenido diario – CENT';
@@ -21,6 +24,7 @@ class CentEventoResource extends Resource
     protected static ?string $modelLabel = 'evento';
     protected static ?string $pluralModelLabel = 'calendario académico';
     protected static ?string $slug = 'calendario';
+    protected static ?string $panelScope = 'cent';
 
     public static function form(Form $form): Form
     {
@@ -85,12 +89,12 @@ class CentEventoResource extends Resource
 
     public static function shouldRegisterNavigation(): bool
     {
-        return Filament::getCurrentPanel()?->getId() === 'cent';
+        return Filament::getCurrentPanel()?->getId() === 'cent' && static::canViewAny();
     }
 
     public static function canAccess(): bool
     {
-        return Filament::getCurrentPanel()?->getId() === 'cent';
+        return Filament::getCurrentPanel()?->getId() === 'cent' && static::canViewAny();
     }
 
     public static function getPages(): array
@@ -102,4 +106,3 @@ class CentEventoResource extends Resource
         ];
     }
 }
-
