@@ -47,7 +47,7 @@
                         </div>
 
                         <div class="d-flex gap-2 flex-wrap mt-4">
-                            <a href="{{ route('cent.preinscripcion.ficha', $preinscripcion->codigo) }}" class="btn btn-cent">
+                            <a href="{{ route('cent.preinscripcion.ficha', $preinscripcion->public_token) }}" class="btn btn-cent">
                                 <i class="ti ti-download me-1"></i> Ficha PDF
                             </a>
                             <a href="{{ route('cent.preinscripcion.consulta') }}" class="btn btn-light">Nueva consulta</a>

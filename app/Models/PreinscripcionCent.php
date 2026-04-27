@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Str;
 
 class PreinscripcionCent extends Model
 {
@@ -11,6 +12,7 @@ class PreinscripcionCent extends Model
 
     protected $fillable = [
         'codigo',
+        'public_token',
         'user_id',
         'carrera_id',
         'cent_sede_id',
@@ -46,6 +48,13 @@ class PreinscripcionCent extends Model
             'aprobado_at' => 'datetime',
             'ciclo_lectivo' => 'integer',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (self $preinscripcion): void {
+            $preinscripcion->public_token ??= (string) Str::uuid();
+        });
     }
 
     public function carrera(): BelongsTo

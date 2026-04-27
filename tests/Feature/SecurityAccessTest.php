@@ -16,10 +16,12 @@ use App\Models\CentTrabajoPractico;
 use App\Models\Comision;
 use App\Models\Inscripcion;
 use App\Models\Materia;
+use App\Models\PreinscripcionCent;
 use App\Models\SolicitudAfiliacion;
 use App\Models\User;
 use App\Support\BackupSupport;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -61,6 +63,52 @@ class SecurityAccessTest extends TestCase
         $this->get(route('cent.carnet.verificar', $alumno->cent_public_token))
             ->assertOk()
             ->assertSee('Estudiante verificado');
+    }
+
+    public function test_cent_preinscripcion_files_are_private_and_pdf_uses_public_token(): void
+    {
+        Storage::fake('local');
+        Storage::fake('public');
+
+        $carrera = Carrera::create([
+            'name' => 'Enfermería Profesional',
+            'slug' => 'enfermeria-profesional-'.Str::random(6),
+            'duration' => '3 años',
+            'title_granted' => 'Enfermero Profesional',
+            'description' => 'Carrera de prueba.',
+            'active' => true,
+        ]);
+
+        $sede = CentSede::create([
+            'nombre' => 'Capital',
+            'slug' => 'capital-'.Str::random(6),
+            'ciudad' => 'San Miguel de Tucumán',
+            'activa' => true,
+        ]);
+
+        $response = $this->post(route('cent.preinscripcion.guardar'), [
+            'carrera_id' => $carrera->id,
+            'cent_sede_id' => $sede->id,
+            'apellido_nombre' => 'Aspirante CENT',
+            'tipo_documento' => 'DNI',
+            'dni' => '33222111',
+            'email' => 'aspirante@example.com',
+            'archivo_dni' => UploadedFile::fake()->image('dni.jpg'),
+            'archivo_titulo' => UploadedFile::fake()->create('titulo.pdf', 100, 'application/pdf'),
+        ]);
+
+        $preinscripcion = PreinscripcionCent::firstOrFail();
+
+        $response->assertRedirect(route('cent.preinscripcion.gracias', $preinscripcion->public_token));
+        $this->assertNotSame($preinscripcion->codigo, $preinscripcion->public_token);
+
+        Storage::disk('local')->assertExists($preinscripcion->archivo_dni);
+        Storage::disk('local')->assertExists($preinscripcion->archivo_titulo);
+        Storage::disk('public')->assertMissing($preinscripcion->archivo_dni);
+        Storage::disk('public')->assertMissing($preinscripcion->archivo_titulo);
+
+        $this->get(route('cent.preinscripcion.ficha', $preinscripcion->codigo))->assertNotFound();
+        $this->get(route('cent.preinscripcion.ficha', $preinscripcion->public_token))->assertOk();
     }
 
     public function test_private_cent_files_require_login_and_ownership_or_privileged_role(): void

@@ -87,9 +87,9 @@ Route::prefix('cent74')->name('cent.')->group(function () {
     Route::post('/preinscripcion', [CentController::class, 'guardarPreinscripcion'])->name('preinscripcion.guardar')->middleware('throttle:5,1');
     Route::get('/preinscripcion/consulta', [CentController::class, 'consultaPreinscripcion'])->name('preinscripcion.consulta');
     Route::post('/preinscripcion/consulta', [CentController::class, 'consultarPreinscripcion'])->name('preinscripcion.consultar')->middleware('throttle:10,1');
-    Route::get('/preinscripcion/gracias/{codigo}', [CentController::class, 'gracias'])->name('preinscripcion.gracias');
+    Route::get('/preinscripcion/gracias/{token}', [CentController::class, 'gracias'])->name('preinscripcion.gracias');
     Route::post('/preinscripcion/{codigo}/documentacion', [CentController::class, 'actualizarDocumentacionPreinscripcion'])->name('preinscripcion.documentacion')->middleware('throttle:5,1');
-    Route::get('/preinscripcion/{codigo}/ficha', [CentController::class, 'ficha'])->name('preinscripcion.ficha');
+    Route::get('/preinscripcion/{token}/ficha', [CentController::class, 'ficha'])->name('preinscripcion.ficha');
     Route::get('/horarios', [CentController::class, 'horarios'])->name('horarios');
     Route::get('/descargas', [CentController::class, 'descargas'])->name('descargas');
     Route::get('/permisos/verificar/{token}', [CentClassroomController::class, 'verificarPermiso'])->name('permisos.verificar');

@@ -251,13 +251,13 @@ class CentController extends Controller
 
         foreach (['archivo_dni', 'archivo_titulo', 'archivo_recibo', 'archivo_adicional'] as $field) {
             if ($request->hasFile($field)) {
-                $data[$field] = $request->file($field)->store('cent/preinscripciones/'.now()->format('Y'), 'public');
+                $data[$field] = $request->file($field)->store('cent/preinscripciones/'.now()->format('Y'), 'local');
             }
         }
 
         $preinscripcion = PreinscripcionCent::create($data);
 
-        return redirect()->route('cent.preinscripcion.gracias', $preinscripcion->codigo);
+        return redirect()->route('cent.preinscripcion.gracias', $preinscripcion->public_token);
     }
 
     public function consultarPreinscripcion(Request $request): View
@@ -302,7 +302,7 @@ class CentController extends Controller
         $updates = [];
         foreach (['archivo_dni', 'archivo_titulo', 'archivo_recibo', 'archivo_adicional'] as $field) {
             if ($request->hasFile($field)) {
-                $updates[$field] = $request->file($field)->store('cent/preinscripciones/'.now()->format('Y'), 'public');
+                $updates[$field] = $request->file($field)->store('cent/preinscripciones/'.now()->format('Y'), 'local');
             }
         }
 
@@ -327,16 +327,16 @@ class CentController extends Controller
             ->with('status', 'Documentación actualizada. La preinscripción quedó nuevamente en revisión.');
     }
 
-    public function gracias(string $codigo): View
+    public function gracias(string $token): View
     {
         return view('cent74.gracias', [
-            'preinscripcion' => PreinscripcionCent::where('codigo', $codigo)->with(['carrera', 'sede'])->firstOrFail(),
+            'preinscripcion' => PreinscripcionCent::where('public_token', $token)->with(['carrera', 'sede'])->firstOrFail(),
         ]);
     }
 
-    public function ficha(string $codigo)
+    public function ficha(string $token)
     {
-        $preinscripcion = PreinscripcionCent::where('codigo', $codigo)->with(['carrera', 'sede'])->firstOrFail();
+        $preinscripcion = PreinscripcionCent::where('public_token', $token)->with(['carrera', 'sede'])->firstOrFail();
 
         $pdf = Pdf::loadView('cent74.pdf.preinscripcion', compact('preinscripcion'))
             ->setPaper('a4')
@@ -353,4 +353,3 @@ class CentController extends Controller
             ->firstOrFail();
     }
 }
-
