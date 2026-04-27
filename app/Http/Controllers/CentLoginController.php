@@ -8,6 +8,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class CentLoginController extends Controller
@@ -26,6 +28,8 @@ class CentLoginController extends Controller
 
     public function login(Request $request): RedirectResponse
     {
+        $this->ensureNotRateLimited($request);
+
         $data = $request->validate([
             'identificador' => ['required', 'string'],
             'password' => ['required', 'string'],
@@ -44,6 +48,8 @@ class CentLoginController extends Controller
         }
 
         if (! $user || ! Hash::check($data['password'], $user->password)) {
+            $this->hitLimiter($request);
+
             return back()
                 ->withErrors(['identificador' => 'Los datos ingresados no son correctos.'])
                 ->onlyInput('identificador');
@@ -52,16 +58,22 @@ class CentLoginController extends Controller
         $centRole = $user->cent_role ?: $user->role;
 
         if (! in_array($centRole, ['alumno', 'docente', 'coordinador', 'directivo', 'admin'], true)) {
+            $this->hitLimiter($request);
+
             return back()
                 ->withErrors(['identificador' => 'Este usuario no tiene acceso al portal académico.'])
                 ->onlyInput('identificador');
         }
 
         if (! $user->active) {
+            $this->hitLimiter($request);
+
             return back()
                 ->withErrors(['identificador' => 'La cuenta se encuentra inactiva. Consultá en administración.'])
                 ->onlyInput('identificador');
         }
+
+        RateLimiter::clear($this->throttleKey($request));
 
         Auth::login($user, $request->boolean('remember'));
         $request->session()->regenerate();
@@ -88,5 +100,24 @@ class CentLoginController extends Controller
         $request->session()->regenerateToken();
 
         return redirect()->route('cent.login');
+    }
+
+    private function ensureNotRateLimited(Request $request): void
+    {
+        abort_if(
+            RateLimiter::tooManyAttempts($this->throttleKey($request), 5),
+            429,
+            'Demasiados intentos. Esperá un minuto antes de volver a probar.'
+        );
+    }
+
+    private function hitLimiter(Request $request): void
+    {
+        RateLimiter::hit($this->throttleKey($request), 60);
+    }
+
+    private function throttleKey(Request $request): string
+    {
+        return 'cent-login|'.Str::lower((string) $request->input('identificador', '')).'|'.$request->ip();
     }
 }

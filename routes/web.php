@@ -96,7 +96,7 @@ Route::prefix('cent74')->name('cent.')->group(function () {
     Route::get('/carnet/verificar/{token}', [CentClassroomController::class, 'verificarCarnet'])->name('carnet.verificar');
     Route::get('/recibos/verificar/{token}', [CentReciboController::class, 'verificar'])->name('recibos.verificar');
     Route::get('/login', [CentLoginController::class, 'show'])->name('login');
-    Route::post('/login', [CentLoginController::class, 'login'])->name('login.submit');
+    Route::post('/login', [CentLoginController::class, 'login'])->name('login.submit')->middleware('throttle:10,1');
     Route::post('/logout', [CentLoginController::class, 'logout'])->name('logout');
 
     Route::middleware(['auth', 'cent.role:alumno,docente,coordinador,directivo,admin'])->group(function () {
@@ -206,13 +206,13 @@ Route::prefix('cent74')->name('cent.')->group(function () {
 
 Route::redirect('/login', '/afiliados/login')->name('login');
 Route::get('/afiliados/login', [AfiliadoLoginController::class, 'showLogin'])->name('afiliados.login');
-Route::post('/afiliados/login', [AfiliadoLoginController::class, 'login'])->name('afiliados.login.submit');
+Route::post('/afiliados/login', [AfiliadoLoginController::class, 'login'])->name('afiliados.login.submit')->middleware('throttle:10,1');
 Route::get('/afiliados/registro', [AfiliadoLoginController::class, 'showRegister'])->name('afiliados.register');
-Route::post('/afiliados/registro', [AfiliadoLoginController::class, 'register'])->name('afiliados.register.submit');
+Route::post('/afiliados/registro', [AfiliadoLoginController::class, 'register'])->name('afiliados.register.submit')->middleware('throttle:5,1');
 Route::get('/afiliados/recuperar-password', [AfiliadoLoginController::class, 'showForgotPassword'])->name('afiliados.password.request');
-Route::post('/afiliados/recuperar-password', [AfiliadoLoginController::class, 'sendResetLink'])->name('afiliados.password.email');
+Route::post('/afiliados/recuperar-password', [AfiliadoLoginController::class, 'sendResetLink'])->name('afiliados.password.email')->middleware('throttle:5,1');
 Route::get('/afiliados/reset-password/{token}', [AfiliadoLoginController::class, 'showResetPassword'])->name('afiliados.password.reset');
-Route::post('/afiliados/reset-password', [AfiliadoLoginController::class, 'resetPassword'])->name('afiliados.password.update');
+Route::post('/afiliados/reset-password', [AfiliadoLoginController::class, 'resetPassword'])->name('afiliados.password.update')->middleware('throttle:5,1');
 Route::post('/afiliados/logout', [AfiliadoLoginController::class, 'logout'])->name('afiliados.logout');
 
 Route::prefix('afiliados')->middleware(['auth', 'role:afiliado,admin'])->group(function () {
