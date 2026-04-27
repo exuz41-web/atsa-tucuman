@@ -44,6 +44,11 @@ class Prestador extends Model
         return $this->hasMany(OrdenPrestacion::class);
     }
 
+    public function portalUrl(): string
+    {
+        return route('prestadores.portal', $this->portal_token);
+    }
+
     public static function tipos(): array
     {
         return [

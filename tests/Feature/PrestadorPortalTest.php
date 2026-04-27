@@ -28,6 +28,25 @@ class PrestadorPortalTest extends TestCase
         $this->get(route('prestadores.portal', $prestador->portal_token))->assertNotFound();
     }
 
+    public function test_prestador_exposes_portal_url_and_can_regenerate_token(): void
+    {
+        $prestador = Prestador::create([
+            'nombre' => 'Óptica Centro',
+            'tipo' => 'optica',
+            'activo' => true,
+        ]);
+
+        $oldToken = $prestador->portal_token;
+        $this->assertSame(route('prestadores.portal', $oldToken), $prestador->portalUrl());
+
+        $prestador->update(['portal_token' => (string) \Illuminate\Support\Str::uuid()]);
+
+        $prestador->refresh();
+        $this->assertNotSame($oldToken, $prestador->portal_token);
+        $this->get(route('prestadores.portal', $oldToken))->assertNotFound();
+        $this->get($prestador->portalUrl())->assertOk();
+    }
+
     public function test_prestador_can_validate_and_deliver_only_its_own_order(): void
     {
         $afiliado = User::factory()->create([

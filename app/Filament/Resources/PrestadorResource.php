@@ -7,9 +7,11 @@ use App\Filament\Resources\PrestadorResource\Pages;
 use App\Models\Prestador;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\Str;
 
 class PrestadorResource extends Resource
 {
@@ -92,6 +94,23 @@ class PrestadorResource extends Resource
                         ->default(true)
                         ->columnSpanFull(),
                 ]),
+
+            Forms\Components\Section::make('Acceso al portal')
+                ->columns(1)
+                ->visible(fn (?Prestador $record): bool => filled($record?->portal_token))
+                ->schema([
+                    Forms\Components\TextInput::make('portal_url')
+                        ->label('Link privado del prestador')
+                        ->formatStateUsing(fn (?string $state, ?Prestador $record): string => $record?->portalUrl() ?? '')
+                        ->disabled()
+                        ->dehydrated(false)
+                        ->helperText('Compartir este enlace solo con el prestador. Si se filtra, usar la acción Regenerar acceso.'),
+
+                    Forms\Components\TextInput::make('portal_token')
+                        ->label('Token')
+                        ->disabled()
+                        ->dehydrated(false),
+                ]),
         ]);
     }
 
@@ -128,6 +147,15 @@ class PrestadorResource extends Resource
                     ->counts('ordenesPrestacion')
                     ->sortable(),
 
+                Tables\Columns\TextColumn::make('portal_token')
+                    ->label('Portal')
+                    ->formatStateUsing(fn (?string $state, Prestador $record): string => $record->portalUrl())
+                    ->url(fn (Prestador $record): string => $record->portalUrl(), true)
+                    ->limit(34)
+                    ->copyable()
+                    ->copyMessage('Link copiado')
+                    ->toggleable(isToggledHiddenByDefault: true),
+
                 Tables\Columns\IconColumn::make('activo')
                     ->label('Activo')
                     ->boolean(),
@@ -140,6 +168,29 @@ class PrestadorResource extends Resource
                     ->label('Activo'),
             ])
             ->actions([
+                Tables\Actions\Action::make('ver_portal')
+                    ->label('Ver portal')
+                    ->icon('heroicon-o-arrow-top-right-on-square')
+                    ->color('info')
+                    ->url(fn (Prestador $record): string => $record->portalUrl(), true),
+
+                Tables\Actions\Action::make('regenerar_token')
+                    ->label('Regenerar acceso')
+                    ->icon('heroicon-o-key')
+                    ->color('warning')
+                    ->requiresConfirmation()
+                    ->modalHeading('Regenerar acceso del prestador')
+                    ->modalDescription('El enlace anterior dejará de funcionar. Compartí el nuevo link privado con el prestador.')
+                    ->action(function (Prestador $record): void {
+                        $record->update(['portal_token' => (string) Str::uuid()]);
+
+                        Notification::make()
+                            ->title('Acceso regenerado')
+                            ->body('Nuevo link: '.$record->fresh()->portalUrl())
+                            ->success()
+                            ->send();
+                    }),
+
                 Tables\Actions\Action::make('toggle_activo')
                     ->label(fn (Prestador $record): string => $record->activo ? 'Desactivar' : 'Activar')
                     ->icon(fn (Prestador $record): string => $record->activo ? 'heroicon-o-eye-slash' : 'heroicon-o-eye')
