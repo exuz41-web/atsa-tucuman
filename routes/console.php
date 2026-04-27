@@ -9,3 +9,7 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('carnets:notificar')->daily();
+
+if (config('backup.enabled', true)) {
+    Schedule::command('backups:run')->dailyAt(config('backup.schedule', '02:30'));
+}

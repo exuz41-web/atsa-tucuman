@@ -5,7 +5,6 @@ namespace App\Support;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
-use RuntimeException;
 use Phar;
 use PharData;
 
@@ -84,6 +83,36 @@ class BackupSupport
     public static function backupDirectory(): string
     {
         return storage_path('app/private/backups');
+    }
+
+    public static function pruneOlderThanDays(int $days): int
+    {
+        if ($days <= 0) {
+            return 0;
+        }
+
+        $backupDir = self::backupDirectory();
+        if (! File::isDirectory($backupDir)) {
+            return 0;
+        }
+
+        $deleted = 0;
+        $threshold = now()->subDays($days)->getTimestamp();
+
+        foreach (File::files($backupDir) as $file) {
+            if ($file->getMTime() > $threshold) {
+                continue;
+            }
+
+            if (! in_array($file->getExtension(), ['tar', 'gz'], true)) {
+                continue;
+            }
+
+            File::delete($file->getPathname());
+            $deleted++;
+        }
+
+        return $deleted;
     }
 
     private static function writeMetadata(string $tempDir): void
