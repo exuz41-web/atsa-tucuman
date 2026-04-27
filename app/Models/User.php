@@ -70,7 +70,7 @@ class User extends Authenticatable implements FilamentUser
             return $this->hasAnyPermission(['cent.portal.use', 'cent.aula.manage', 'cent.alumnos.manage', 'cent.administracion.manage', 'cent.config.manage']);
         }
 
-        return $this->hasAnyPermission(['admin.*', 'admin.padron.manage', 'admin.afiliacion.manage', 'admin.atencion.manage', 'admin.editor.manage', 'admin.institucion.manage', 'admin.settings.manage']);
+        return $this->hasAnyPermission(['admin.*', 'admin.padron.manage', 'admin.afiliacion.manage', 'admin.atencion.manage', 'admin.finanzas.manage', 'admin.editor.manage', 'admin.institucion.manage', 'admin.settings.manage']);
     }
 
     protected static function booted(): void
@@ -284,6 +284,19 @@ class User extends Authenticatable implements FilamentUser
         }
 
         return array_values(array_unique(array_filter(Arr::flatten($permissions))));
+    }
+
+    public function isSecretariaGeneral(): bool
+    {
+        return $this->secretaria?->slug === 'secretaria-general';
+    }
+
+    public function shouldScopeAdminWorkflowToSecretaria(): bool
+    {
+        return $this->perfil_interno === 'secretaria'
+            && filled($this->secretaria_id)
+            && ! $this->isSecretariaGeneral()
+            && ! $this->hasAnyPermission(['*', 'admin.*']);
     }
 
     protected function casts(): array

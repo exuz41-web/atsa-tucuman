@@ -31,7 +31,7 @@ class AfiliadoDashboardController extends Controller
 
         return view('afiliados.dashboard', [
             'pedidosPendientes' => Pedido::where('afiliado_id', $user->id)
-                ->whereIn('estado', ['pendiente', 'en_revision'])
+                ->whereIn('estado', ['pendiente', 'en_revision', 'observado'])
                 ->count(),
             'consultas' => Consulta::where('afiliado_id', $user->id)->count(),
             'documentos' => Descarga::where('active', true)->count(),
@@ -76,6 +76,7 @@ class AfiliadoDashboardController extends Controller
     {
         return view('afiliados.pedidos', [
             'pedidos' => Pedido::where('afiliado_id', Auth::id())
+                ->with('secretaria')
                 ->latest()
                 ->get(),
         ]);

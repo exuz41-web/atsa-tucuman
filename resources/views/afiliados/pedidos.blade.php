@@ -8,6 +8,7 @@
     $badges = [
         'pendiente'   => 'bg-warning',
         'en_revision' => 'bg-info',
+        'observado'   => 'bg-warning',
         'aprobado'    => 'bg-primary',
         'entregado'   => 'bg-success',
         'completado'  => 'bg-success',
@@ -16,6 +17,7 @@
     $estadoLabels = [
         'pendiente'   => 'Pendiente',
         'en_revision' => 'En revisión',
+        'observado'   => 'Falta documentación',
         'aprobado'    => 'Aprobado',
         'entregado'   => 'Entregado',
         'completado'  => 'Completado',
@@ -42,7 +44,8 @@
                 <th class="text-muted fw-semibold">Tipo</th>
                 <th class="text-muted fw-semibold">Descripción</th>
                 <th class="text-muted fw-semibold">Estado</th>
-                <th class="text-muted fw-semibold">Observaciones</th>
+                <th class="text-muted fw-semibold">Área</th>
+                <th class="text-muted fw-semibold">Mensaje</th>
                 <th class="text-muted fw-semibold">Fecha</th>
             </tr>
             </thead>
@@ -56,7 +59,8 @@
                             {{ $estadoLabels[$pedido->estado] ?? ucfirst(str_replace('_', ' ', $pedido->estado)) }}
                         </span>
                     </td>
-                    <td class="text-muted">{{ $pedido->observaciones ?: 'Sin observaciones' }}</td>
+                    <td class="text-muted">{{ $pedido->secretaria?->nombre ?: 'Recepción' }}</td>
+                    <td class="text-muted">{{ $pedido->observacion_afiliado ?: 'Sin novedades' }}</td>
                     <td class="text-muted">{{ $pedido->created_at->format('d/m/Y') }}</td>
                 </tr>
             @empty

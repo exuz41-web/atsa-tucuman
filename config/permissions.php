@@ -20,9 +20,15 @@ return [
             'admin.atencion.manage',
         ],
         'secretaria' => [
+            'admin.atencion.manage',
             'admin.editor.manage',
             'admin.institucion.manage',
         ],
+        'secretaria_general' => ['admin.*'],
+        'secretaria_accion_social' => ['admin.atencion.manage'],
+        'secretaria_finanzas' => ['admin.finanzas.manage'],
+        'secretaria_turismo' => ['admin.atencion.manage'],
+        'secretaria_gremial' => ['admin.atencion.manage', 'admin.institucion.manage'],
     ],
 
     'cent_roles' => [

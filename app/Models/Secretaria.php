@@ -31,4 +31,14 @@ class Secretaria extends Model
     {
         return $this->hasMany(User::class);
     }
+
+    public function pedidos(): HasMany
+    {
+        return $this->hasMany(Pedido::class);
+    }
+
+    public function solicitudesBeneficios(): HasMany
+    {
+        return $this->hasMany(SolicitudBeneficio::class);
+    }
 }

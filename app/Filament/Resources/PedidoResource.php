@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Concerns\HasResourcePermissionAccess;
 use App\Filament\Resources\PedidoResource\Pages;
 use App\Models\Pedido;
+use App\Models\Secretaria;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -13,6 +14,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\HtmlString;
 
 class PedidoResource extends Resource
 {
@@ -38,7 +40,7 @@ class PedidoResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        return (string) Pedido::whereIn('estado', ['pendiente', 'en_revision'])->count() ?: null;
+        return (string) static::getEloquentQuery()->whereIn('estado', ['pendiente', 'en_revision', 'observado'])->count() ?: null;
     }
 
     public static function getNavigationBadgeColor(): string
@@ -65,8 +67,26 @@ class PedidoResource extends Resource
                     Forms\Components\Select::make('tipo')
                         ->label('Tipo')
                         ->options(self::tipos())
+                        ->live()
+                        ->afterStateUpdated(fn (Forms\Set $set, ?string $state) => $set('secretaria_id', Pedido::secretariaSugeridaId($state)))
                         ->required()
                         ->native(false),
+
+                    Forms\Components\Select::make('secretaria_id')
+                        ->label('Área / secretaría')
+                        ->options(fn () => Secretaria::query()->where('activa', true)->orderBy('orden')->pluck('nombre', 'id'))
+                        ->searchable()
+                        ->preload()
+                        ->helperText('Recepción puede derivar el pedido al área que corresponda.'),
+
+                    Forms\Components\Select::make('asignado_a')
+                        ->label('Responsable')
+                        ->options(fn () => User::query()
+                            ->where(fn (Builder $query) => $query->whereNotNull('perfil_interno')->where('perfil_interno', '!=', 'ninguno'))
+                            ->orderBy('name')
+                            ->pluck('name', 'id'))
+                        ->searchable()
+                        ->preload(),
 
                     Forms\Components\Select::make('estado')
                         ->label('Estado')
@@ -82,6 +102,12 @@ class PedidoResource extends Resource
                     Forms\Components\Textarea::make('observaciones')
                         ->label('Observaciones internas')
                         ->helperText('Visible solo para el equipo admin.')
+                        ->rows(3)
+                        ->columnSpanFull(),
+
+                    Forms\Components\Textarea::make('observacion_afiliado')
+                        ->label('Mensaje visible para el afiliado')
+                        ->helperText('Usar para explicar qué falta o cuál fue la resolución.')
                         ->rows(3)
                         ->columnSpanFull(),
                 ]),
@@ -116,6 +142,16 @@ class PedidoResource extends Resource
                         ->downloadable()
                         ->openable(),
                 ]),
+
+            Forms\Components\Section::make('Historial')
+                ->collapsible()
+                ->collapsed()
+                ->visible(fn (?Pedido $record): bool => filled($record?->id))
+                ->schema([
+                    Forms\Components\Placeholder::make('movimientos')
+                        ->label('')
+                        ->content(fn (?Pedido $record): HtmlString => self::historialHtml($record)),
+                ]),
         ]);
     }
 
@@ -147,13 +183,18 @@ class PedidoResource extends Resource
                 Tables\Columns\BadgeColumn::make('estado')
                     ->label('Estado')
                     ->formatStateUsing(fn (string $state): string => self::estados()[$state] ?? ucfirst($state))
-                    ->colors([
-                        'warning' => 'pendiente',
-                        'info'    => 'en_revision',
-                        'success' => 'aprobado',
-                        'danger'  => 'rechazado',
-                        'gray'    => 'entregado',
-                    ]),
+                    ->color(fn (?string $state): string => Pedido::estadoColor($state)),
+
+                Tables\Columns\TextColumn::make('secretaria.nombre')
+                    ->label('Área')
+                    ->placeholder('Sin derivar')
+                    ->sortable()
+                    ->toggleable(),
+
+                Tables\Columns\TextColumn::make('asignadoA.name')
+                    ->label('Responsable')
+                    ->placeholder('Sin asignar')
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Fecha')
@@ -173,8 +214,35 @@ class PedidoResource extends Resource
                 Tables\Filters\SelectFilter::make('estado')
                     ->label('Estado')
                     ->options(self::estados()),
+                Tables\Filters\SelectFilter::make('secretaria_id')
+                    ->label('Área')
+                    ->relationship('secretaria', 'nombre'),
             ])
             ->actions([
+                Tables\Actions\Action::make('derivar')
+                    ->label('Derivar')
+                    ->icon('heroicon-o-arrow-path-rounded-square')
+                    ->color('primary')
+                    ->form([
+                        Forms\Components\Select::make('secretaria_id')
+                            ->label('Área / secretaría')
+                            ->options(fn () => Secretaria::query()->where('activa', true)->orderBy('orden')->pluck('nombre', 'id'))
+                            ->required()
+                            ->searchable()
+                            ->preload(),
+                        Forms\Components\Textarea::make('observaciones')
+                            ->label('Observación interna')
+                            ->rows(3),
+                    ])
+                    ->action(function (Pedido $record, array $data): void {
+                        $record->update([
+                            'secretaria_id' => $data['secretaria_id'],
+                            'derivado_por' => auth()->id(),
+                            'estado' => $record->estado === 'pendiente' ? 'en_revision' : $record->estado,
+                            'observaciones' => $data['observaciones'] ?? $record->observaciones,
+                        ]);
+                    }),
+
                 Tables\Actions\Action::make('aprobar')
                     ->label('Aprobar')
                     ->icon('heroicon-o-check-circle')
@@ -184,7 +252,7 @@ class PedidoResource extends Resource
                     ->modalHeading('Aprobar pedido')
                     ->modalDescription('El pedido pasará a estado Aprobado.')
                     ->action(function (Pedido $record): void {
-                        $record->update(['estado' => 'aprobado']);
+                        $record->update(['estado' => 'aprobado', 'aprobado_at' => now()]);
                         self::notificarAfiliado($record, 'Pedido aprobado', 'Tu solicitud de '.self::tipos()[$record->tipo].' fue aprobada. Pronto nos contactaremos para coordinar la entrega.', 'success');
                     }),
 
@@ -195,6 +263,30 @@ class PedidoResource extends Resource
                     ->visible(fn (Pedido $r) => $r->estado === 'pendiente')
                     ->action(fn (Pedido $r) => $r->update(['estado' => 'en_revision'])),
 
+                Tables\Actions\Action::make('observar')
+                    ->label('Falta documentación')
+                    ->icon('heroicon-o-exclamation-triangle')
+                    ->color('warning')
+                    ->visible(fn (Pedido $r) => ! in_array($r->estado, ['aprobado', 'rechazado', 'entregado']))
+                    ->form([
+                        Forms\Components\Textarea::make('observacion_afiliado')
+                            ->label('Mensaje para el afiliado')
+                            ->required()
+                            ->rows(3),
+                        Forms\Components\Textarea::make('observaciones')
+                            ->label('Observación interna')
+                            ->rows(2),
+                    ])
+                    ->action(function (Pedido $record, array $data): void {
+                        $record->update([
+                            'estado' => 'observado',
+                            'observacion_afiliado' => $data['observacion_afiliado'],
+                            'observaciones' => $data['observaciones'] ?? $record->observaciones,
+                        ]);
+
+                        self::notificarAfiliado($record, 'Pedido observado', $data['observacion_afiliado'], 'warning');
+                    }),
+
                 Tables\Actions\Action::make('entregar')
                     ->label('Entregado')
                     ->icon('heroicon-o-check-badge')
@@ -203,7 +295,7 @@ class PedidoResource extends Resource
                     ->requiresConfirmation()
                     ->modalHeading('Marcar como entregado')
                     ->action(function (Pedido $record): void {
-                        $record->update(['estado' => 'entregado']);
+                        $record->update(['estado' => 'entregado', 'entregado_at' => now()]);
                         self::notificarAfiliado($record, 'Pedido entregado', 'Tu solicitud de '.self::tipos()[$record->tipo].' fue marcada como entregada.', 'success');
                     }),
 
@@ -242,6 +334,18 @@ class PedidoResource extends Resource
         ];
     }
 
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery()->with(['afiliado', 'secretaria', 'asignadoA']);
+        $user = auth()->user();
+
+        if ($user?->shouldScopeAdminWorkflowToSecretaria()) {
+            $query->where('secretaria_id', $user->secretaria_id);
+        }
+
+        return $query;
+    }
+
     // ── Helpers ──────────────────────────────────────────────────────────
 
     private static function notificarAfiliado(Pedido $pedido, string $titulo, string $cuerpo, string $color): void
@@ -263,6 +367,34 @@ class PedidoResource extends Resource
             ->sendToDatabase($afiliado);
     }
 
+    private static function historialHtml(?Pedido $pedido): HtmlString
+    {
+        if (! $pedido?->exists) {
+            return new HtmlString('<p class="text-sm text-gray-500">Sin movimientos todavía.</p>');
+        }
+
+        $items = $pedido->movimientos()
+            ->with(['user', 'secretariaOrigen', 'secretariaDestino'])
+            ->take(8)
+            ->get();
+
+        if ($items->isEmpty()) {
+            return new HtmlString('<p class="text-sm text-gray-500">Sin movimientos todavía.</p>');
+        }
+
+        $html = $items->map(function ($movimiento): string {
+            $fecha = e($movimiento->created_at?->format('d/m/Y H:i'));
+            $usuario = e($movimiento->user?->name ?: 'Sistema');
+            $estado = e(($movimiento->estado_anterior ?: 'sin estado').' -> '.($movimiento->estado_nuevo ?: 'sin cambios'));
+            $area = e(($movimiento->secretariaOrigen?->nombre ?: 'Recepción').' -> '.($movimiento->secretariaDestino?->nombre ?: 'Sin área'));
+            $nota = $movimiento->observacion_afiliado ? '<div class="text-xs text-gray-600">Afiliado: '.e($movimiento->observacion_afiliado).'</div>' : '';
+
+            return "<li class=\"py-2\"><strong>{$fecha}</strong> - {$usuario}<br><span class=\"text-sm\">Estado: {$estado}</span><br><span class=\"text-sm\">Área: {$area}</span>{$nota}</li>";
+        })->join('');
+
+        return new HtmlString('<ul class="divide-y divide-gray-200">'.$html.'</ul>');
+    }
+
     public static function tipos(): array
     {
         return [
@@ -281,24 +413,16 @@ class PedidoResource extends Resource
 
     public static function estados(): array
     {
-        return [
-            'pendiente'   => 'Pendiente',
-            'en_revision' => 'En revisión',
-            'aprobado'    => 'Aprobado',
-            'rechazado'   => 'Rechazado',
-            'entregado'   => 'Entregado',
-        ];
+        return Pedido::estados();
     }
 
     public static function estadoColor(?string $state): string
     {
-        return match ($state) {
-            'pendiente'   => 'warning',
-            'en_revision' => 'info',
-            'aprobado'    => 'success',
-            'rechazado'   => 'danger',
-            'entregado'   => 'gray',
-            default       => 'gray',
-        };
+        return Pedido::estadoColor($state);
+    }
+
+    public static function numero(int $id): string
+    {
+        return Pedido::numero($id);
     }
 }

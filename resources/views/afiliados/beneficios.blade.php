@@ -95,7 +95,7 @@
                 @if (($solicitudesBeneficios ?: collect())->count())
                     <div class="alert alert-primary rounded-3 border-0 mb-4">
                         <strong>Últimas solicitudes:</strong>
-                        {{ $solicitudesBeneficios->map(fn ($solicitud) => $solicitud->beneficio?->titulo.' - '.(\App\Models\SolicitudBeneficio::estados()[$solicitud->estado] ?? $solicitud->estado))->join(' | ') }}
+                        {{ $solicitudesBeneficios->map(fn ($solicitud) => $solicitud->beneficio?->titulo.' - '.(\App\Models\SolicitudBeneficio::estados()[$solicitud->estado] ?? $solicitud->estado).($solicitud->observacion_afiliado ? ' ('.$solicitud->observacion_afiliado.')' : ''))->join(' | ') }}
                     </div>
                 @endif
 

@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Concerns\HasResourcePermissionAccess;
 use App\Filament\Resources\SolicitudBeneficioResource\Pages;
 use App\Models\Beneficio;
+use App\Models\Secretaria;
 use App\Models\SolicitudBeneficio;
 use App\Models\User;
 use Filament\Forms;
@@ -14,6 +15,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\HtmlString;
 
 class SolicitudBeneficioResource extends Resource
 {
@@ -39,7 +41,7 @@ class SolicitudBeneficioResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        return (string) SolicitudBeneficio::where('estado', 'pendiente')->count() ?: null;
+        return (string) static::getEloquentQuery()->whereIn('estado', ['pendiente', 'en_revision', 'observada'])->count() ?: null;
     }
 
     public static function getNavigationBadgeColor(): string
@@ -68,9 +70,30 @@ class SolicitudBeneficioResource extends Resource
                         ->options(fn () => Beneficio::query()
                             ->orderBy('titulo')
                             ->pluck('titulo', 'id'))
+                        ->live()
+                        ->afterStateUpdated(function (Forms\Set $set, ?int $state): void {
+                            $categoria = $state ? Beneficio::whereKey($state)->value('categoria') : null;
+                            $set('secretaria_id', SolicitudBeneficio::secretariaSugeridaId($categoria));
+                        })
                         ->searchable()
                         ->preload()
                         ->required(),
+
+                    Forms\Components\Select::make('secretaria_id')
+                        ->label('Área / secretaría')
+                        ->options(fn () => Secretaria::query()->where('activa', true)->orderBy('orden')->pluck('nombre', 'id'))
+                        ->searchable()
+                        ->preload()
+                        ->helperText('Recepción puede derivar la solicitud al área que corresponda.'),
+
+                    Forms\Components\Select::make('asignado_a')
+                        ->label('Responsable')
+                        ->options(fn () => User::query()
+                            ->where(fn (Builder $query) => $query->whereNotNull('perfil_interno')->where('perfil_interno', '!=', 'ninguno'))
+                            ->orderBy('name')
+                            ->pluck('name', 'id'))
+                        ->searchable()
+                        ->preload(),
 
                     Forms\Components\Select::make('estado')
                         ->label('Estado')
@@ -91,6 +114,12 @@ class SolicitudBeneficioResource extends Resource
                     Forms\Components\Textarea::make('observaciones')
                         ->label('Observaciones internas')
                         ->helperText('Notas del equipo admin.')
+                        ->rows(3)
+                        ->columnSpanFull(),
+
+                    Forms\Components\Textarea::make('observacion_afiliado')
+                        ->label('Mensaje visible para el afiliado')
+                        ->helperText('Usar para explicar qué falta o cuál fue la resolución.')
                         ->rows(3)
                         ->columnSpanFull(),
                 ]),
@@ -122,6 +151,16 @@ class SolicitudBeneficioResource extends Resource
                         ->downloadable()
                         ->openable(),
                 ]),
+
+            Forms\Components\Section::make('Historial')
+                ->collapsible()
+                ->collapsed()
+                ->visible(fn (?SolicitudBeneficio $record): bool => filled($record?->id))
+                ->schema([
+                    Forms\Components\Placeholder::make('movimientos')
+                        ->label('')
+                        ->content(fn (?SolicitudBeneficio $record): HtmlString => self::historialHtml($record)),
+                ]),
         ]);
     }
 
@@ -148,13 +187,18 @@ class SolicitudBeneficioResource extends Resource
                 Tables\Columns\BadgeColumn::make('estado')
                     ->label('Estado')
                     ->formatStateUsing(fn (string $state): string => SolicitudBeneficio::estados()[$state] ?? ucfirst($state))
-                    ->colors([
-                        'warning' => 'pendiente',
-                        'info'    => 'en_revision',
-                        'success' => 'aprobada',
-                        'danger'  => 'rechazada',
-                        'gray'    => 'entregada',
-                    ]),
+                    ->color(fn (?string $state): string => SolicitudBeneficio::estadoColor($state)),
+
+                Tables\Columns\TextColumn::make('secretaria.nombre')
+                    ->label('Área')
+                    ->placeholder('Sin derivar')
+                    ->sortable()
+                    ->toggleable(),
+
+                Tables\Columns\TextColumn::make('asignadoA.name')
+                    ->label('Responsable')
+                    ->placeholder('Sin asignar')
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Fecha')
@@ -168,8 +212,37 @@ class SolicitudBeneficioResource extends Resource
                 Tables\Filters\SelectFilter::make('beneficio_id')
                     ->label('Beneficio')
                     ->relationship('beneficio', 'titulo'),
+                Tables\Filters\SelectFilter::make('secretaria_id')
+                    ->label('Área')
+                    ->relationship('secretaria', 'nombre'),
             ])
             ->actions([
+                Tables\Actions\Action::make('derivar')
+                    ->label('Derivar')
+                    ->icon('heroicon-o-arrow-path-rounded-square')
+                    ->color('primary')
+                    ->form([
+                        Forms\Components\Select::make('secretaria_id')
+                            ->label('Área / secretaría')
+                            ->options(fn () => Secretaria::query()->where('activa', true)->orderBy('orden')->pluck('nombre', 'id'))
+                            ->required()
+                            ->searchable()
+                            ->preload(),
+                        Forms\Components\Textarea::make('observaciones')
+                            ->label('Observación interna')
+                            ->rows(3),
+                    ])
+                    ->action(function (SolicitudBeneficio $record, array $data): void {
+                        $record->update([
+                            'secretaria_id' => $data['secretaria_id'],
+                            'derivado_por' => auth()->id(),
+                            'estado' => $record->estado === 'pendiente' ? 'en_revision' : $record->estado,
+                            'observaciones' => $data['observaciones'] ?? $record->observaciones,
+                            'respondido_at' => now(),
+                            'respondido_por' => auth()->id(),
+                        ]);
+                    }),
+
                 Tables\Actions\Action::make('aprobar')
                     ->label('Aprobar')
                     ->icon('heroicon-o-check-circle')
@@ -186,6 +259,7 @@ class SolicitudBeneficioResource extends Resource
                             'observaciones'   => $data['observaciones'] ?? $record->observaciones,
                             'respondido_at'   => now(),
                             'respondido_por'  => auth()->id(),
+                            'aprobado_at'     => now(),
                         ]);
                         self::notificarAfiliado($record, 'Solicitud de beneficio aprobada', 'Tu solicitud de "'.$record->beneficio?->titulo.'" fue aprobada. El equipo de ATSA se pondrá en contacto.', 'success');
                     }),
@@ -197,13 +271,39 @@ class SolicitudBeneficioResource extends Resource
                     ->visible(fn (SolicitudBeneficio $r) => $r->estado === 'pendiente')
                     ->action(fn (SolicitudBeneficio $r) => $r->update(['estado' => 'en_revision', 'respondido_at' => now(), 'respondido_por' => auth()->id()])),
 
+                Tables\Actions\Action::make('observar')
+                    ->label('Falta documentación')
+                    ->icon('heroicon-o-exclamation-triangle')
+                    ->color('warning')
+                    ->visible(fn (SolicitudBeneficio $r) => ! in_array($r->estado, ['aprobada', 'rechazada', 'entregada']))
+                    ->form([
+                        Forms\Components\Textarea::make('observacion_afiliado')
+                            ->label('Mensaje para el afiliado')
+                            ->required()
+                            ->rows(3),
+                        Forms\Components\Textarea::make('observaciones')
+                            ->label('Observación interna')
+                            ->rows(2),
+                    ])
+                    ->action(function (SolicitudBeneficio $record, array $data): void {
+                        $record->update([
+                            'estado' => 'observada',
+                            'observacion_afiliado' => $data['observacion_afiliado'],
+                            'observaciones' => $data['observaciones'] ?? $record->observaciones,
+                            'respondido_at' => now(),
+                            'respondido_por' => auth()->id(),
+                        ]);
+
+                        self::notificarAfiliado($record, 'Solicitud observada', $data['observacion_afiliado'], 'warning');
+                    }),
+
                 Tables\Actions\Action::make('entregar')
                     ->label('Entregado')
                     ->icon('heroicon-o-check-badge')
                     ->color('gray')
                     ->visible(fn (SolicitudBeneficio $r) => $r->estado === 'aprobada')
                     ->requiresConfirmation()
-                    ->action(fn (SolicitudBeneficio $r) => $r->update(['estado' => 'entregada'])),
+                    ->action(fn (SolicitudBeneficio $r) => $r->update(['estado' => 'entregada', 'entregado_at' => now()])),
 
                 Tables\Actions\Action::make('rechazar')
                     ->label('Rechazar')
@@ -245,6 +345,18 @@ class SolicitudBeneficioResource extends Resource
         ];
     }
 
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery()->with(['afiliado', 'beneficio', 'secretaria', 'asignadoA']);
+        $user = auth()->user();
+
+        if ($user?->shouldScopeAdminWorkflowToSecretaria()) {
+            $query->where('secretaria_id', $user->secretaria_id);
+        }
+
+        return $query;
+    }
+
     private static function notificarAfiliado(SolicitudBeneficio $solicitud, string $titulo, string $cuerpo, string $color): void
     {
         if (! $solicitud->afiliado_id) {
@@ -262,5 +374,33 @@ class SolicitudBeneficioResource extends Resource
             ->body($cuerpo)
             ->color($color)
             ->sendToDatabase($afiliado);
+    }
+
+    private static function historialHtml(?SolicitudBeneficio $solicitud): HtmlString
+    {
+        if (! $solicitud?->exists) {
+            return new HtmlString('<p class="text-sm text-gray-500">Sin movimientos todavía.</p>');
+        }
+
+        $items = $solicitud->movimientos()
+            ->with(['user', 'secretariaOrigen', 'secretariaDestino'])
+            ->take(8)
+            ->get();
+
+        if ($items->isEmpty()) {
+            return new HtmlString('<p class="text-sm text-gray-500">Sin movimientos todavía.</p>');
+        }
+
+        $html = $items->map(function ($movimiento): string {
+            $fecha = e($movimiento->created_at?->format('d/m/Y H:i'));
+            $usuario = e($movimiento->user?->name ?: 'Sistema');
+            $estado = e(($movimiento->estado_anterior ?: 'sin estado').' -> '.($movimiento->estado_nuevo ?: 'sin cambios'));
+            $area = e(($movimiento->secretariaOrigen?->nombre ?: 'Recepción').' -> '.($movimiento->secretariaDestino?->nombre ?: 'Sin área'));
+            $nota = $movimiento->observacion_afiliado ? '<div class="text-xs text-gray-600">Afiliado: '.e($movimiento->observacion_afiliado).'</div>' : '';
+
+            return "<li class=\"py-2\"><strong>{$fecha}</strong> - {$usuario}<br><span class=\"text-sm\">Estado: {$estado}</span><br><span class=\"text-sm\">Área: {$area}</span>{$nota}</li>";
+        })->join('');
+
+        return new HtmlString('<ul class="divide-y divide-gray-200">'.$html.'</ul>');
     }
 }
