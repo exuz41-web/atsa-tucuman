@@ -22,6 +22,10 @@
 
                 <form method="GET" action="{{ route('prestadores.validar', $prestador->portal_token) }}" class="d-grid gap-3">
                     <div>
+                        <label class="form-label fw-bold">QR / link del carnet</label>
+                        <input class="form-control" name="qr" value="{{ $busqueda['qr'] ?? '' }}" placeholder="Pegá el link escaneado del carnet">
+                    </div>
+                    <div>
                         <label class="form-label fw-bold">N° afiliado</label>
                         <input class="form-control" name="numero_afiliado" value="{{ $busqueda['numero_afiliado'] ?? '' }}" placeholder="Ej: 12345">
                     </div>
@@ -47,7 +51,7 @@
                     <div class="text-center py-4">
                         <i class="ti ti-qrcode text-muted fs-10 d-block mb-2"></i>
                         <h4 class="fw-bolder mb-1">Ingresá los datos del carnet o de la orden</h4>
-                        <p class="text-muted mb-0">Por ahora se valida con número de afiliado, DNI o código de orden. Luego conectamos lectura directa del QR.</p>
+                        <p class="text-muted mb-0">Pegá el link escaneado del carnet o buscá por número, DNI o código de orden.</p>
                     </div>
                 @elseif (! $afiliado)
                     <div class="alert alert-danger border-0 mb-0">

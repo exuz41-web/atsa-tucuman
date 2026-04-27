@@ -32,6 +32,7 @@ class PrestadorPortalController extends Controller
             'codigo' => ['nullable', 'string', 'max:255'],
             'numero_afiliado' => ['nullable', 'string', 'max:255'],
             'dni' => ['nullable', 'string', 'max:255'],
+            'qr' => ['nullable', 'string', 'max:1000'],
         ]);
 
         $afiliado = $this->buscarAfiliado($data);
@@ -117,16 +118,38 @@ class PrestadorPortalController extends Controller
 
     private function buscarAfiliado(array $data): ?User
     {
-        if (blank($data['numero_afiliado'] ?? null) && blank($data['dni'] ?? null)) {
+        $qrToken = $this->tokenDesdeQr($data['qr'] ?? null);
+
+        if (blank($data['numero_afiliado'] ?? null) && blank($data['dni'] ?? null) && blank($qrToken)) {
             return null;
         }
 
         return User::query()
             ->with('filial')
             ->where(fn ($query) => $query->where('role', 'afiliado')->orWhereNotNull('numero_afiliado'))
-            ->when($data['numero_afiliado'] ?? null, fn ($query, string $numero) => $query->where('numero_afiliado', $numero))
-            ->when($data['dni'] ?? null, fn ($query, string $dni) => $query->where('dni', preg_replace('/\D+/', '', $dni)))
+            ->where(function ($query) use ($data, $qrToken): void {
+                $query
+                    ->when($data['numero_afiliado'] ?? null, fn ($query, string $numero) => $query->orWhere('numero_afiliado', $numero))
+                    ->when($data['dni'] ?? null, fn ($query, string $dni) => $query->orWhere('dni', preg_replace('/\D+/', '', $dni)))
+                    ->when($qrToken, fn ($query, string $token) => $query->orWhere('afiliado_public_token', $token)->orWhere('numero_afiliado', $token));
+            })
             ->first();
+    }
+
+    private function tokenDesdeQr(?string $qr): ?string
+    {
+        if (blank($qr)) {
+            return null;
+        }
+
+        $value = trim($qr);
+        $path = parse_url($value, PHP_URL_PATH);
+
+        if (is_string($path) && str_contains($path, '/verificar/')) {
+            return basename($path);
+        }
+
+        return $value;
     }
 
     private function afiliadoHabilitado(?User $afiliado): bool

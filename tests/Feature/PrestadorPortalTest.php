@@ -98,6 +98,36 @@ class PrestadorPortalTest extends TestCase
         $this->assertSame('entregado', $pedido->fresh()->estado);
     }
 
+    public function test_prestador_can_validate_affiliate_from_carnet_qr_url(): void
+    {
+        $afiliado = User::factory()->create([
+            'role' => 'afiliado',
+            'active' => true,
+            'estado_afiliado' => 'activo',
+            'numero_afiliado' => 'A-101',
+            'dni' => '30111223',
+            'carnet_activo' => true,
+            'carnet_vencimiento' => now()->addMonth(),
+        ]);
+
+        $prestador = Prestador::create(['nombre' => 'Óptica Centro', 'tipo' => 'optica', 'activo' => true]);
+
+        $orden = OrdenPrestacion::create([
+            'prestador_id' => $prestador->id,
+            'afiliado_id' => $afiliado->id,
+            'tipo' => 'anteojos',
+            'detalle' => 'Entrega de lentes.',
+        ]);
+
+        $this->get(route('prestadores.validar', [
+            'token' => $prestador->portal_token,
+            'qr' => route('carnet.verificar', $afiliado->afiliado_public_token),
+        ]))
+            ->assertOk()
+            ->assertSee('AFILIADO HABILITADO')
+            ->assertSee($orden->codigo);
+    }
+
     public function test_prestador_cannot_deliver_when_affiliate_is_not_enabled(): void
     {
         $afiliado = User::factory()->create([

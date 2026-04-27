@@ -9,7 +9,7 @@ class CarnetSupport
 {
     public static function verificationUrl(User $afiliado): string
     {
-        return route('carnet.verificar', $afiliado->numero_afiliado);
+        return route('carnet.verificar', $afiliado->afiliado_public_token ?: $afiliado->numero_afiliado);
     }
 
     public static function qrPng(string $url, int $size = 240): string

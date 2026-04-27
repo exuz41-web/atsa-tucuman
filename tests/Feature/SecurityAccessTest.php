@@ -25,6 +25,7 @@ use App\Models\PreinscripcionCent;
 use App\Models\SolicitudAfiliacion;
 use App\Models\User;
 use App\Support\BackupSupport;
+use App\Support\CarnetSupport;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\File;
@@ -68,6 +69,25 @@ class SecurityAccessTest extends TestCase
         $this->get(route('cent.carnet.verificar', $alumno->cent_public_token))
             ->assertOk()
             ->assertSee('Estudiante verificado');
+    }
+
+    public function test_affiliate_carnet_qr_uses_public_token_while_legacy_number_still_works(): void
+    {
+        $afiliado = User::factory()->create([
+            'role' => 'afiliado',
+            'active' => true,
+            'estado_afiliado' => 'activo',
+            'numero_afiliado' => 'A-900',
+            'carnet_activo' => true,
+            'carnet_vencimiento' => now()->addMonth(),
+        ]);
+
+        $this->assertNotNull($afiliado->afiliado_public_token);
+        $this->assertSame(route('carnet.verificar', $afiliado->afiliado_public_token), CarnetSupport::verificationUrl($afiliado));
+
+        $this->get(route('carnet.verificar', $afiliado->id))->assertOk()->assertSee('Carnet no encontrado');
+        $this->get(route('carnet.verificar', $afiliado->numero_afiliado))->assertOk()->assertSee($afiliado->name);
+        $this->get(route('carnet.verificar', $afiliado->afiliado_public_token))->assertOk()->assertSee($afiliado->name);
     }
 
     public function test_cent_preinscripcion_files_are_private_and_pdf_uses_public_token(): void

@@ -79,9 +79,12 @@ class CarnetController extends Controller
         ]);
     }
 
-    public function verificar(string $numero_afiliado)
+    public function verificar(string $token)
     {
-        $afiliado = User::with('filial')->where('numero_afiliado', $numero_afiliado)->first();
+        $afiliado = User::with('filial')
+            ->where('afiliado_public_token', $token)
+            ->orWhere('numero_afiliado', $token)
+            ->first();
 
         if (! $afiliado) {
             return view('carnet.no-encontrado');
@@ -146,4 +149,3 @@ class CarnetController extends Controller
         return back()->with('success', 'Foto actualizada correctamente');
     }
 }
-

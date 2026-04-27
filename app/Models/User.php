@@ -51,6 +51,7 @@ class User extends Authenticatable implements FilamentUser
         'carnet_activo',
         'carnet_vencimiento',
         'carnet_emitido_at',
+        'afiliado_public_token',
         'cent_public_token',
     ];
 
@@ -76,12 +77,20 @@ class User extends Authenticatable implements FilamentUser
     protected static function booted(): void
     {
         static::creating(function (self $user): void {
+            if (($user->role === 'afiliado' || filled($user->numero_afiliado)) && blank($user->afiliado_public_token)) {
+                $user->afiliado_public_token = (string) Str::uuid();
+            }
+
             if (in_array($user->cent_role ?: $user->role, ['alumno'], true)) {
                 $user->cent_public_token ??= (string) Str::uuid();
             }
         });
 
         static::saving(function (self $user): void {
+            if (($user->role === 'afiliado' || filled($user->numero_afiliado)) && blank($user->afiliado_public_token)) {
+                $user->afiliado_public_token = (string) Str::uuid();
+            }
+
             if (in_array($user->cent_role ?: $user->role, ['alumno'], true) && blank($user->cent_public_token)) {
                 $user->cent_public_token = (string) Str::uuid();
             }
