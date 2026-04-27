@@ -54,7 +54,10 @@ class ConsultaResource extends Resource
                 ->schema([
                     Forms\Components\Select::make('afiliado_id')
                         ->label('Afiliado')
-                        ->relationship('afiliado', 'name', fn (Builder $q) => $q->where('role', 'afiliado')->orWhereNotNull('numero_afiliado'))
+                        ->options(fn () => User::query()
+                            ->where(fn (Builder $query) => $query->where('role', 'afiliado')->orWhereNotNull('numero_afiliado'))
+                            ->orderBy('name')
+                            ->pluck('name', 'id'))
                         ->searchable()
                         ->preload(),
 

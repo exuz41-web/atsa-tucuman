@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Concerns\HasResourcePermissionAccess;
 use App\Filament\Resources\SolicitudBeneficioResource\Pages;
+use App\Models\Beneficio;
 use App\Models\SolicitudBeneficio;
 use App\Models\User;
 use Filament\Forms;
@@ -54,14 +55,19 @@ class SolicitudBeneficioResource extends Resource
                 ->schema([
                     Forms\Components\Select::make('afiliado_id')
                         ->label('Afiliado')
-                        ->relationship('afiliado', 'name', fn (Builder $q) => $q->where('role', 'afiliado')->orWhereNotNull('numero_afiliado'))
+                        ->options(fn () => User::query()
+                            ->where(fn (Builder $query) => $query->where('role', 'afiliado')->orWhereNotNull('numero_afiliado'))
+                            ->orderBy('name')
+                            ->pluck('name', 'id'))
                         ->searchable()
                         ->preload()
                         ->required(),
 
                     Forms\Components\Select::make('beneficio_id')
                         ->label('Beneficio')
-                        ->relationship('beneficio', 'titulo')
+                        ->options(fn () => Beneficio::query()
+                            ->orderBy('titulo')
+                            ->pluck('titulo', 'id'))
                         ->searchable()
                         ->preload()
                         ->required(),
