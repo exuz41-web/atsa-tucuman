@@ -94,14 +94,7 @@ class PrestadorPortalController extends Controller
         $afiliado = $orden->afiliado;
         abort_unless($this->afiliadoHabilitado($afiliado), 422, 'El afiliado no está habilitado.');
 
-        $orden->update([
-            'estado' => 'entregada',
-            'entregada_at' => now(),
-            'respuesta_prestador' => $data['respuesta_prestador'] ?? $orden->respuesta_prestador,
-        ]);
-
-        $orden->pedido?->update(['estado' => 'entregado', 'entregado_at' => now()]);
-        $orden->solicitudBeneficio?->update(['estado' => 'entregada', 'entregado_at' => now()]);
+        $orden->registrarEntrega($data['respuesta_prestador'] ?? null);
 
         return redirect()
             ->route('prestadores.portal', $prestador->portal_token)

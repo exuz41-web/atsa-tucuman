@@ -135,14 +135,29 @@ class AffiliateWorkflowTest extends TestCase
         $this->assertSame($admin->id, $orden->emitida_por);
         $this->assertSame($prestador->id, $orden->prestador_id);
 
-        $orden->update([
-            'estado' => 'entregada',
-            'entregada_at' => now(),
-            'cerrada_por' => $admin->id,
-        ]);
-        $orden->pedido?->update(['estado' => 'entregado', 'entregado_at' => now()]);
+        $orden->registrarEntrega('Entregado con receta validada.', $admin->id);
 
         $this->assertSame('entregada', $orden->fresh()->estado);
         $this->assertSame('entregado', $pedido->fresh()->estado);
+        $this->assertSame($admin->id, $orden->fresh()->cerrada_por);
+        $this->assertSame('Entregado con receta validada.', $orden->fresh()->respuesta_prestador);
+        $this->assertStringContainsString('Óptica Centro', (string) $pedido->fresh()->observacion_afiliado);
+
+        $this->assertDatabaseHas('expediente_movimientos', [
+            'expediente_type' => Pedido::class,
+            'expediente_id' => $pedido->id,
+            'estado_anterior' => 'aprobado',
+            'estado_nuevo' => 'entregado',
+        ]);
+
+        $this->assertDatabaseHas('notifications', [
+            'notifiable_type' => User::class,
+            'notifiable_id' => $afiliado->id,
+        ]);
+
+        $this->assertDatabaseHas('notifications', [
+            'notifiable_type' => User::class,
+            'notifiable_id' => $admin->id,
+        ]);
     }
 }

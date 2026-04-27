@@ -96,6 +96,12 @@ class PrestadorPortalTest extends TestCase
 
         $this->assertSame('entregada', $orden->fresh()->estado);
         $this->assertSame('entregado', $pedido->fresh()->estado);
+        $this->assertSame('Entregado con receta validada.', $orden->fresh()->respuesta_prestador);
+        $this->assertStringContainsString('Óptica Centro', (string) $pedido->fresh()->observacion_afiliado);
+        $this->assertDatabaseHas('notifications', [
+            'notifiable_type' => User::class,
+            'notifiable_id' => $afiliado->id,
+        ]);
     }
 
     public function test_prestador_can_validate_affiliate_from_carnet_qr_url(): void

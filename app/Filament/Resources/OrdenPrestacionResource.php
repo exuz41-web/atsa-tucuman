@@ -164,6 +164,22 @@ class OrdenPrestacionResource extends Resource
                     ->dateTime('d/m/Y H:i')
                     ->placeholder('—')
                     ->sortable(),
+
+                Tables\Columns\TextColumn::make('respuesta_prestador')
+                    ->label('Informe')
+                    ->limit(45)
+                    ->placeholder('—')
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                Tables\Columns\TextColumn::make('emitidaPor.name')
+                    ->label('Emitida por')
+                    ->placeholder('Sistema')
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                Tables\Columns\TextColumn::make('cerradaPor.name')
+                    ->label('Cerrada por')
+                    ->placeholder('Prestador')
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('estado')
@@ -175,6 +191,12 @@ class OrdenPrestacionResource extends Resource
                 Tables\Filters\SelectFilter::make('prestador_id')
                     ->label('Prestador')
                     ->relationship('prestador', 'nombre'),
+                Tables\Filters\Filter::make('pendientes_entrega')
+                    ->label('Pendientes de entrega')
+                    ->query(fn (Builder $query): Builder => $query->whereIn('estado', ['emitida', 'aceptada', 'observada'])),
+                Tables\Filters\Filter::make('entregadas_hoy')
+                    ->label('Entregadas hoy')
+                    ->query(fn (Builder $query): Builder => $query->whereDate('entregada_at', now()->toDateString())),
             ])
             ->actions([
                 Tables\Actions\Action::make('aceptar')
@@ -196,15 +218,7 @@ class OrdenPrestacionResource extends Resource
                             ->rows(3),
                     ])
                     ->action(function (OrdenPrestacion $record, array $data): void {
-                        $record->update([
-                            'estado' => 'entregada',
-                            'entregada_at' => now(),
-                            'cerrada_por' => auth()->id(),
-                            'respuesta_prestador' => $data['respuesta_prestador'] ?? $record->respuesta_prestador,
-                        ]);
-
-                        $record->pedido?->update(['estado' => 'entregado', 'entregado_at' => now()]);
-                        $record->solicitudBeneficio?->update(['estado' => 'entregada', 'entregado_at' => now()]);
+                        $record->registrarEntrega($data['respuesta_prestador'] ?? null, auth()->id());
                     }),
 
                 Tables\Actions\Action::make('anular')
