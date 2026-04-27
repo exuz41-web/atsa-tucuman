@@ -4,7 +4,9 @@ namespace Tests\Feature;
 
 use App\Filament\Resources\PedidoResource;
 use App\Models\ExpedienteMovimiento;
+use App\Models\OrdenPrestacion;
 use App\Models\Pedido;
+use App\Models\Prestador;
 use App\Models\Secretaria;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -97,5 +99,50 @@ class AffiliateWorkflowTest extends TestCase
         $this->assertContains($pedidoAccionSocial->id, $ids);
         $this->assertNotContains($pedidoTurismo->id, $ids);
         $this->assertSame(0, ExpedienteMovimiento::count());
+    }
+
+    public function test_orden_prestacion_links_provider_affiliate_and_closes_pedido_on_delivery(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin', 'active' => true]);
+        $afiliado = User::factory()->create(['role' => 'afiliado', 'active' => true]);
+
+        $prestador = Prestador::create([
+            'nombre' => 'Óptica Centro',
+            'tipo' => 'optica',
+            'activo' => true,
+        ]);
+
+        $pedido = Pedido::create([
+            'afiliado_id' => $afiliado->id,
+            'tipo' => 'anteojos',
+            'descripcion' => 'Pedido de lentes.',
+            'estado' => 'aprobado',
+            'aprobado_at' => now(),
+        ]);
+
+        $this->actingAs($admin);
+
+        $orden = OrdenPrestacion::create([
+            'prestador_id' => $prestador->id,
+            'afiliado_id' => $afiliado->id,
+            'pedido_id' => $pedido->id,
+            'tipo' => 'anteojos',
+            'detalle' => 'Autorizar entrega de lentes.',
+        ]);
+
+        $this->assertStringStartsWith('ORD-', $orden->codigo);
+        $this->assertSame('emitida', $orden->estado);
+        $this->assertSame($admin->id, $orden->emitida_por);
+        $this->assertSame($prestador->id, $orden->prestador_id);
+
+        $orden->update([
+            'estado' => 'entregada',
+            'entregada_at' => now(),
+            'cerrada_por' => $admin->id,
+        ]);
+        $orden->pedido?->update(['estado' => 'entregado', 'entregado_at' => now()]);
+
+        $this->assertSame('entregada', $orden->fresh()->estado);
+        $this->assertSame('entregado', $pedido->fresh()->estado);
     }
 }

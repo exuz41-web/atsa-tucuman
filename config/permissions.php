@@ -68,6 +68,8 @@ return [
             'App\Filament\Resources\SolicitudAfiliacionResource' => 'admin.afiliacion.manage',
             'App\Filament\Resources\SolicitudBeneficioResource' => 'admin.atencion.manage',
             'App\Filament\Resources\PedidoResource' => 'admin.atencion.manage',
+            'App\Filament\Resources\PrestadorResource' => 'admin.atencion.manage',
+            'App\Filament\Resources\OrdenPrestacionResource' => 'admin.atencion.manage',
             'App\Filament\Resources\ConsultaResource' => 'admin.atencion.manage',
             'App\Filament\Resources\TramiteResource' => 'admin.atencion.manage',
             'App\Filament\Resources\TurismoConsultaResource' => 'admin.atencion.manage',

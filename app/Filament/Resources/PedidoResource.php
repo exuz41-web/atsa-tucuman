@@ -4,7 +4,9 @@ namespace App\Filament\Resources;
 
 use App\Filament\Concerns\HasResourcePermissionAccess;
 use App\Filament\Resources\PedidoResource\Pages;
+use App\Models\OrdenPrestacion;
 use App\Models\Pedido;
+use App\Models\Prestador;
 use App\Models\Secretaria;
 use App\Models\User;
 use Filament\Forms;
@@ -219,6 +221,55 @@ class PedidoResource extends Resource
                     ->relationship('secretaria', 'nombre'),
             ])
             ->actions([
+                Tables\Actions\Action::make('emitir_orden')
+                    ->label('Emitir orden')
+                    ->icon('heroicon-o-clipboard-document-check')
+                    ->color('success')
+                    ->visible(fn (Pedido $record): bool => in_array($record->estado, ['aprobado', 'en_revision', 'observado']))
+                    ->form([
+                        Forms\Components\Select::make('prestador_id')
+                            ->label('Prestador')
+                            ->options(fn () => Prestador::query()->where('activo', true)->orderBy('nombre')->pluck('nombre', 'id'))
+                            ->required()
+                            ->searchable()
+                            ->preload(),
+                        Forms\Components\Select::make('tipo')
+                            ->label('Tipo de orden')
+                            ->options(OrdenPrestacion::tipos())
+                            ->default(fn (Pedido $record): string => match ($record->tipo) {
+                                'anteojos' => 'anteojos',
+                                'medicacion', 'medicamentos' => 'medicacion',
+                                'turismo' => 'turismo',
+                                default => 'otro',
+                            })
+                            ->required()
+                            ->native(false),
+                        Forms\Components\Textarea::make('detalle')
+                            ->label('Detalle para el prestador')
+                            ->default(fn (Pedido $record): string => $record->descripcion)
+                            ->required()
+                            ->rows(3),
+                        Forms\Components\Textarea::make('observaciones_internas')
+                            ->label('Observaciones internas')
+                            ->rows(2),
+                    ])
+                    ->action(function (Pedido $record, array $data): void {
+                        $orden = OrdenPrestacion::create([
+                            'prestador_id' => $data['prestador_id'],
+                            'afiliado_id' => $record->afiliado_id,
+                            'pedido_id' => $record->id,
+                            'tipo' => $data['tipo'],
+                            'detalle' => $data['detalle'],
+                            'observaciones_internas' => $data['observaciones_internas'] ?? null,
+                        ]);
+
+                        if ($record->estado !== 'aprobado') {
+                            $record->update(['estado' => 'aprobado', 'aprobado_at' => now()]);
+                        }
+
+                        self::notificarAfiliado($record, 'Orden emitida', 'ATSA emitió la orden '.$orden->codigo.' para tu pedido de '.self::tipos()[$record->tipo].'.', 'success');
+                    }),
+
                 Tables\Actions\Action::make('derivar')
                     ->label('Derivar')
                     ->icon('heroicon-o-arrow-path-rounded-square')

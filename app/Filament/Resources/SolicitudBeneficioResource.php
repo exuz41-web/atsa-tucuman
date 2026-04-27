@@ -5,6 +5,8 @@ namespace App\Filament\Resources;
 use App\Filament\Concerns\HasResourcePermissionAccess;
 use App\Filament\Resources\SolicitudBeneficioResource\Pages;
 use App\Models\Beneficio;
+use App\Models\OrdenPrestacion;
+use App\Models\Prestador;
 use App\Models\Secretaria;
 use App\Models\SolicitudBeneficio;
 use App\Models\User;
@@ -217,6 +219,60 @@ class SolicitudBeneficioResource extends Resource
                     ->relationship('secretaria', 'nombre'),
             ])
             ->actions([
+                Tables\Actions\Action::make('emitir_orden')
+                    ->label('Emitir orden')
+                    ->icon('heroicon-o-clipboard-document-check')
+                    ->color('success')
+                    ->visible(fn (SolicitudBeneficio $record): bool => in_array($record->estado, ['aprobada', 'en_revision', 'observada']))
+                    ->form([
+                        Forms\Components\Select::make('prestador_id')
+                            ->label('Prestador')
+                            ->options(fn () => Prestador::query()->where('activo', true)->orderBy('nombre')->pluck('nombre', 'id'))
+                            ->required()
+                            ->searchable()
+                            ->preload(),
+                        Forms\Components\Select::make('tipo')
+                            ->label('Tipo de orden')
+                            ->options(OrdenPrestacion::tipos())
+                            ->default(fn (SolicitudBeneficio $record): string => match ($record->beneficio?->categoria) {
+                                'accion_social', 'convenios' => 'convenio',
+                                'salud' => 'salud',
+                                'turismo' => 'turismo',
+                                default => 'otro',
+                            })
+                            ->required()
+                            ->native(false),
+                        Forms\Components\Textarea::make('detalle')
+                            ->label('Detalle para el prestador')
+                            ->default(fn (SolicitudBeneficio $record): string => trim(($record->beneficio?->titulo ?: 'Beneficio').' - '.$record->mensaje))
+                            ->required()
+                            ->rows(3),
+                        Forms\Components\Textarea::make('observaciones_internas')
+                            ->label('Observaciones internas')
+                            ->rows(2),
+                    ])
+                    ->action(function (SolicitudBeneficio $record, array $data): void {
+                        $orden = OrdenPrestacion::create([
+                            'prestador_id' => $data['prestador_id'],
+                            'afiliado_id' => $record->afiliado_id,
+                            'solicitud_beneficio_id' => $record->id,
+                            'tipo' => $data['tipo'],
+                            'detalle' => $data['detalle'],
+                            'observaciones_internas' => $data['observaciones_internas'] ?? null,
+                        ]);
+
+                        if ($record->estado !== 'aprobada') {
+                            $record->update([
+                                'estado' => 'aprobada',
+                                'aprobado_at' => now(),
+                                'respondido_at' => now(),
+                                'respondido_por' => auth()->id(),
+                            ]);
+                        }
+
+                        self::notificarAfiliado($record, 'Orden emitida', 'ATSA emitió la orden '.$orden->codigo.' para tu solicitud de "'.$record->beneficio?->titulo.'".', 'success');
+                    }),
+
                 Tables\Actions\Action::make('derivar')
                     ->label('Derivar')
                     ->icon('heroicon-o-arrow-path-rounded-square')

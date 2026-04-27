@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class SolicitudBeneficio extends Model
@@ -99,6 +100,11 @@ class SolicitudBeneficio extends Model
     public function movimientos(): MorphMany
     {
         return $this->morphMany(ExpedienteMovimiento::class, 'expediente')->latest();
+    }
+
+    public function ordenesPrestacion(): HasMany
+    {
+        return $this->hasMany(OrdenPrestacion::class);
     }
 
     public static function estados(): array
