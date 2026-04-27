@@ -9,6 +9,8 @@
             <div class="card-body p-5 text-center">
                 @if($alumno)
                     @php($matricula = $alumno->matriculasCent->first())
+                    @php($dni = preg_replace('/\D+/', '', (string) $alumno->dni))
+                    @php($dniMask = strlen($dni) >= 4 ? str_repeat('*', max(strlen($dni) - 4, 0)).substr($dni, -4) : ($alumno->dni ?: '-'))
                     <span class="feature-icon mx-auto mb-4 bg-success-subtle text-success"><i class="ti ti-circle-check"></i></span>
                     <h1 class="fw-bolder">Estudiante verificado</h1>
                     <p class="text-muted">Credencial oficial del CENT N°74.</p>
@@ -19,7 +21,7 @@
                         <h2 class="fw-bolder mb-0">{{ $alumno->name }}</h2>
                     </div>
                     <div class="text-start bg-light rounded-4 p-4">
-                        DNI: <strong>{{ $alumno->dni ?: '-' }}</strong><br>
+                        DNI: <strong>{{ $dniMask }}</strong><br>
                         Carrera: <strong>{{ $matricula?->carrera?->name ?: '-' }}</strong><br>
                         Sede: <strong>{{ $matricula?->sede?->nombre ?: 'CENT N°74' }}</strong>
                     </div>

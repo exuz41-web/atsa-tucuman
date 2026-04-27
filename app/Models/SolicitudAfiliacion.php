@@ -4,7 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class SolicitudAfiliacion extends Model
 {
@@ -35,6 +37,7 @@ class SolicitudAfiliacion extends Model
         'formulario_firmado',
         'archivo_adicional',
         'pdf_path',
+        'public_token',
         'acepta_declaracion',
         'observaciones_admin',
         'reviewed_by',
@@ -50,6 +53,13 @@ class SolicitudAfiliacion extends Model
             'acepta_declaracion' => 'boolean',
             'reviewed_at' => 'datetime',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (self $solicitud): void {
+            $solicitud->public_token ??= (string) Str::uuid();
+        });
     }
 
     public function reviewedBy(): BelongsTo
@@ -72,7 +82,27 @@ class SolicitudAfiliacion extends Model
             return asset($campo);
         }
 
-        return Storage::disk('public')->url($campo);
+        return $this->storageDiskFor($campo)->url($campo);
+    }
+
+    public function storageDiskFor(?string $path): FilesystemAdapter
+    {
+        $disk = $this->storageDiskNameFor($path);
+
+        return Storage::disk($disk);
+    }
+
+    public function storageDiskNameFor(?string $path): string
+    {
+        if (! $path) {
+            return 'local';
+        }
+
+        if (Storage::disk('local')->exists($path)) {
+            return 'local';
+        }
+
+        return 'public';
     }
 
     public function getEstadoLabelAttribute(): string

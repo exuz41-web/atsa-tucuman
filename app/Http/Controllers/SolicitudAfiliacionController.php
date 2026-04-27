@@ -83,11 +83,11 @@ class SolicitudAfiliacionController extends Controller
         $path = 'afiliaciones/' . $dni . '-' . now()->format('YmdHis');
 
         // Almacenar archivos adjuntos
-        $dniFrente    = $request->file('dni_frente')->store($path, 'public');
-        $dniDorso     = $request->file('dni_dorso')->store($path, 'public');
-        $reciboSueldo = $request->file('recibo_sueldo')->store($path, 'public');
-        $formularioFirmado  = $request->file('formulario_firmado')?->store($path, 'public');
-        $archivoAdicional   = $request->file('archivo_adicional')?->store($path, 'public');
+        $dniFrente    = $request->file('dni_frente')->store($path, 'local');
+        $dniDorso     = $request->file('dni_dorso')->store($path, 'local');
+        $reciboSueldo = $request->file('recibo_sueldo')->store($path, 'local');
+        $formularioFirmado  = $request->file('formulario_firmado')?->store($path, 'local');
+        $archivoAdicional   = $request->file('archivo_adicional')?->store($path, 'local');
 
         // Eliminar las entradas de archivo del array validado
         // (contienen UploadedFile objects, no rutas) antes del create
@@ -113,7 +113,7 @@ class SolicitudAfiliacionController extends Controller
             $pdf = Pdf::loadView('pdf.solicitud-afiliacion', ['solicitud' => $solicitud])
                 ->setPaper('a4', 'portrait');
 
-            Storage::disk('public')->put($pdfPath, $pdf->output());
+            Storage::disk('local')->put($pdfPath, $pdf->output());
             $solicitud->update(['pdf_path' => $pdfPath]);
         } catch (\Throwable $e) {
             \Log::warning('SolicitudAfiliacion: no se pudo generar PDF — ' . $e->getMessage());
@@ -142,19 +142,19 @@ class SolicitudAfiliacionController extends Controller
 
         return redirect()
             ->route('afiliacion.gracias')
-            ->with('solicitud_id', $solicitud->id);
+            ->with('solicitud_id', $solicitud->id)
+            ->with('solicitud_pdf_token', $solicitud->public_token);
     }
 
-    public function pdf(string $codigo)
+    public function pdf(string $token)
     {
         $solicitud = SolicitudAfiliacion::query()
-            ->where('numero_documento', $codigo)
-            ->orWhere('id', $codigo)
+            ->where('public_token', $token)
             ->firstOrFail();
 
         // Si ya hay PDF generado, servirlo directo
-        if ($solicitud->pdf_path && Storage::disk('public')->exists($solicitud->pdf_path)) {
-            return Storage::disk('public')->download(
+        if ($solicitud->pdf_path && $solicitud->storageDiskFor($solicitud->pdf_path)->exists($solicitud->pdf_path)) {
+            return $solicitud->storageDiskFor($solicitud->pdf_path)->download(
                 $solicitud->pdf_path,
                 'solicitud-afiliacion-' . $solicitud->numero_documento . '.pdf'
             );

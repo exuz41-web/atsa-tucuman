@@ -51,7 +51,7 @@ Route::get('/afiliados', [AfiliadosController::class, 'index'])->name('afiliados
 Route::get('/afiliacion', [SolicitudAfiliacionController::class, 'create'])->name('afiliacion.create');
 Route::post('/afiliacion', [SolicitudAfiliacionController::class, 'store'])->name('afiliacion.store');
 Route::get('/afiliacion/gracias', [SolicitudAfiliacionController::class, 'thanks'])->name('afiliacion.gracias');
-Route::get('/afiliacion/{codigo}/pdf', [SolicitudAfiliacionController::class, 'pdf'])->name('afiliacion.pdf');
+Route::get('/afiliacion/{token}/pdf', [SolicitudAfiliacionController::class, 'pdf'])->name('afiliacion.pdf');
 Route::get('/filiales', [FilialesController::class, 'index'])->name('filiales.index');
 Route::get('/novedades', [NovedadesController::class, 'index'])->name('novedades.index');
 Route::get('/novedades/{slug}', [NovedadesController::class, 'show'])->name('novedades.show');
@@ -92,7 +92,7 @@ Route::prefix('cent74')->name('cent.')->group(function () {
     Route::get('/horarios', [CentController::class, 'horarios'])->name('horarios');
     Route::get('/descargas', [CentController::class, 'descargas'])->name('descargas');
     Route::get('/permisos/verificar/{token}', [CentClassroomController::class, 'verificarPermiso'])->name('permisos.verificar');
-    Route::get('/carnet/verificar/{alumno}', [CentClassroomController::class, 'verificarCarnet'])->name('carnet.verificar');
+    Route::get('/carnet/verificar/{token}', [CentClassroomController::class, 'verificarCarnet'])->name('carnet.verificar');
     Route::get('/recibos/verificar/{token}', [CentReciboController::class, 'verificar'])->name('recibos.verificar');
     Route::get('/login', [CentLoginController::class, 'show'])->name('login');
     Route::post('/login', [CentLoginController::class, 'login'])->name('login.submit');

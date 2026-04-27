@@ -13,6 +13,8 @@ class NovedadesController extends Controller
         $category = $request->string('category')->toString();
 
         $categories = Post::query()
+            ->whereNotNull('published_at')
+            ->where('published_at', '<=', now())
             ->select('category')
             ->distinct()
             ->orderBy('category')
@@ -24,6 +26,8 @@ class NovedadesController extends Controller
         }
 
         $posts = Post::query()
+            ->whereNotNull('published_at')
+            ->where('published_at', '<=', now())
             ->when($category, fn ($query) => $query->where('category', $category))
             ->orderByDesc('published_at')
             ->orderByDesc('created_at')
@@ -38,6 +42,8 @@ class NovedadesController extends Controller
         $post = Post::query()
             ->with(['comments' => fn ($query) => $query->where('status', 'approved')->latest()])
             ->where('slug', $slug)
+            ->whereNotNull('published_at')
+            ->where('published_at', '<=', now())
             ->firstOrFail();
 
         return view('novedades.show', compact('post'));
@@ -45,7 +51,11 @@ class NovedadesController extends Controller
 
     public function comentar(Request $request, string $slug)
     {
-        $post = Post::query()->where('slug', $slug)->firstOrFail();
+        $post = Post::query()
+            ->where('slug', $slug)
+            ->whereNotNull('published_at')
+            ->where('published_at', '<=', now())
+            ->firstOrFail();
 
         $data = $request->validate([
             'name' => ['required', 'string', 'max:120'],

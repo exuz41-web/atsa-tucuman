@@ -223,8 +223,8 @@
                     <a href="{{ route('contacto.index') }}" class="btn btn-outline-secondary py-8 px-9 fw-bold rounded-3">
                         <i class="ti ti-mail me-2"></i>Contacto
                     </a>
-                    @if (session('solicitud_id'))
-                        <a href="{{ route('afiliacion.pdf', session('solicitud_id')) }}" class="btn btn-outline-danger py-8 px-9 fw-bold rounded-3" target="_blank">
+                    @if (session('solicitud_pdf_token'))
+                        <a href="{{ route('afiliacion.pdf', session('solicitud_pdf_token')) }}" class="btn btn-outline-danger py-8 px-9 fw-bold rounded-3" target="_blank">
                             <i class="ti ti-file-download me-2"></i>Descargar solicitud PDF
                         </a>
                     @endif

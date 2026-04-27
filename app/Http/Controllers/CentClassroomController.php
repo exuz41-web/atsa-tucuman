@@ -244,7 +244,12 @@ class CentClassroomController extends Controller
     {
         $alumno = auth()->user();
         $matricula = $alumno->matriculasCent()->with(['carrera', 'sede'])->latest()->first();
-        $url = route('cent.carnet.verificar', $alumno->id);
+        $alumno->cent_public_token ??= (string) Str::uuid();
+        if ($alumno->isDirty('cent_public_token')) {
+            $alumno->save();
+        }
+
+        $url = route('cent.carnet.verificar', $alumno->cent_public_token);
         $qrCode = base64_encode(QrCode::format('png')->size(220)->errorCorrection('H')->generate($url));
 
         return view('cent74.alumno.carnet', compact('alumno', 'matricula', 'qrCode', 'url'));
@@ -254,7 +259,12 @@ class CentClassroomController extends Controller
     {
         $alumno = auth()->user();
         $matricula = $alumno->matriculasCent()->with(['carrera', 'sede'])->latest()->first();
-        $url = route('cent.carnet.verificar', $alumno->id);
+        $alumno->cent_public_token ??= (string) Str::uuid();
+        if ($alumno->isDirty('cent_public_token')) {
+            $alumno->save();
+        }
+
+        $url = route('cent.carnet.verificar', $alumno->cent_public_token);
         $qrCode = base64_encode(QrCode::format('png')->size(260)->errorCorrection('H')->generate($url));
 
         return Pdf::loadView('cent74.pdf.carnet-alumno', compact('alumno', 'matricula', 'qrCode', 'url'))
@@ -262,9 +272,9 @@ class CentClassroomController extends Controller
             ->download('carnet-estudiante-cent-'.$alumno->id.'.pdf');
     }
 
-    public function verificarCarnet(int $alumno): View
+    public function verificarCarnet(string $token): View
     {
-        $alumno = \App\Models\User::whereKey($alumno)
+        $alumno = \App\Models\User::where('cent_public_token', $token)
             ->where(fn ($query) => $query->where('cent_role', 'alumno')->orWhere('role', 'alumno'))
             ->with(['matriculasCent.carrera', 'matriculasCent.sede'])
             ->first();
