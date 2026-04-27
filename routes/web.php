@@ -177,14 +177,30 @@ Route::prefix('cent74')->name('cent.')->group(function () {
         Route::get('/directivo/actas-mesas/{mesa}/pdf', [CentDirectivoController::class, 'actaMesaPdf'])->name('directivo.actas-mesas.pdf');
         Route::post('/directivo/actas-mesas/{mesa}/aprobar', [CentDirectivoController::class, 'aprobarActaMesa'])->name('directivo.actas-mesas.aprobar');
         Route::post('/directivo/actas-mesas/{mesa}/reabrir', [CentDirectivoController::class, 'reabrirActaMesa'])->name('directivo.actas-mesas.reabrir');
-        Route::get('/directivo/reportes', [CentDirectivoController::class, 'reportes'])->name('directivo.reportes');
-        Route::get('/directivo/reportes/pdf', [CentReporteController::class, 'reportesPdf'])->name('directivo.reportes.pdf');
-        Route::get('/directivo/reportes/alumnos.csv', [CentReporteController::class, 'alumnosCsv'])->name('directivo.reportes.alumnos');
-        Route::get('/directivo/reportes/cuotas.csv', [CentReporteController::class, 'cuotasCsv'])->name('directivo.reportes.cuotas');
-        Route::get('/directivo/reportes/preinscripciones.csv', [CentReporteController::class, 'preinscripcionesCsv'])->name('directivo.reportes.preinscripciones');
-        Route::get('/directivo/reportes/actas.csv', [CentReporteController::class, 'actasCsv'])->name('directivo.reportes.actas');
-        Route::get('/directivo/reportes/mesas.csv', [CentReporteController::class, 'mesasCsv'])->name('directivo.reportes.mesas');
-        Route::get('/directivo/reportes/finales.csv', [CentReporteController::class, 'finalesCsv'])->name('directivo.reportes.finales');
+        Route::get('/directivo/reportes', [CentDirectivoController::class, 'reportes'])
+            ->middleware('cent.permission:cent.reportes.manage')
+            ->name('directivo.reportes');
+        Route::get('/directivo/reportes/pdf', [CentReporteController::class, 'reportesPdf'])
+            ->middleware('cent.permission:cent.reportes.manage')
+            ->name('directivo.reportes.pdf');
+        Route::get('/directivo/reportes/alumnos.csv', [CentReporteController::class, 'alumnosCsv'])
+            ->middleware('cent.permission:cent.reportes.manage')
+            ->name('directivo.reportes.alumnos');
+        Route::get('/directivo/reportes/cuotas.csv', [CentReporteController::class, 'cuotasCsv'])
+            ->middleware('cent.permission:cent.reportes.manage')
+            ->name('directivo.reportes.cuotas');
+        Route::get('/directivo/reportes/preinscripciones.csv', [CentReporteController::class, 'preinscripcionesCsv'])
+            ->middleware('cent.permission:cent.reportes.manage')
+            ->name('directivo.reportes.preinscripciones');
+        Route::get('/directivo/reportes/actas.csv', [CentReporteController::class, 'actasCsv'])
+            ->middleware('cent.permission:cent.reportes.manage')
+            ->name('directivo.reportes.actas');
+        Route::get('/directivo/reportes/mesas.csv', [CentReporteController::class, 'mesasCsv'])
+            ->middleware('cent.permission:cent.reportes.manage')
+            ->name('directivo.reportes.mesas');
+        Route::get('/directivo/reportes/finales.csv', [CentReporteController::class, 'finalesCsv'])
+            ->middleware('cent.permission:cent.reportes.manage')
+            ->name('directivo.reportes.finales');
     });
 });
 
@@ -222,8 +238,16 @@ Route::prefix('afiliados')->middleware(['auth', 'role:afiliado,admin'])->group(f
 });
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
-    Route::get('/panel/carnets', [PanelController::class, 'carnets'])->name('panel.carnets');
-    Route::post('/panel/carnets/{id}/emitir', [PanelController::class, 'emitirCarnet'])->name('panel.carnets.emitir');
-    Route::post('/panel/carnets/{id}/revocar', [PanelController::class, 'revocarCarnet'])->name('panel.carnets.revocar');
-    Route::get('/panel/backups/{filename}', [BackupController::class, 'download'])->name('panel.backups.download');
+    Route::get('/panel/carnets', [PanelController::class, 'carnets'])
+        ->middleware('permission:admin.afiliacion.manage')
+        ->name('panel.carnets');
+    Route::post('/panel/carnets/{id}/emitir', [PanelController::class, 'emitirCarnet'])
+        ->middleware('permission:admin.afiliacion.manage')
+        ->name('panel.carnets.emitir');
+    Route::post('/panel/carnets/{id}/revocar', [PanelController::class, 'revocarCarnet'])
+        ->middleware('permission:admin.afiliacion.manage')
+        ->name('panel.carnets.revocar');
+    Route::get('/panel/backups/{filename}', [BackupController::class, 'download'])
+        ->middleware('permission:admin.backups.manage')
+        ->name('panel.backups.download');
 });

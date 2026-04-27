@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\HasResourcePermissionAccess;
 use App\Filament\Resources\CentPermisoExamenResource\Pages;
 use App\Models\CentPermisoExamen;
 use App\Models\CentCuota;
@@ -18,6 +19,8 @@ use Filament\Tables\Table;
 
 class CentPermisoExamenResource extends Resource
 {
+    use HasResourcePermissionAccess;
+
     protected static ?string $model = CentPermisoExamen::class;
     protected static ?string $navigationIcon = 'heroicon-o-qr-code';
     protected static ?string $navigationGroup = 'Administración';
@@ -25,6 +28,7 @@ class CentPermisoExamenResource extends Resource
     protected static ?string $modelLabel = 'permiso de examen';
     protected static ?string $pluralModelLabel = 'permisos de examen';
     protected static ?string $slug = 'permisos-examen';
+    protected static ?string $panelScope = 'cent';
 
     public static function form(Form $form): Form
     {
@@ -136,4 +140,3 @@ class CentPermisoExamenResource extends Resource
         ];
     }
 }
-

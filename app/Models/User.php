@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
 class User extends Authenticatable implements FilamentUser
@@ -66,25 +67,10 @@ class User extends Authenticatable implements FilamentUser
         }
 
         if ($panel->getId() === 'cent') {
-            // Panel CENT N°74: usa cent_role con fallback a role (igual que el middleware)
-            $centRole = $this->cent_role ?: $this->role;
-            return in_array($centRole, ['admin', 'coordinador', 'directivo', 'docente', 'alumno'], true);
+            return $this->hasAnyPermission(['cent.portal.use', 'cent.aula.manage', 'cent.alumnos.manage', 'cent.administracion.manage', 'cent.config.manage']);
         }
 
-        // Panel ATSA admin
-        if ($this->role === 'admin') {
-            return true;
-        }
-
-        if ($this->puede_ver_todas_las_filiales) {
-            return true;
-        }
-
-        if (filled($this->perfil_interno) && $this->perfil_interno !== 'ninguno') {
-            return true;
-        }
-
-        return false;
+        return $this->hasAnyPermission(['admin.*', 'admin.padron.manage', 'admin.afiliacion.manage', 'admin.atencion.manage', 'admin.editor.manage', 'admin.institucion.manage', 'admin.settings.manage']);
     }
 
     protected static function booted(): void
@@ -195,6 +181,109 @@ class User extends Authenticatable implements FilamentUser
     public function notificacionesCent(): HasMany
     {
         return $this->hasMany(CentNotificacion::class, 'user_id');
+    }
+
+    public function hasPermission(string $permission): bool
+    {
+        foreach ($this->permissionSet() as $grantedPermission) {
+            if ($grantedPermission === '*' || $grantedPermission === $permission) {
+                return true;
+            }
+
+            if (str_ends_with($grantedPermission, '*')) {
+                $prefix = rtrim($grantedPermission, '*');
+
+                if (str_starts_with($permission, $prefix)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public function hasAnyPermission(array $permissions): bool
+    {
+        foreach ($permissions as $permission) {
+            if ($this->hasPermission($permission)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function hasResourcePermission(string $resourceClass, string $panel, string $action = 'view'): bool
+    {
+        $permission = config("permissions.resources.{$panel}.{$resourceClass}");
+
+        if (! $permission) {
+            return $panel === 'cent'
+                ? $this->hasAnyPermission(['cent.*', 'cent.portal.use', 'cent.aula.manage', 'cent.alumnos.manage', 'cent.administracion.manage', 'cent.config.manage'])
+                : $this->hasAnyPermission(['admin.*', 'admin.padron.manage', 'admin.afiliacion.manage', 'admin.atencion.manage', 'admin.editor.manage', 'admin.institucion.manage', 'admin.settings.manage']);
+        }
+
+        if ($action === 'delete' && ! $this->hasAnyPermission(['*', 'admin.*', 'cent.*'])) {
+            if ($panel === 'admin' && ! $this->hasPermission('admin.settings.manage')) {
+                return false;
+            }
+
+            if ($panel === 'cent' && ! $this->hasAnyPermission(['cent.config.manage', 'cent.administracion.manage'])) {
+                return false;
+            }
+        }
+
+        return $this->hasPermission($permission);
+    }
+
+    public function hasPagePermission(string $pageClass, string $panel): bool
+    {
+        $permission = config("permissions.pages.{$panel}.{$pageClass}");
+
+        if ($permission) {
+            return $this->hasPermission($permission);
+        }
+
+        return $panel === 'cent'
+            ? $this->hasAnyPermission(['cent.*', 'cent.config.manage', 'cent.administracion.manage', 'cent.alumnos.manage', 'cent.aula.manage', 'cent.portal.use'])
+            : $this->hasAnyPermission(['admin.*', 'admin.settings.manage', 'admin.institucion.manage', 'admin.editor.manage', 'admin.atencion.manage', 'admin.afiliacion.manage', 'admin.padron.manage']);
+    }
+
+    public function centRoleName(): ?string
+    {
+        return $this->cent_role ?: $this->role;
+    }
+
+    public function permissionSet(): array
+    {
+        $permissions = [];
+
+        if ($this->role === 'admin') {
+            $permissions[] = '*';
+        }
+
+        if ($this->puede_ver_todas_las_filiales) {
+            $permissions[] = 'admin.padron.manage';
+            $permissions[] = 'admin.atencion.manage';
+        }
+
+        if (filled($this->perfil_interno) && $this->perfil_interno !== 'ninguno') {
+            $permissions = [
+                ...$permissions,
+                ...config('permissions.admin_profiles.'.$this->perfil_interno, []),
+            ];
+        }
+
+        $centRole = $this->centRoleName();
+
+        if (filled($centRole)) {
+            $permissions = [
+                ...$permissions,
+                ...config('permissions.cent_roles.'.$centRole, []),
+            ];
+        }
+
+        return array_values(array_unique(array_filter(Arr::flatten($permissions))));
     }
 
     protected function casts(): array

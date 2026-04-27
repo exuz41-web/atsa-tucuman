@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\HasResourcePermissionAccess;
 use App\Filament\Resources\CentLegajoDocumentoResource\Pages;
 use App\Models\CentLegajoDocumento;
 use App\Models\User;
@@ -16,6 +17,8 @@ use Filament\Tables\Table;
 
 class CentLegajoDocumentoResource extends Resource
 {
+    use HasResourcePermissionAccess;
+
     protected static ?string $model = CentLegajoDocumento::class;
     protected static ?string $navigationIcon = 'heroicon-o-folder-open';
     protected static ?string $navigationGroup = 'Administración';
@@ -23,6 +26,7 @@ class CentLegajoDocumentoResource extends Resource
     protected static ?string $modelLabel = 'documento de legajo';
     protected static ?string $pluralModelLabel = 'legajos digitales';
     protected static ?string $slug = 'legajos';
+    protected static ?string $panelScope = 'cent';
 
     public static function form(Form $form): Form
     {

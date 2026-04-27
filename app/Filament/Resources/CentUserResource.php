@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\HasResourcePermissionAccess;
 use App\Filament\Resources\CentUserResource\Pages;
 use App\Models\User;
 use App\Services\Cent\FilamentSedeScope;
@@ -16,6 +17,8 @@ use Illuminate\Support\Str;
 
 class CentUserResource extends Resource
 {
+    use HasResourcePermissionAccess;
+
     protected static ?string $model = User::class;
     protected static ?string $navigationIcon = 'heroicon-o-users';
     protected static ?string $navigationGroup = 'CENT N°74';
@@ -23,6 +26,7 @@ class CentUserResource extends Resource
     protected static ?string $modelLabel = 'usuario CENT';
     protected static ?string $pluralModelLabel = 'usuarios CENT';
     protected static ?string $slug = 'usuarios';
+    protected static ?string $panelScope = 'cent';
 
     public static function rolesCent(): array
     {
@@ -219,4 +223,3 @@ class CentUserResource extends Resource
         ];
     }
 }
-

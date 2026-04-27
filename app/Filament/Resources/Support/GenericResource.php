@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Support;
 
+use App\Filament\Concerns\HasResourcePermissionAccess;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -12,6 +13,8 @@ use Illuminate\Support\Str;
 
 abstract class GenericResource extends Resource
 {
+    use HasResourcePermissionAccess;
+
     protected static ?string $navigationIcon = 'heroicon-o-square-3-stack-3d';
 
     protected static ?string $navigationGroup = null;

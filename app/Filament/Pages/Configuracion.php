@@ -31,6 +31,11 @@ class Configuracion extends Page implements HasForms
 
     public ?array $data = [];
 
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->hasPagePermission(static::class, 'admin') ?? false;
+    }
+
     public function mount(): void
     {
         $this->form->fill([
@@ -238,6 +243,6 @@ class Configuracion extends Page implements HasForms
 
     public function canManageBackups(): bool
     {
-        return auth()->user()?->role === 'admin';
+        return auth()->user()?->hasPermission('admin.backups.manage') ?? false;
     }
 }

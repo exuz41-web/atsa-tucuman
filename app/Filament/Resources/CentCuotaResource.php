@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\HasResourcePermissionAccess;
 use App\Filament\Resources\CentCuotaResource\Pages;
 use App\Models\CentCuota;
 use App\Models\MatriculaCent;
@@ -18,6 +19,8 @@ use Filament\Tables\Table;
 
 class CentCuotaResource extends Resource
 {
+    use HasResourcePermissionAccess;
+
     protected static ?string $model = CentCuota::class;
     protected static ?string $navigationIcon = 'heroicon-o-banknotes';
     protected static ?string $navigationGroup = 'Administración';
@@ -25,6 +28,7 @@ class CentCuotaResource extends Resource
     protected static ?string $modelLabel = 'cuota';
     protected static ?string $pluralModelLabel = 'cuotas y pagos';
     protected static ?string $slug = 'cuotas';
+    protected static ?string $panelScope = 'cent';
 
     public static function form(Form $form): Form
     {
@@ -157,4 +161,3 @@ class CentCuotaResource extends Resource
         ];
     }
 }
-

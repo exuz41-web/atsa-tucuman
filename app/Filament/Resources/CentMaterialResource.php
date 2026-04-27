@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\HasResourcePermissionAccess;
 use App\Filament\Resources\CentMaterialResource\Pages;
 use App\Models\CentClase;
 use App\Models\CentMaterial;
@@ -16,6 +17,8 @@ use Filament\Tables\Table;
 
 class CentMaterialResource extends Resource
 {
+    use HasResourcePermissionAccess;
+
     protected static ?string $model = CentMaterial::class;
     protected static ?string $navigationIcon = 'heroicon-o-document-arrow-down';
     protected static ?string $navigationGroup = 'Aula virtual';
@@ -23,6 +26,7 @@ class CentMaterialResource extends Resource
     protected static ?string $modelLabel = 'material';
     protected static ?string $pluralModelLabel = 'materiales';
     protected static ?string $slug = 'materiales';
+    protected static ?string $panelScope = 'cent';
 
     public static function form(Form $form): Form
     {

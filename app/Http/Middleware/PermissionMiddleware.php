@@ -6,14 +6,9 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class RoleMiddleware
+class PermissionMiddleware
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
-    public function handle(Request $request, Closure $next, string ...$roles): Response
+    public function handle(Request $request, Closure $next, string ...$permissions): Response
     {
         $user = $request->user();
 
@@ -21,7 +16,7 @@ class RoleMiddleware
             return redirect('/afiliados/login');
         }
 
-        if (! in_array($user->role, $roles, true) && ! $user->hasAnyPermission($roles)) {
+        if (! $user->hasAnyPermission($permissions)) {
             abort(403, 'No tenés permisos para acceder a esta sección.');
         }
 

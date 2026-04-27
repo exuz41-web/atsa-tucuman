@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\HasResourcePermissionAccess;
 use App\Filament\Resources\CentTrabajoPracticoResource\Pages;
 use App\Models\CentTrabajoPractico;
 use App\Models\Comision;
@@ -15,6 +16,8 @@ use Filament\Tables\Table;
 
 class CentTrabajoPracticoResource extends Resource
 {
+    use HasResourcePermissionAccess;
+
     protected static ?string $model = CentTrabajoPractico::class;
     protected static ?string $navigationIcon = 'heroicon-o-pencil-square';
     protected static ?string $navigationGroup = 'Aula virtual';
@@ -22,6 +25,7 @@ class CentTrabajoPracticoResource extends Resource
     protected static ?string $modelLabel = 'trabajo práctico';
     protected static ?string $pluralModelLabel = 'trabajos prácticos';
     protected static ?string $slug = 'trabajos-practicos';
+    protected static ?string $panelScope = 'cent';
 
     public static function form(Form $form): Form
     {

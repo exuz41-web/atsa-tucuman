@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\HasResourcePermissionAccess;
 use App\Filament\Resources\CentConfiguracionResource\Pages;
 use App\Models\CentConfiguracion;
 use Filament\Facades\Filament;
@@ -13,6 +14,8 @@ use Filament\Tables\Table;
 
 class CentConfiguracionResource extends Resource
 {
+    use HasResourcePermissionAccess;
+
     protected static ?string $model = CentConfiguracion::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-cog-6-tooth';
@@ -21,6 +24,7 @@ class CentConfiguracionResource extends Resource
     protected static ?string $modelLabel = 'configuración';
     protected static ?string $pluralModelLabel = 'configuraciones';
     protected static ?string $slug = 'configuracion-cent';
+    protected static ?string $panelScope = 'cent';
 
     public static function form(Form $form): Form
     {

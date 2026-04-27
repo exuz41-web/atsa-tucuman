@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\HasResourcePermissionAccess;
 use App\Filament\Resources\CentReciboResource\Pages;
 use App\Models\CentRecibo;
 use App\Models\CentCuota;
@@ -16,6 +17,8 @@ use Filament\Tables\Table;
 
 class CentReciboResource extends Resource
 {
+    use HasResourcePermissionAccess;
+
     protected static ?string $model = CentRecibo::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-receipt-refund';
@@ -24,6 +27,7 @@ class CentReciboResource extends Resource
     protected static ?string $modelLabel = 'recibo';
     protected static ?string $pluralModelLabel = 'recibos oficiales';
     protected static ?string $slug = 'recibos';
+    protected static ?string $panelScope = 'cent';
 
     public static function form(Form $form): Form
     {
@@ -123,4 +127,3 @@ class CentReciboResource extends Resource
         ];
     }
 }
-

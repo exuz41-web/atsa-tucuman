@@ -1,0 +1,108 @@
+<?php
+
+return [
+    'admin_profiles' => [
+        'admin' => ['*'],
+        'gerencia_general' => ['admin.*'],
+        'padron' => [
+            'admin.padron.manage',
+            'admin.afiliacion.manage',
+        ],
+        'recepcion' => [
+            'admin.afiliacion.manage',
+            'admin.atencion.manage',
+        ],
+        'consulta' => [
+            'admin.atencion.manage',
+        ],
+        'responsable_filial' => [
+            'admin.padron.manage',
+            'admin.atencion.manage',
+        ],
+        'secretaria' => [
+            'admin.editor.manage',
+            'admin.institucion.manage',
+        ],
+    ],
+
+    'cent_roles' => [
+        'admin' => ['cent.*'],
+        'directivo' => [
+            'cent.usuarios.manage',
+            'cent.ingresantes.manage',
+            'cent.alumnos.manage',
+            'cent.aula.manage',
+            'cent.administracion.manage',
+            'cent.reportes.manage',
+            'cent.config.manage',
+        ],
+        'coordinador' => [
+            'cent.usuarios.manage',
+            'cent.ingresantes.manage',
+            'cent.alumnos.manage',
+            'cent.aula.manage',
+            'cent.administracion.manage',
+            'cent.reportes.manage',
+        ],
+        'docente' => [
+            'cent.aula.manage',
+        ],
+        'alumno' => [
+            'cent.portal.use',
+        ],
+    ],
+
+    'resources' => [
+        'admin' => [
+            'App\Filament\Resources\UserResource' => 'admin.padron.manage',
+            'App\Filament\Resources\DelegadoResource' => 'admin.padron.manage',
+            'App\Filament\Resources\EstablecimientoResource' => 'admin.padron.manage',
+            'App\Filament\Resources\FilialResource' => 'admin.padron.manage',
+            'App\Filament\Resources\SecretariaResource' => 'admin.institucion.manage',
+            'App\Filament\Resources\SolicitudAfiliacionResource' => 'admin.afiliacion.manage',
+            'App\Filament\Resources\SolicitudBeneficioResource' => 'admin.atencion.manage',
+            'App\Filament\Resources\PedidoResource' => 'admin.atencion.manage',
+            'App\Filament\Resources\ConsultaResource' => 'admin.atencion.manage',
+            'App\Filament\Resources\TramiteResource' => 'admin.atencion.manage',
+            'App\Filament\Resources\TurismoConsultaResource' => 'admin.atencion.manage',
+            'App\Filament\Resources\BeneficioResource' => 'admin.atencion.manage',
+            'App\Filament\Resources\PostResource' => 'admin.editor.manage',
+            'App\Filament\Resources\PostCommentResource' => 'admin.editor.manage',
+            'App\Filament\Resources\DescargaResource' => 'admin.editor.manage',
+            'App\Filament\Resources\DocumentoResource' => 'admin.institucion.manage',
+            'App\Filament\Resources\EfemerideResource' => 'admin.editor.manage',
+            'App\Filament\Resources\EscalaSalarialResource' => 'admin.institucion.manage',
+            'App\Filament\Resources\AutoridadResource' => 'admin.institucion.manage',
+            'App\Filament\Resources\TestimonioResource' => 'admin.editor.manage',
+            'App\Filament\Resources\VisualBlockResource' => 'admin.editor.manage',
+            'App\Filament\Resources\PageSectionResource' => 'admin.editor.manage',
+            'App\Filament\Resources\SitePageResource' => 'admin.editor.manage',
+            'App\Filament\Resources\HotelConvenioResource' => 'admin.institucion.manage',
+            'App\Filament\Resources\SiteSettingResource' => 'admin.settings.manage',
+        ],
+        'cent' => [
+            'App\Filament\Resources\CentUserResource' => 'cent.usuarios.manage',
+            'App\Filament\Resources\PreinscripcionCentResource' => 'cent.ingresantes.manage',
+            'App\Filament\Resources\MatriculaCentResource' => 'cent.alumnos.manage',
+            'App\Filament\Resources\InscripcionResource' => 'cent.alumnos.manage',
+            'App\Filament\Resources\NotaResource' => 'cent.alumnos.manage',
+            'App\Filament\Resources\CentEquivalenciaResource' => 'cent.alumnos.manage',
+            'App\Filament\Resources\CentLegajoDocumentoResource' => 'cent.administracion.manage',
+            'App\Filament\Resources\CentCuotaResource' => 'cent.administracion.manage',
+            'App\Filament\Resources\CentReciboResource' => 'cent.administracion.manage',
+            'App\Filament\Resources\CentPermisoExamenResource' => 'cent.administracion.manage',
+            'App\Filament\Resources\CentMaterialResource' => 'cent.aula.manage',
+            'App\Filament\Resources\CentTrabajoPracticoResource' => 'cent.aula.manage',
+            'App\Filament\Resources\CentEntregaTrabajoResource' => 'cent.aula.manage',
+            'App\Filament\Resources\CentClaseResource' => 'cent.aula.manage',
+            'App\Filament\Resources\CentConfiguracionResource' => 'cent.config.manage',
+        ],
+    ],
+
+    'pages' => [
+        'admin' => [
+            'App\Filament\Pages\Configuracion' => 'admin.settings.manage',
+        ],
+        'cent' => [],
+    ],
+];
