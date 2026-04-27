@@ -33,7 +33,7 @@ class CentLegajoDocumentoResource extends Resource
                 ->searchable()
                 ->required(),
             Forms\Components\Select::make('tipo')->options(CentLegajoDocumento::tipos())->required()->native(false),
-            Forms\Components\FileUpload::make('archivo')->disk('public')->directory('cent/legajos')->openable()->downloadable(),
+            Forms\Components\FileUpload::make('archivo')->disk('local')->directory('cent/legajos')->helperText('Archivo privado. La descarga se realiza desde acciones.'),
             Forms\Components\Select::make('estado')->options([
                 'pendiente' => 'Pendiente',
                 'aprobado' => 'Aprobado',
@@ -69,6 +69,12 @@ class CentLegajoDocumentoResource extends Resource
                 ]),
             ])
             ->actions([
+                Tables\Actions\Action::make('archivo')
+                    ->label('Archivo')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->visible(fn (CentLegajoDocumento $record) => filled($record->archivo))
+                    ->url(fn (CentLegajoDocumento $record) => route('cent.archivos.legajo', $record))
+                    ->openUrlInNewTab(),
                 Tables\Actions\Action::make('aprobar')
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
@@ -108,4 +114,3 @@ class CentLegajoDocumentoResource extends Resource
         ];
     }
 }
-

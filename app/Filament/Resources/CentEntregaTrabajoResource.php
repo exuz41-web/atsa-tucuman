@@ -37,7 +37,7 @@ class CentEntregaTrabajoResource extends Resource
                 ->options(fn () => User::where('cent_role', 'alumno')->orderBy('name')->pluck('name', 'id'))
                 ->searchable()
                 ->required(),
-            Forms\Components\FileUpload::make('archivo')->disk('public')->directory('cent/entregas')->downloadable()->openable(),
+            Forms\Components\FileUpload::make('archivo')->disk('local')->directory('cent/entregas')->helperText('Archivo privado. La descarga se realiza desde acciones.'),
             Forms\Components\Select::make('estado')->options([
                 'entregado' => 'Entregado',
                 'observado' => 'Observado',
@@ -84,6 +84,12 @@ class CentEntregaTrabajoResource extends Resource
                 ]),
             ])
             ->actions([
+                Tables\Actions\Action::make('archivo')
+                    ->label('Entrega')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->visible(fn (CentEntregaTrabajo $record) => filled($record->archivo))
+                    ->url(fn (CentEntregaTrabajo $record) => route('cent.archivos.entregas', $record))
+                    ->openUrlInNewTab(),
                 Tables\Actions\Action::make('aprobar')
                     ->label('Aprobar')
                     ->icon('heroicon-o-check-circle')

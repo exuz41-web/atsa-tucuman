@@ -47,7 +47,7 @@ class CentMaterialResource extends Resource
                 'guia' => 'Guía',
                 'otro' => 'Otro',
             ])->default('apunte')->required()->native(false),
-            Forms\Components\FileUpload::make('archivo')->disk('public')->directory('cent/materiales')->downloadable()->openable(),
+            Forms\Components\FileUpload::make('archivo')->disk('local')->directory('cent/materiales')->helperText('Archivo privado. La descarga se realiza desde acciones o el aula.'),
             Forms\Components\TextInput::make('url')->label('URL externa')->url()->maxLength(255),
             Forms\Components\Toggle::make('publicado')->default(true),
             Forms\Components\Textarea::make('descripcion')->rows(4)->columnSpanFull(),
@@ -85,7 +85,15 @@ class CentMaterialResource extends Resource
                 ]),
                 Tables\Filters\TernaryFilter::make('publicado'),
             ])
-            ->actions([Tables\Actions\EditAction::make()])
+            ->actions([
+                Tables\Actions\Action::make('archivo')
+                    ->label('Archivo')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->visible(fn (CentMaterial $record) => filled($record->archivo))
+                    ->url(fn (CentMaterial $record) => route('cent.archivos.materiales', $record))
+                    ->openUrlInNewTab(),
+                Tables\Actions\EditAction::make(),
+            ])
             ->bulkActions([Tables\Actions\BulkActionGroup::make([Tables\Actions\DeleteBulkAction::make()])]);
     }
 
@@ -108,4 +116,3 @@ class CentMaterialResource extends Resource
         ];
     }
 }
-

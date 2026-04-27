@@ -51,7 +51,7 @@ class CentCuotaResource extends Resource
                 ->searchable(),
             Forms\Components\DatePicker::make('vencimiento')->native(false),
             Forms\Components\Select::make('estado')->options(self::estados())->default('pendiente')->required()->native(false),
-            Forms\Components\FileUpload::make('comprobante')->disk('public')->directory('cent/cuotas')->openable()->downloadable(),
+            Forms\Components\FileUpload::make('comprobante')->disk('local')->directory('cent/cuotas')->helperText('Archivo privado. La descarga se realiza desde acciones.'),
             Forms\Components\DateTimePicker::make('pagado_at')->label('Pagado el')->native(false),
             Forms\Components\Textarea::make('observaciones')->rows(3)->columnSpanFull(),
             Forms\Components\Hidden::make('creado_por')->default(fn () => auth()->id()),
@@ -89,6 +89,12 @@ class CentCuotaResource extends Resource
                 Tables\Filters\SelectFilter::make('descuento_tipo')->options(self::descuentos()),
             ])
             ->actions([
+                Tables\Actions\Action::make('comprobante')
+                    ->label('Comprobante')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->visible(fn (CentCuota $record) => filled($record->comprobante))
+                    ->url(fn (CentCuota $record) => route('cent.archivos.cuotas.comprobante', $record))
+                    ->openUrlInNewTab(),
                 Tables\Actions\Action::make('marcarPagada')
                     ->label('Pagar y emitir recibo')
                     ->icon('heroicon-o-check-circle')
@@ -151,5 +157,4 @@ class CentCuotaResource extends Resource
         ];
     }
 }
-
 

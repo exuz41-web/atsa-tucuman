@@ -72,7 +72,7 @@
                         <div class="text-end">
                             <span class="badge bg-{{ $color }}-subtle text-{{ $color }}">{{ ucfirst($documento->estado) }}</span>
                             @if($documento->archivo)
-                                <a href="{{ asset('storage/'.$documento->archivo) }}" target="_blank" class="btn btn-sm btn-outline-primary d-block mt-2">Ver archivo</a>
+                                <a href="{{ route('cent.archivos.legajo', $documento) }}" target="_blank" class="btn btn-sm btn-outline-primary d-block mt-2">Ver archivo</a>
                             @endif
                         </div>
                     </div>

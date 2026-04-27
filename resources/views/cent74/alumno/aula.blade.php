@@ -63,7 +63,7 @@
                             </div>
                             <div class="d-flex gap-2 mt-3 flex-wrap">
                                 @if($material->archivo)
-                                    <a class="btn btn-sm btn-outline-primary" target="_blank" href="{{ asset('storage/'.$material->archivo) }}">Descargar</a>
+                                    <a class="btn btn-sm btn-outline-primary" target="_blank" href="{{ route('cent.archivos.materiales', $material) }}">Descargar</a>
                                 @endif
                                 @if($material->url)
                                     <a class="btn btn-sm btn-primary" target="_blank" href="{{ $material->url }}">Abrir link</a>
@@ -103,7 +103,7 @@
                     <p class="mb-3">{{ $trabajo->consigna }}</p>
                     <div class="small text-muted mb-3">Entrega: {{ $trabajo->fecha_entrega?->format('d/m/Y H:i') ?: 'Sin fecha límite' }}</div>
                     @if($trabajo->archivo_consigna)
-                        <a href="{{ asset('storage/'.$trabajo->archivo_consigna) }}" target="_blank" class="btn btn-sm btn-outline-primary mb-3">Ver consigna</a>
+                        <a href="{{ route('cent.archivos.trabajos.consigna', $trabajo) }}" target="_blank" class="btn btn-sm btn-outline-primary mb-3">Ver consigna</a>
                     @endif
 
                     @if($entrega)

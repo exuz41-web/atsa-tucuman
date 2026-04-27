@@ -107,7 +107,7 @@ class CentClassroomController extends Controller
         $this->autorizarComisionDocente((int) $data['comision_id']);
 
         if ($request->hasFile('archivo')) {
-            $data['archivo'] = $request->file('archivo')->store('cent/materiales/'.auth()->id(), 'public');
+            $data['archivo'] = $request->file('archivo')->store('cent/materiales/'.auth()->id(), 'local');
         }
 
         $data['creado_por'] = auth()->id();
@@ -134,7 +134,7 @@ class CentClassroomController extends Controller
         $this->autorizarComisionDocente((int) $data['comision_id']);
 
         if ($request->hasFile('archivo_consigna')) {
-            $data['archivo_consigna'] = $request->file('archivo_consigna')->store('cent/trabajos/'.auth()->id(), 'public');
+            $data['archivo_consigna'] = $request->file('archivo_consigna')->store('cent/trabajos/'.auth()->id(), 'local');
         }
 
         $data['fecha_publicacion'] = now();
@@ -164,7 +164,7 @@ class CentClassroomController extends Controller
             'archivo' => ['required', 'file', 'mimes:pdf,doc,docx,jpg,jpeg,png,zip', 'max:8192'],
         ]);
 
-        $data['archivo'] = $request->file('archivo')->store('cent/entregas/'.$alumno->id, 'public');
+        $data['archivo'] = $request->file('archivo')->store('cent/entregas/'.$alumno->id, 'local');
         $data['estado'] = 'entregado';
         $data['entregado_at'] = now();
 

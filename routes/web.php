@@ -7,6 +7,7 @@ use App\Http\Controllers\BackupController;
 use App\Http\Controllers\CarnetController;
 use App\Http\Controllers\CentAlumnoController;
 use App\Http\Controllers\CentAvisoController;
+use App\Http\Controllers\CentArchivoController;
 use App\Http\Controllers\CentClassroomController;
 use App\Http\Controllers\CentController;
 use App\Http\Controllers\CentDirectivoController;
@@ -106,6 +107,11 @@ Route::prefix('cent74')->name('cent.')->group(function () {
         Route::post('/perfil', [CentPortalAcademicoController::class, 'actualizarPerfil'])->name('perfil.actualizar');
         Route::get('/notificaciones', [CentPortalAcademicoController::class, 'notificaciones'])->name('notificaciones');
         Route::post('/notificaciones/{notificacion}/leer', [CentPortalAcademicoController::class, 'leerNotificacion'])->name('notificaciones.leer');
+        Route::get('/archivos/legajos/{documento}', [CentArchivoController::class, 'legajo'])->name('archivos.legajo');
+        Route::get('/archivos/cuotas/{cuota}/comprobante', [CentArchivoController::class, 'cuotaComprobante'])->name('archivos.cuotas.comprobante');
+        Route::get('/archivos/materiales/{material}', [CentArchivoController::class, 'material'])->name('archivos.materiales');
+        Route::get('/archivos/trabajos/{trabajo}/consigna', [CentArchivoController::class, 'trabajoConsigna'])->name('archivos.trabajos.consigna');
+        Route::get('/archivos/entregas/{entrega}', [CentArchivoController::class, 'entrega'])->name('archivos.entregas');
     });
 
     Route::middleware(['auth', 'cent.role:alumno,coordinador,directivo,admin'])->group(function () {

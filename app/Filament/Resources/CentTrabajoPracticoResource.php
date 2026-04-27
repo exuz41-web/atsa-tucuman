@@ -37,7 +37,7 @@ class CentTrabajoPracticoResource extends Resource
             Forms\Components\DateTimePicker::make('fecha_publicacion')->label('Publicación')->native(false),
             Forms\Components\DateTimePicker::make('fecha_entrega')->label('Entrega')->native(false),
             Forms\Components\TextInput::make('puntaje_maximo')->label('Puntaje máximo')->numeric(),
-            Forms\Components\FileUpload::make('archivo_consigna')->label('Archivo de consigna')->disk('public')->directory('cent/trabajos')->downloadable()->openable(),
+            Forms\Components\FileUpload::make('archivo_consigna')->label('Archivo de consigna')->disk('local')->directory('cent/trabajos')->helperText('Archivo privado. La descarga se realiza desde acciones o el aula.'),
             Forms\Components\Toggle::make('acepta_entregas')->label('Acepta entregas')->default(true),
             Forms\Components\Toggle::make('publicado')->default(true),
             Forms\Components\Textarea::make('consigna')->required()->rows(6)->columnSpanFull(),
@@ -67,7 +67,15 @@ class CentTrabajoPracticoResource extends Resource
                 Tables\Filters\TernaryFilter::make('publicado'),
                 Tables\Filters\TernaryFilter::make('acepta_entregas')->label('Acepta entregas'),
             ])
-            ->actions([Tables\Actions\EditAction::make()])
+            ->actions([
+                Tables\Actions\Action::make('consigna')
+                    ->label('Consigna')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->visible(fn (CentTrabajoPractico $record) => filled($record->archivo_consigna))
+                    ->url(fn (CentTrabajoPractico $record) => route('cent.archivos.trabajos.consigna', $record))
+                    ->openUrlInNewTab(),
+                Tables\Actions\EditAction::make(),
+            ])
             ->bulkActions([Tables\Actions\BulkActionGroup::make([Tables\Actions\DeleteBulkAction::make()])]);
     }
 
@@ -90,4 +98,3 @@ class CentTrabajoPracticoResource extends Resource
         ];
     }
 }
-

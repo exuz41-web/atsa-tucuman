@@ -73,7 +73,7 @@
                     <td><span class="badge bg-{{ $color }}-subtle text-{{ $color }}">{{ ucfirst($cuota->estado) }}</span></td>
                     <td>
                         @if($cuota->comprobante)
-                            <a href="{{ asset('storage/'.$cuota->comprobante) }}" target="_blank" class="btn btn-sm btn-light">Ver</a>
+                            <a href="{{ route('cent.archivos.cuotas.comprobante', $cuota) }}" target="_blank" class="btn btn-sm btn-light">Ver</a>
                         @endif
                         @if($cuota->recibo)
                             <a href="{{ route('cent.alumno.recibos.pdf', $cuota->recibo) }}" target="_blank" class="btn btn-sm btn-success mt-2">
@@ -97,4 +97,3 @@
     </div>
 </div>
 @endsection
-

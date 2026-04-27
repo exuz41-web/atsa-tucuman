@@ -9,6 +9,7 @@ use App\Models\CentNotificacion;
 use App\Services\Cent\CentNotificar;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
@@ -51,7 +52,7 @@ class CentPortalAcademicoController extends Controller
             'observaciones' => ['nullable', 'string', 'max:1000'],
         ]);
 
-        $path = $request->file('archivo')->store('cent/legajos/'.auth()->id(), 'public');
+        $path = $request->file('archivo')->store('cent/legajos/'.auth()->id(), 'local');
 
         CentLegajoDocumento::updateOrCreate(
             ['user_id' => auth()->id(), 'tipo' => $data['tipo']],
@@ -97,11 +98,11 @@ class CentPortalAcademicoController extends Controller
         ]);
 
         if ($cuota->comprobante) {
-            Storage::disk('public')->delete($cuota->comprobante);
+            $this->sensitiveDiskFor($cuota->comprobante)->delete($cuota->comprobante);
         }
 
         $cuota->update([
-            'comprobante' => $request->file('comprobante')->store('cent/cuotas/'.auth()->id(), 'public'),
+            'comprobante' => $request->file('comprobante')->store('cent/cuotas/'.auth()->id(), 'local'),
             'estado' => 'pendiente',
         ]);
 
@@ -175,5 +176,13 @@ class CentPortalAcademicoController extends Controller
             ? redirect($notificacion->url)
             : redirect()->route('cent.notificaciones');
     }
-}
 
+    private function sensitiveDiskFor(string $path): FilesystemAdapter
+    {
+        if (Storage::disk('local')->exists($path)) {
+            return Storage::disk('local');
+        }
+
+        return Storage::disk('public');
+    }
+}
