@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /afiliados/login
+Disallow: /afiliados/registro
+Disallow: /afiliados/recuperar-password
+Disallow: /afiliados/reset-password/
+Disallow: /afiliados/dashboard
+Disallow: /afiliados/mi-carnet
+Disallow: /afiliados/mis-datos
+Disallow: /afiliados/mis-pedidos
+Disallow: /afiliados/mis-consultas
+
+Sitemap: https://atsatucuman.org/sitemap.xml

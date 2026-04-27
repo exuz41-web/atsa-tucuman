@@ -1,0 +1,22 @@
+{
+    "name": "ATSA Tucumán Portal",
+    "short_name": "ATSA",
+    "description": "Portal oficial para afiliados de ATSA Tucumán",
+    "start_url": "/afiliados/dashboard",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#5D87FF",
+    "icons": [
+        {
+            "src": "/images/logo-atsa.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/images/logo-atsa.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}

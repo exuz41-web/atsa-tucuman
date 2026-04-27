@@ -1,0 +1,6 @@
+@import 'bootstrap-icons/font/bootstrap-icons.css';
+@import 'https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
