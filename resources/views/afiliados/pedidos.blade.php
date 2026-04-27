@@ -6,11 +6,20 @@
 @section('content')
 @php
     $badges = [
-        'pendiente' => 'bg-warning',
+        'pendiente'   => 'bg-warning',
         'en_revision' => 'bg-info',
-        'aprobado' => 'bg-success',
-        'rechazado' => 'bg-danger',
-        'entregado' => 'bg-secondary',
+        'aprobado'    => 'bg-primary',
+        'entregado'   => 'bg-success',
+        'completado'  => 'bg-success',
+        'rechazado'   => 'bg-danger',
+    ];
+    $estadoLabels = [
+        'pendiente'   => 'Pendiente',
+        'en_revision' => 'En revisión',
+        'aprobado'    => 'Aprobado',
+        'entregado'   => 'Entregado',
+        'completado'  => 'Completado',
+        'rechazado'   => 'Rechazado',
     ];
 @endphp
 
@@ -43,8 +52,8 @@
                     <td class="fw-bolder text-capitalize">{{ str_replace('_', ' ', $pedido->tipo) }}</td>
                     <td class="text-muted" style="min-width:260px;">{{ $pedido->descripcion }}</td>
                     <td>
-                        <span class="badge {{ $badges[$pedido->estado] ?? 'bg-primary' }} rounded-pill px-3 py-2 text-capitalize">
-                            {{ str_replace('_', ' ', $pedido->estado) }}
+                        <span class="badge {{ $badges[$pedido->estado] ?? 'bg-primary' }} rounded-pill px-3 py-2">
+                            {{ $estadoLabels[$pedido->estado] ?? ucfirst(str_replace('_', ' ', $pedido->estado)) }}
                         </span>
                     </td>
                     <td class="text-muted">{{ $pedido->observaciones ?: 'Sin observaciones' }}</td>

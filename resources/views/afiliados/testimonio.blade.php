@@ -67,7 +67,7 @@
                         id="cargo"
                         name="cargo"
                         class="form-control @error('cargo') is-invalid @enderror"
-                        value="{{ old('cargo', $testimonio->cargo ? ($user->categoria_laboral ?: 'Afiliado')) }}"
+                        value="{{ old('cargo', $testimonio?->cargo ?: ($user->categoria_laboral ?: 'Afiliado')) }}"
                         placeholder="Ej: Enfermera, Hospital Padilla">
                     @error('cargo')
                     <div class="invalid-feedback">{{ $message }}</div>

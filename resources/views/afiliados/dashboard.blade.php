@@ -145,12 +145,21 @@
                     @forelse ($pedidosRecientes as $pedido)
                         @php
                             $badge = match ($pedido->estado) {
-                                'pendiente' => 'bg-warning',
-                                'en_revision' => 'bg-info',
-                                'aprobado', 'entregado', 'completado' => 'bg-success',
-                                'rechazado' => 'bg-danger',
-                                default => 'bg-primary',
+                                'pendiente'              => 'bg-warning',
+                                'en_revision'            => 'bg-info',
+                                'aprobado'               => 'bg-primary',
+                                'entregado', 'completado'=> 'bg-success',
+                                'rechazado'              => 'bg-danger',
+                                default                  => 'bg-secondary',
                             };
+                            $estadoLabel = [
+                                'pendiente'   => 'Pendiente',
+                                'en_revision' => 'En revisión',
+                                'aprobado'    => 'Aprobado',
+                                'entregado'   => 'Entregado',
+                                'completado'  => 'Completado',
+                                'rechazado'   => 'Rechazado',
+                            ][$pedido->estado] ?? ucfirst(str_replace('_', ' ', $pedido->estado));
                         @endphp
                         <tr>
                             <td>
@@ -166,8 +175,8 @@
                             </td>
                             <td class="text-muted">{{ $pedido->created_at->format('d/m/Y') }}</td>
                             <td>
-                                <span class="badge {{ $badge }} rounded-pill px-3 py-2 text-capitalize">
-                                    {{ str_replace('_', ' ', $pedido->estado) }}
+                                <span class="badge {{ $badge }} rounded-pill px-3 py-2">
+                                    {{ $estadoLabel }}
                                 </span>
                             </td>
                         </tr>

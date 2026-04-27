@@ -366,9 +366,9 @@
         </header>
 
         <div class="afiliado-content">
-            @if (session('status') || session('success'))
-                <div class="alert alert-success alert-dismissible fade show rounded-3 border-0 shadow-sm" role="alert">
-                    {{ session('status') ? session('success') }}
+            @if (session('status') || session('success') || session('error'))
+                <div class="alert {{ session('error') ? 'alert-danger' : 'alert-success' }} alert-dismissible fade show rounded-3 border-0 shadow-sm" role="alert">
+                    {{ session('status') ?? session('success') ?? session('error') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
                 </div>
             @endif
