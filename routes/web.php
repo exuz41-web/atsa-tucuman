@@ -27,6 +27,7 @@ use App\Http\Controllers\GremialController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NovedadesController;
 use App\Http\Controllers\PanelController;
+use App\Http\Controllers\PrestadorPortalController;
 use App\Http\Controllers\SindicatoController;
 use App\Http\Controllers\SolicitudAfiliacionController;
 use App\Http\Controllers\TurismoController;
@@ -36,6 +37,13 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/verificar/{numero_afiliado}', [CarnetController::class, 'verificar'])
     ->name('carnet.verificar');
+
+Route::prefix('prestadores/{token}')->name('prestadores.')->middleware('throttle:60,1')->group(function () {
+    Route::get('/', [PrestadorPortalController::class, 'index'])->name('portal');
+    Route::get('/validar', [PrestadorPortalController::class, 'validar'])->name('validar');
+    Route::post('/ordenes/{orden}/aceptar', [PrestadorPortalController::class, 'aceptar'])->name('ordenes.aceptar');
+    Route::post('/ordenes/{orden}/entregar', [PrestadorPortalController::class, 'entregar'])->name('ordenes.entregar');
+});
 
 Route::get('/admin/salir', function (Request $request) {
     Auth::logout();
