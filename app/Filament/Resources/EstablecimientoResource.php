@@ -121,13 +121,13 @@ class EstablecimientoResource extends Resource
 
                 Tables\Columns\BadgeColumn::make('tipo')
                     ->label('Tipo')
-                    ->formatStateUsing(fn (?string $s): string => match ($s) {
+                    ->formatStateUsing(fn (?string $state): string => match ($state) {
                         'hospital'    => 'Hospital',
                         'clinica'     => 'Clínica',
                         'sanatorio'   => 'Sanatorio',
                         'farmacia'    => 'Farmacia',
                         'laboratorio' => 'Laboratorio',
-                        default       => ucfirst((string) $s),
+                        default       => ucfirst((string) $state),
                     })
                     ->color('info'),
 

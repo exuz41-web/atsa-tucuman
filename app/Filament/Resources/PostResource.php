@@ -194,8 +194,8 @@ class PostResource extends Resource
 
                 Tables\Columns\BadgeColumn::make('category')
                     ->label('Categoría')
-                    ->formatStateUsing(fn (?string $s): string => self::categorias()[$s] ?? ucfirst((string) $s))
-                    ->color(fn (?string $s): string => match ($s) {
+                    ->formatStateUsing(fn (?string $state): string => self::categorias()[$state] ?? ucfirst((string) $state))
+                    ->color(fn (?string $state): string => match ($state) {
                         'gremial'        => 'primary',
                         'institucional'  => 'info',
                         'accion_social'  => 'danger',

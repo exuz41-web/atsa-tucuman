@@ -167,8 +167,8 @@ class BeneficioResource extends Resource
                 Tables\Columns\TextColumn::make('categoria')
                     ->label('Categoría')
                     ->badge()
-                    ->formatStateUsing(fn (?string $s): string => Beneficio::categorias()[$s] ?? ucfirst((string) $s))
-                    ->color(fn (?string $s): string => Beneficio::colores()[$s] ?? 'gray'),
+                    ->formatStateUsing(fn (?string $state): string => Beneficio::categorias()[$state] ?? ucfirst((string) $state))
+                    ->color(fn (?string $state): string => Beneficio::colores()[$state] ?? 'gray'),
 
                 Tables\Columns\IconColumn::make('activo')
                     ->label('Activo')

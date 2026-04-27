@@ -145,11 +145,11 @@ class TestimonioResource extends Resource
 
                 Tables\Columns\BadgeColumn::make('estado')
                     ->label('Estado')
-                    ->formatStateUsing(fn (string $s): string => match ($s) {
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
                         'pendiente'  => 'Pendiente',
                         'aprobado'   => 'Aprobado',
                         'rechazado'  => 'Rechazado',
-                        default      => ucfirst($s),
+                        default      => ucfirst($state),
                     })
                     ->colors([
                         'warning' => 'pendiente',

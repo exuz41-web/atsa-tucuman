@@ -223,7 +223,7 @@ class UserResource extends Resource
 
                 Tables\Columns\TextColumn::make('tipo_afiliado')
                     ->label('Tipo')
-                    ->formatStateUsing(fn (?string $s): string => match ($s) {
+                    ->formatStateUsing(fn (?string $state): string => match ($state) {
                         'docente'    => 'Docente',
                         'no_docente' => 'No docente',
                         'jubilado'   => 'Jubilado',
@@ -243,7 +243,7 @@ class UserResource extends Resource
 
                 Tables\Columns\BadgeColumn::make('estado_afiliado')
                     ->label('Estado')
-                    ->formatStateUsing(fn (?string $s): string => match ($s) {
+                    ->formatStateUsing(fn (?string $state): string => match ($state) {
                         'activo'     => 'Activo',
                         'inactivo'   => 'Inactivo',
                         'suspendido' => 'Suspendido',
@@ -253,8 +253,8 @@ class UserResource extends Resource
                     ->colors([
                         'success' => 'activo',
                         'warning' => 'inactivo',
-                        'danger'  => fn (?string $s) => in_array($s, ['suspendido', 'baja']),
-                        'gray'    => fn (?string $s) => $s === null,
+                        'danger'  => fn (?string $state) => in_array($s, ['suspendido', 'baja']),
+                        'gray'    => fn (?string $state) => $s === null,
                     ]),
 
                 Tables\Columns\IconColumn::make('active')

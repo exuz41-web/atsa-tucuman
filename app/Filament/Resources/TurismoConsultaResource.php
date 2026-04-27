@@ -120,7 +120,7 @@ class TurismoConsultaResource extends Resource
 
                 Tables\Columns\TextColumn::make('beneficio')
                     ->label('Beneficio')
-                    ->formatStateUsing(fn (?string $s): string => self::beneficios()[$s] ?? ucfirst((string) $s))
+                    ->formatStateUsing(fn (?string $state): string => self::beneficios()[$state] ?? ucfirst((string) $state))
                     ->badge()
                     ->color('info'),
 
@@ -132,7 +132,7 @@ class TurismoConsultaResource extends Resource
 
                 Tables\Columns\BadgeColumn::make('estado')
                     ->label('Estado')
-                    ->formatStateUsing(fn (string $s): string => self::estados()[$s] ?? ucfirst($s))
+                    ->formatStateUsing(fn (string $state): string => self::estados()[$state] ?? ucfirst($state))
                     ->colors([
                         'warning' => 'pendiente',
                         'info'    => 'en_proceso',

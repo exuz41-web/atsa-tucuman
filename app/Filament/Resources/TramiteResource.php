@@ -91,24 +91,24 @@ class TramiteResource extends Resource
 
                 Tables\Columns\BadgeColumn::make('type')
                     ->label('Tipo')
-                    ->formatStateUsing(fn (?string $s): string => match ($s) {
+                    ->formatStateUsing(fn (?string $state): string => match ($state) {
                         'inscripcion'  => 'Inscripción',
                         'equivalencia' => 'Equivalencia',
                         'titulo'       => 'Título',
                         'beca'         => 'Beca',
                         'certificado'  => 'Certificado',
-                        default        => ucfirst((string) $s),
+                        default        => ucfirst((string) $state),
                     })
                     ->color('info'),
 
                 Tables\Columns\BadgeColumn::make('status')
                     ->label('Estado')
-                    ->formatStateUsing(fn (?string $s): string => match ($s) {
+                    ->formatStateUsing(fn (?string $state): string => match ($state) {
                         'pendiente'  => 'Pendiente',
                         'en_proceso' => 'En proceso',
                         'resuelto'   => 'Resuelto',
                         'cancelado'  => 'Cancelado',
-                        default      => ucfirst((string) $s),
+                        default      => ucfirst((string) $state),
                     })
                     ->colors([
                         'warning' => 'pendiente',

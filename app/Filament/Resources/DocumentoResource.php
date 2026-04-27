@@ -88,7 +88,7 @@ class DocumentoResource extends Resource
 
                 Tables\Columns\BadgeColumn::make('tipo')
                     ->label('Tipo')
-                    ->formatStateUsing(fn (?string $s): string => self::tipos()[$s] ?? ucfirst((string) $s))
+                    ->formatStateUsing(fn (?string $state): string => self::tipos()[$state] ?? ucfirst((string) $state))
                     ->color('info'),
 
                 Tables\Columns\TextColumn::make('anio')
