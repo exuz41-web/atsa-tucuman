@@ -118,6 +118,7 @@ class CentDocenteController extends Controller
                 ->exists();
 
         abort_unless($puedeVer, 403);
+        $this->autorizarAlumnoEnScope($alumno);
 
         $matricula = MatriculaCent::where('user_id', $alumno->id)
             ->with(['carrera', 'sede'])
@@ -326,6 +327,8 @@ class CentDocenteController extends Controller
             $comision->docente_id === auth()->id() || in_array($centRole, ['admin', 'directivo', 'coordinador'], true),
             403
         );
+
+        $this->autorizarSedeId($comision->cent_sede_id);
     }
 
     private function autorizarDirectivo(): void
@@ -349,6 +352,43 @@ class CentDocenteController extends Controller
         }
 
         return ((float) $grade) >= 6 ? 'aprobado' : 'desaprobado';
+    }
+
+    private function autorizarAlumnoEnScope(User $alumno): void
+    {
+        $sedeScope = $this->sedeScopeId();
+
+        if (! $sedeScope) {
+            return;
+        }
+
+        abort_unless(
+            $alumno->matriculasCent()->where('cent_sede_id', $sedeScope)->exists(),
+            403
+        );
+    }
+
+    private function autorizarSedeId(?int $sedeId): void
+    {
+        $sedeScope = $this->sedeScopeId();
+
+        if (! $sedeScope) {
+            return;
+        }
+
+        abort_unless((int) $sedeId === $sedeScope, 403);
+    }
+
+    private function sedeScopeId(): ?int
+    {
+        $user = auth()->user();
+        $centRole = $user->cent_role ?: $user->role;
+
+        if (in_array($centRole, ['coordinador', 'directivo'], true) && $user->cent_sede_id) {
+            return (int) $user->cent_sede_id;
+        }
+
+        return null;
     }
 
     private function datosPlanilla(Comision $comision): array
@@ -393,4 +433,3 @@ class CentDocenteController extends Controller
             ->get();
     }
 }
-

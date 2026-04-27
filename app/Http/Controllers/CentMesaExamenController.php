@@ -187,6 +187,9 @@ class CentMesaExamenController extends Controller
             $inscripcion->alumno_id === auth()->id() || in_array($centRole, ['admin', 'directivo', 'coordinador'], true),
             403
         );
+
+        $inscripcion->loadMissing('mesa');
+        $this->autorizarSedeId($inscripcion->mesa?->cent_sede_id);
     }
 
     private function autorizarMesaDocente(MesaExamenCent $mesa): void
@@ -196,6 +199,30 @@ class CentMesaExamenController extends Controller
             $mesa->docente_id === auth()->id() || in_array($centRole, ['admin', 'directivo', 'coordinador'], true),
             403
         );
+
+        $this->autorizarSedeId($mesa->cent_sede_id);
+    }
+
+    private function autorizarSedeId(?int $sedeId): void
+    {
+        $sedeScope = $this->sedeScopeId();
+
+        if (! $sedeScope) {
+            return;
+        }
+
+        abort_unless((int) $sedeId === $sedeScope, 403);
+    }
+
+    private function sedeScopeId(): ?int
+    {
+        $user = auth()->user();
+        $centRole = $user->cent_role ?: $user->role;
+
+        if (in_array($centRole, ['coordinador', 'directivo'], true) && $user->cent_sede_id) {
+            return (int) $user->cent_sede_id;
+        }
+
+        return null;
     }
 }
-

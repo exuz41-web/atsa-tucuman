@@ -49,8 +49,8 @@
 
                 <div class="col-md-6">
                     <label class="form-label fw-bold">Sede</label>
-                    <select name="cent_sede_id" class="form-select">
-                        <option value="">CENT N°74</option>
+                    <select name="cent_sede_id" class="form-select" required>
+                        <option value="">Seleccionar sede</option>
                         @foreach($sedes as $sede)
                             <option value="{{ $sede->id }}" @selected((int) old('cent_sede_id', $comision->cent_sede_id) === $sede->id)>
                                 {{ $sede->nombre }} - {{ $sede->ciudad }}

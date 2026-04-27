@@ -109,6 +109,7 @@ class CentDirectivoController extends Controller
         $this->autorizarDirectivo();
 
         $data = $this->validarComision($request);
+        $this->autorizarSedeId($data['cent_sede_id'] ?? null);
         $data['acta_estado'] = 'abierta';
 
         $comision = Comision::create($data);
@@ -121,6 +122,7 @@ class CentDirectivoController extends Controller
     public function editarComision(Comision $comision): View
     {
         $this->autorizarDirectivo();
+        $this->autorizarComisionEnScope($comision);
 
         $comision->load(['materia.carrera', 'sede', 'docente', 'inscripciones.alumno']);
 
@@ -134,7 +136,11 @@ class CentDirectivoController extends Controller
     {
         $this->autorizarDirectivo();
 
-        $comision->update($this->validarComision($request));
+        $this->autorizarComisionEnScope($comision);
+        $data = $this->validarComision($request);
+        $this->autorizarSedeId($data['cent_sede_id'] ?? null);
+
+        $comision->update($data);
 
         return back()->with('status', 'Comisión actualizada correctamente.');
     }
@@ -142,6 +148,7 @@ class CentDirectivoController extends Controller
     public function inscribirAlumno(Request $request, Comision $comision): RedirectResponse
     {
         $this->autorizarDirectivo();
+        $this->autorizarComisionEnScope($comision);
 
         $data = $request->validate([
             'alumno_id' => ['required', 'exists:users,id'],
@@ -149,6 +156,7 @@ class CentDirectivoController extends Controller
         ]);
 
         $comision->load('materia');
+        $this->autorizarAlumnoEnScope(User::findOrFail($data['alumno_id']));
 
         $matricula = MatriculaCent::where('user_id', $data['alumno_id'])
             ->where('carrera_id', $comision->materia->carrera_id)
@@ -175,6 +183,7 @@ class CentDirectivoController extends Controller
     public function constanciaAlumno(User $alumno): Response
     {
         $this->autorizarDirectivo();
+        $this->autorizarAlumnoEnScope($alumno);
 
         $alumno->load(['matriculasCent.carrera', 'matriculasCent.sede']);
         $matricula = $alumno->matriculasCent->sortByDesc('created_at')->first();
@@ -190,6 +199,7 @@ class CentDirectivoController extends Controller
     public function fichaAlumnoPdf(User $alumno): Response
     {
         $this->autorizarDirectivo();
+        $this->autorizarAlumnoEnScope($alumno);
 
         $alumno->load(['matriculasCent.carrera.materias', 'matriculasCent.sede']);
 
@@ -266,6 +276,7 @@ class CentDirectivoController extends Controller
     public function actaMesaPdf(MesaExamenCent $mesa): Response
     {
         $this->autorizarDirectivo();
+        $this->autorizarMesaEnScope($mesa);
 
         $mesa->load([
             'materia.carrera',
@@ -286,6 +297,7 @@ class CentDirectivoController extends Controller
     public function aprobarActaMesa(Request $request, MesaExamenCent $mesa): RedirectResponse
     {
         $this->autorizarDirectivo();
+        $this->autorizarMesaEnScope($mesa);
 
         $data = $request->validate([
             'acta_libro' => ['nullable', 'string', 'max:80'],
@@ -309,6 +321,7 @@ class CentDirectivoController extends Controller
     public function reabrirActaMesa(Request $request, MesaExamenCent $mesa): RedirectResponse
     {
         $this->autorizarDirectivo();
+        $this->autorizarMesaEnScope($mesa);
 
         $data = $request->validate([
             'acta_observaciones' => ['nullable', 'string', 'max:2000'],
@@ -371,11 +384,46 @@ class CentDirectivoController extends Controller
         return null;
     }
 
+    private function autorizarComisionEnScope(Comision $comision): void
+    {
+        $this->autorizarSedeId($comision->cent_sede_id);
+    }
+
+    private function autorizarMesaEnScope(MesaExamenCent $mesa): void
+    {
+        $this->autorizarSedeId($mesa->cent_sede_id);
+    }
+
+    private function autorizarAlumnoEnScope(User $alumno): void
+    {
+        $sedeScope = $this->sedeScopeId();
+
+        if (! $sedeScope) {
+            return;
+        }
+
+        abort_unless(
+            $alumno->matriculasCent()->where('cent_sede_id', $sedeScope)->exists(),
+            403
+        );
+    }
+
+    private function autorizarSedeId(?int $sedeId): void
+    {
+        $sedeScope = $this->sedeScopeId();
+
+        if (! $sedeScope) {
+            return;
+        }
+
+        abort_unless((int) $sedeId === $sedeScope, 403);
+    }
+
     private function validarComision(Request $request): array
     {
         return $request->validate([
             'materia_id' => ['required', 'exists:materias,id'],
-            'cent_sede_id' => ['nullable', 'exists:cent_sedes,id'],
+            'cent_sede_id' => ['required', 'exists:cent_sedes,id'],
             'docente_id' => ['required', 'exists:users,id'],
             'year_cycle' => ['required', 'integer', 'min:2020', 'max:2100'],
             'schedule' => ['nullable', 'string', 'max:255'],
@@ -393,7 +441,11 @@ class CentDirectivoController extends Controller
 
         return [
             'materias' => Materia::with('carrera')->orderBy('year')->orderBy('name')->get(),
-            'sedes' => CentSede::where('activa', true)->orderBy('orden')->orderBy('nombre')->get(),
+            'sedes' => CentSede::where('activa', true)
+                ->when($this->sedeScopeId(), fn ($query, $sedeId) => $query->whereKey($sedeId))
+                ->orderBy('orden')
+                ->orderBy('nombre')
+                ->get(),
             'docentes' => User::where(function ($query) {
                 $query->where('role', 'docente')->orWhere('cent_role', 'docente');
             })->orderBy('name')->get(),
@@ -404,4 +456,3 @@ class CentDirectivoController extends Controller
         ];
     }
 }
-
