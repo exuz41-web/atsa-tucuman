@@ -30,7 +30,7 @@
             </div>
             <div class="border-bottom py-3">
                 <div class="text-muted small">Ciclo lectivo</div>
-                <strong>{{ $matriculaActiva?->ciclo_lectivo ? now()->year }}</strong>
+                <strong>{{ $matriculaActiva?->ciclo_lectivo ?: now()->year }}</strong>
             </div>
             <div class="py-3">
                 <div class="text-muted small">Estado</div>
@@ -57,7 +57,7 @@
                                     <div class="d-flex justify-content-between gap-3">
                                         <strong>{{ $materia->name }}</strong>
                                         @if($ultimaNota)
-                                            <span class="badge bg-primary-subtle text-primary">{{ $ultimaNota->grade ? ucfirst($ultimaNota->status) }}</span>
+                                            <span class="badge bg-primary-subtle text-primary">{{ $ultimaNota->grade ? ucfirst($ultimaNota->status) : 'Sin nota' }}</span>
                                         @endif
                                     </div>
                                     <div class="small text-muted mt-2">

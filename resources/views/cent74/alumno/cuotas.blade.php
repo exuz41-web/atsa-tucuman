@@ -18,7 +18,7 @@
     <div class="col-md-4">
         <div class="stat-tile">
             <span class="stat-icon bg-danger-subtle text-danger mb-3"><i class="ti ti-alert-circle"></i></span>
-            <h2 class="fw-bolder mb-1">${{ number_format($deudaTotal ? 0, 2, ',', '.') }}</h2>
+            <h2 class="fw-bolder mb-1">${{ number_format($deudaTotal ?: 0, 2, ',', '.') }}</h2>
             <p class="text-muted mb-0">Saldo pendiente</p>
         </div>
     </div>

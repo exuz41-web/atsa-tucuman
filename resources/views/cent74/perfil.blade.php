@@ -37,7 +37,7 @@
             <div class="p-3 rounded-4 bg-light">
                 <strong>DNI:</strong> {{ $user->dni ?: '-' }} ·
                 <strong>Rol:</strong> {{ ucfirst($user->cent_role ?: $user->role) }} ·
-                <strong>Sede:</strong> {{ $user->centSede->nombre ?: 'Sin sede asignada' }}
+                <strong>Sede:</strong> {{ $user->centSede?->nombre ?: 'Sin sede asignada' }}
             </div>
         </div>
     </div>
