@@ -6,10 +6,16 @@
 @section('content')
 @php
     $badges = [
-        'pendiente' => 'bg-warning',
-        'confirmado' => 'bg-success',
-        'rechazado' => 'bg-danger',
-        'completado' => 'bg-secondary',
+        'pendiente'  => 'bg-warning',
+        'en_proceso' => 'bg-info',
+        'respondida' => 'bg-success',
+        'cerrada'    => 'bg-secondary',
+    ];
+    $estadoLabel = [
+        'pendiente'  => 'Pendiente',
+        'en_proceso' => 'En proceso',
+        'respondida' => 'Respondida',
+        'cerrada'    => 'Cerrada',
     ];
 @endphp
 
@@ -32,7 +38,7 @@
                                 <h5 class="fw-bolder mb-1">{{ $consulta->asunto }}</h5>
                                 <p class="text-muted mb-0">{{ ucfirst($consulta->tipo) }} · {{ $consulta->created_at->format('d/m/Y') }}</p>
                             </div>
-                            <span class="badge {{ $badges[$consulta->estado] ?? 'bg-primary' }} rounded-pill px-3 py-2 text-capitalize">{{ $consulta->estado }}</span>
+                            <span class="badge {{ $badges[$consulta->estado] ?? 'bg-primary' }} rounded-pill px-3 py-2">{{ $estadoLabel[$consulta->estado] ?? ucfirst($consulta->estado) }}</span>
                         </div>
                         <p class="text-muted mt-3 mb-0">{{ $consulta->mensaje }}</p>
                         @if ($consulta->respuesta)

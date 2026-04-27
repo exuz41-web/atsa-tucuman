@@ -57,7 +57,7 @@
         ['icon' => 'ti-clipboard-list', 'value' => $pedidosPendientes, 'label' => 'Pedidos pendientes', 'class' => 'warning'],
         ['icon' => 'ti-message-dots', 'value' => $consultas, 'label' => 'Consultas realizadas', 'class' => 'primary'],
         ['icon' => 'ti-download', 'value' => $documentos, 'label' => 'Documentos disponibles', 'class' => 'success'],
-        ['icon' => 'ti-clock', 'value' => now()->format('H:i'), 'label' => 'Último acceso hoy', 'class' => 'info'],
+        ['icon' => 'ti-bell', 'value' => $notificaciones->whereNull('read_at')->count(), 'label' => 'Novedades nuevas', 'class' => 'info'],
     ] as $stat)
         <div class="col-md-6 col-xl-3">
             <div class="portal-card p-4 h-100">
@@ -69,6 +69,58 @@
             </div>
         </div>
     @endforeach
+
+    {{-- Panel de notificaciones --}}
+    @if ($notificaciones->isNotEmpty())
+    <div class="col-12">
+        <div class="portal-card p-4">
+            <div class="d-flex align-items-center justify-content-between gap-3 mb-3">
+                <div class="d-flex align-items-center gap-2">
+                    <h4 class="fw-bolder mb-0">Novedades</h4>
+                    <span class="badge bg-danger rounded-pill">{{ $notificaciones->whereNull('read_at')->count() }}</span>
+                </div>
+            </div>
+            <div class="vstack gap-2">
+                @foreach ($notificaciones as $notif)
+                    @php
+                        $data    = $notif->data;
+                        $titulo  = $data['title'] ?? 'Notificación';
+                        $cuerpo  = $data['body'] ?? '';
+                        $color   = $data['color'] ?? 'primary';
+                        $leida   = ! is_null($notif->read_at);
+                        $borde   = match($color) {
+                            'success' => 'border-success',
+                            'danger'  => 'border-danger',
+                            'warning' => 'border-warning',
+                            'info'    => 'border-info',
+                            default   => 'border-primary',
+                        };
+                        $iconColor = match($color) {
+                            'success' => 'text-success',
+                            'danger'  => 'text-danger',
+                            'warning' => 'text-warning',
+                            'info'    => 'text-info',
+                            default   => 'text-primary',
+                        };
+                    @endphp
+                    <div class="d-flex align-items-start gap-3 rounded-3 border-start border-3 {{ $borde }} ps-3 py-2 {{ $leida ? 'opacity-75' : 'bg-light' }}">
+                        <i class="ti ti-bell fs-5 mt-1 {{ $iconColor }} flex-shrink-0"></i>
+                        <div class="min-w-0">
+                            <p class="fw-bolder mb-0 {{ $leida ? 'text-muted' : '' }}">{{ $titulo }}</p>
+                            @if ($cuerpo)
+                                <p class="text-muted mb-0 fs-2">{{ $cuerpo }}</p>
+                            @endif
+                            <p class="text-muted mb-0 fs-1">{{ $notif->created_at->diffForHumans() }}</p>
+                        </div>
+                        @if (! $leida)
+                            <span class="badge bg-primary rounded-pill ms-auto flex-shrink-0">Nueva</span>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    </div>
+    @endif
 
     <div class="col-xl-8">
         <div class="portal-card h-100 p-4">

@@ -27,7 +27,7 @@ class UltimosMovimientos extends Widget
             'fecha'       => $p->created_at,
             'estado'      => $p->estado,
             'color'       => $this->colorPedido($p->estado),
-            'url'         => null,
+            'url'         => url('/admin/pedidos/'.$p->id.'/edit'),
         ]);
 
         $consultas = Consulta::with('afiliado')->latest()->take(6)->get()->map(fn (Consulta $c): array => [
@@ -37,17 +37,17 @@ class UltimosMovimientos extends Widget
             'fecha'       => $c->created_at,
             'estado'      => $c->estado,
             'color'       => $c->estado === 'pendiente' ? 'warning' : 'success',
-            'url'         => null,
+            'url'         => url('/admin/consultas/'.$c->id.'/edit'),
         ]);
 
         $solicitudes = SolicitudAfiliacion::latest()->take(6)->get()->map(fn (SolicitudAfiliacion $s): array => [
             'tipo'        => 'Afiliación',
-            'descripcion' => $s->apellido_nombre.' – '.$s->filial_preferida,
+            'descripcion' => $s->apellido_nombre.' – '.($s->filial_preferida ?? '—'),
             'usuario'     => $s->email ?? 'Sin email',
             'fecha'       => $s->created_at,
             'estado'      => $s->estado,
             'color'       => $this->colorAfiliacion($s->estado),
-            'url'         => null,
+            'url'         => url('/admin/solicitudes-afiliacion/'.$s->id.'/edit'),
         ]);
 
         $turismo = TurismoConsulta::latest()->take(4)->get()->map(fn (TurismoConsulta $t): array => [
@@ -57,7 +57,7 @@ class UltimosMovimientos extends Widget
             'fecha'       => $t->created_at,
             'estado'      => $t->estado,
             'color'       => $t->estado === 'pendiente' ? 'warning' : 'success',
-            'url'         => null,
+            'url'         => url('/admin/turismo-consultas/'.$t->id.'/edit'),
         ]);
 
         $posts = Post::with('author')->whereNotNull('published_at')->latest('published_at')->take(4)->get()->map(fn (Post $p): array => [
@@ -100,10 +100,9 @@ class UltimosMovimientos extends Widget
         return match ($estado) {
             'pendiente'    => 'warning',
             'en_revision'  => 'info',
-            'aprobado'     => 'success',
-            'rechazado'    => 'danger',
+            'aprobada'     => 'success',
+            'rechazada'    => 'danger',
             default        => 'gray',
         };
     }
 }
-

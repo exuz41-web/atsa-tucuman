@@ -24,6 +24,11 @@ class AfiliadoDashboardController extends Controller
     {
         $user = Auth::user();
 
+        $notificaciones = $user->notifications()->latest()->take(5)->get();
+
+        // Marcar como leídas al visualizar el dashboard
+        $user->unreadNotifications()->latest()->take(5)->update(['read_at' => now()]);
+
         return view('afiliados.dashboard', [
             'pedidosPendientes' => Pedido::where('afiliado_id', $user->id)
                 ->whereIn('estado', ['pendiente', 'en_revision'])
@@ -34,10 +39,7 @@ class AfiliadoDashboardController extends Controller
                 ->latest()
                 ->take(5)
                 ->get(),
-            'notificaciones' => $user->notifications()
-                ->latest()
-                ->take(5)
-                ->get(),
+            'notificaciones' => $notificaciones,
             'ultimoAcceso' => now(),
             'novedades' => Post::where('category', 'gremial')
                 ->whereNotNull('published_at')
@@ -102,9 +104,9 @@ class AfiliadoDashboardController extends Controller
             'afiliado_id' => $user->id,
             'tipo' => $data['tipo'],
             'descripcion' => $data['descripcion'],
-            'archivo_dni' => $request->file('archivo_dni')->store($path, 'public'),
-            'archivo_recibo' => $request->file('archivo_recibo')->store($path, 'public'),
-            'archivo_adicional' => $request->file('archivo_adicional')?->store($path, 'public'),
+            'archivo_dni' => $request->file('archivo_dni')->store($path, 'local'),
+            'archivo_recibo' => $request->file('archivo_recibo')->store($path, 'local'),
+            'archivo_adicional' => $request->file('archivo_adicional')?->store($path, 'local'),
         ]);
 
         Notification::make()
@@ -207,9 +209,9 @@ class AfiliadoDashboardController extends Controller
             'beneficio_id' => $beneficio->id,
             'afiliado_id' => $user->id,
             'mensaje' => $data['mensaje'],
-            'archivo_dni' => $request->file('archivo_dni')?->store($path, 'public'),
-            'archivo_recibo' => $request->file('archivo_recibo')?->store($path, 'public'),
-            'archivo_adicional' => $request->file('archivo_adicional')?->store($path, 'public'),
+            'archivo_dni' => $request->file('archivo_dni')?->store($path, 'local'),
+            'archivo_recibo' => $request->file('archivo_recibo')?->store($path, 'local'),
+            'archivo_adicional' => $request->file('archivo_adicional')?->store($path, 'local'),
             'estado' => 'pendiente',
         ]);
 

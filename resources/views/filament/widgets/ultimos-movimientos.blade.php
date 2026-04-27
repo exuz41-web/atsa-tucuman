@@ -26,14 +26,21 @@
                                 default      => 'text-gray-700 bg-gray-50',
                             };
                         @endphp
-                        <tr class="hover:bg-gray-50/50 transition-colors">
+                        <tr class="hover:bg-gray-50/50 transition-colors {{ $movimiento['url'] ? 'cursor-pointer' : '' }}"
+                            @if($movimiento['url']) onclick="window.location='{{ $movimiento['url'] }}'" @endif>
                             <td class="px-3 py-2.5">
                                 <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-bold {{ $tipoColor }}">
                                     {{ $movimiento['tipo'] }}
                                 </span>
                             </td>
                             <td class="px-3 py-2.5 font-medium text-gray-800 max-w-xs truncate">
-                                {{ $movimiento['descripcion'] }}
+                                @if($movimiento['url'])
+                                    <a href="{{ $movimiento['url'] }}" class="hover:text-primary-600 hover:underline">
+                                        {{ $movimiento['descripcion'] }}
+                                    </a>
+                                @else
+                                    {{ $movimiento['descripcion'] }}
+                                @endif
                             </td>
                             <td class="px-3 py-2.5 text-gray-500 hidden md:table-cell">
                                 {{ $movimiento['usuario'] }}
