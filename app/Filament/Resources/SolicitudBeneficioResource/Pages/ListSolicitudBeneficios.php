@@ -16,6 +16,11 @@ class ListSolicitudBeneficios extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            Actions\Action::make('exportar_csv')
+                ->label('Exportar CSV')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->url(route('panel.reportes.atencion.solicitudes-beneficios'))
+                ->openUrlInNewTab(),
             Actions\CreateAction::make(),
         ];
     }

@@ -3,6 +3,7 @@
 use App\Http\Controllers\AfiliadosController;
 use App\Http\Controllers\AfiliadoDashboardController;
 use App\Http\Controllers\AfiliadoLoginController;
+use App\Http\Controllers\AtencionReporteController;
 use App\Http\Controllers\BackupController;
 use App\Http\Controllers\CarnetController;
 use App\Http\Controllers\CentAlumnoController;
@@ -258,4 +259,13 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/panel/backups/{filename}', [BackupController::class, 'download'])
         ->middleware('permission:admin.backups.manage')
         ->name('panel.backups.download');
+
+    Route::prefix('/panel/reportes/atencion')
+        ->middleware('permission:admin.atencion.manage')
+        ->name('panel.reportes.atencion.')
+        ->group(function () {
+            Route::get('/ordenes.csv', [AtencionReporteController::class, 'ordenes'])->name('ordenes');
+            Route::get('/pedidos.csv', [AtencionReporteController::class, 'pedidos'])->name('pedidos');
+            Route::get('/solicitudes-beneficios.csv', [AtencionReporteController::class, 'solicitudesBeneficios'])->name('solicitudes-beneficios');
+        });
 });

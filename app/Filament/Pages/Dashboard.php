@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Filament\Widgets\ActividadMensual;
+use App\Filament\Widgets\AtencionPrestadoresOverview;
 use App\Filament\Widgets\PedidosPorEstado;
 use App\Filament\Widgets\ProximasEfemerides;
 use App\Filament\Widgets\StatsOverview;
@@ -18,6 +19,7 @@ class Dashboard extends BaseDashboard
     {
         return [
             StatsOverview::class,
+            AtencionPrestadoresOverview::class,
             PedidosPorEstado::class,
             ActividadMensual::class,
             UltimosMovimientos::class,

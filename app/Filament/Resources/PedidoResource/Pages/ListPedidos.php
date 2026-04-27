@@ -16,6 +16,11 @@ class ListPedidos extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            Actions\Action::make('exportar_csv')
+                ->label('Exportar CSV')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->url(route('panel.reportes.atencion.pedidos'))
+                ->openUrlInNewTab(),
             Actions\CreateAction::make(),
         ];
     }
