@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use App\Helpers\LogActividad;
 use App\Models\Configuracion as ConfiguracionModel;
+use App\Models\SiteSetting;
 use App\Support\BackupSupport;
 use App\Support\MailSettings;
 use Filament\Actions\Action;
@@ -14,6 +15,7 @@ use Filament\Forms\Form;
 use Filament\Notifications\Actions\Action as NotificationAction;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Illuminate\Support\Arr;
 
 class Configuracion extends Page implements HasForms
 {
@@ -38,28 +40,43 @@ class Configuracion extends Page implements HasForms
 
     public function mount(): void
     {
+        $siteSettings = SiteSetting::current();
+
         $this->form->fill([
-            'telefono_principal' => ConfiguracionModel::get('telefono_principal'),
+            'site_name' => $siteSettings->site_name,
+            'logo_path' => $siteSettings->logo_path,
+            'favicon_path' => $siteSettings->favicon_path,
+            'institutional_text' => $siteSettings->institutional_text,
+            'footer_text' => $siteSettings->footer_text,
+            'telefono_principal' => ConfiguracionModel::get('telefono_principal', $siteSettings->phone),
             'telefono_cent' => ConfiguracionModel::get('telefono_cent'),
-            'direccion' => ConfiguracionModel::get('direccion'),
-            'email_contacto' => ConfiguracionModel::get('email_contacto'),
-            'whatsapp' => ConfiguracionModel::get('whatsapp'),
-            'horarios' => ConfiguracionModel::get('horarios'),
-            'facebook' => ConfiguracionModel::get('facebook'),
-            'instagram' => ConfiguracionModel::get('instagram'),
+            'direccion' => ConfiguracionModel::get('direccion', $siteSettings->address),
+            'email_contacto' => ConfiguracionModel::get('email_contacto', $siteSettings->email),
+            'whatsapp' => ConfiguracionModel::get('whatsapp', $siteSettings->whatsapp),
+            'horarios' => ConfiguracionModel::get('horarios', $siteSettings->schedule),
+            'facebook' => ConfiguracionModel::get('facebook', $siteSettings->facebook_url),
+            'instagram' => ConfiguracionModel::get('instagram', $siteSettings->instagram_url),
+            'youtube' => ConfiguracionModel::get('youtube', $siteSettings->youtube_url),
+            'tiktok' => ConfiguracionModel::get('tiktok', $siteSettings->tiktok_url),
             'twitter' => ConfiguracionModel::get('twitter'),
-            'nombre_sitio' => ConfiguracionModel::get('nombre_sitio'),
+            'nombre_sitio' => ConfiguracionModel::get('nombre_sitio', $siteSettings->site_name),
             'descripcion_sitio' => ConfiguracionModel::get('descripcion_sitio'),
             'secretario_general' => ConfiguracionModel::get('secretario_general'),
             'anio_fundacion' => ConfiguracionModel::get('anio_fundacion'),
+            'google_analytics_id' => ConfiguracionModel::get('google_analytics_id', $siteSettings->google_analytics_id),
+            'public_site_enabled' => ConfiguracionModel::get('public_site_enabled', '1') === '1',
+            'maintenance_message' => ConfiguracionModel::get('maintenance_message'),
+            'backup_enabled' => ConfiguracionModel::get('backup_enabled', config('backup.enabled', true) ? '1' : '0') === '1',
+            'backup_schedule' => ConfiguracionModel::get('backup_schedule', config('backup.schedule', '02:30')),
+            'backup_keep_days' => ConfiguracionModel::get('backup_keep_days', (string) config('backup.keep_days', 14)),
             'smtp_enabled' => ConfiguracionModel::get('smtp_enabled', '0') === '1',
             'smtp_host' => ConfiguracionModel::get('smtp_host'),
             'smtp_port' => ConfiguracionModel::get('smtp_port', '587'),
             'smtp_username' => ConfiguracionModel::get('smtp_username'),
             'smtp_password' => MailSettings::decryptPassword(ConfiguracionModel::get('smtp_password')),
             'smtp_encryption' => ConfiguracionModel::get('smtp_encryption', 'tls'),
-            'smtp_from_address' => ConfiguracionModel::get('smtp_from_address'),
-            'smtp_from_name' => ConfiguracionModel::get('smtp_from_name', 'ATSA Tucumán'),
+            'smtp_from_address' => ConfiguracionModel::get('smtp_from_address', $siteSettings->mail_from_address),
+            'smtp_from_name' => ConfiguracionModel::get('smtp_from_name', $siteSettings->mail_from_name ?: 'ATSA Tucumán'),
         ]);
     }
 
@@ -67,6 +84,36 @@ class Configuracion extends Page implements HasForms
     {
         return $form
             ->schema([
+                Forms\Components\Section::make('Identidad del sitio')
+                    ->schema([
+                        Forms\Components\TextInput::make('site_name')
+                            ->label('Nombre público')
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\FileUpload::make('logo_path')
+                            ->label('Logo principal')
+                            ->image()
+                            ->disk('public')
+                            ->directory('site')
+                            ->visibility('public')
+                            ->imageEditor(),
+                        Forms\Components\FileUpload::make('favicon_path')
+                            ->label('Ícono / favicon')
+                            ->image()
+                            ->disk('public')
+                            ->directory('site')
+                            ->visibility('public')
+                            ->imageEditor(),
+                        Forms\Components\Textarea::make('institutional_text')
+                            ->label('Texto institucional público')
+                            ->rows(3)
+                            ->columnSpanFull(),
+                        Forms\Components\Textarea::make('footer_text')
+                            ->label('Texto de pie de página')
+                            ->rows(2)
+                            ->columnSpanFull(),
+                    ])
+                    ->columns(2),
                 Forms\Components\Section::make('Datos de contacto')
                     ->schema([
                         Forms\Components\TextInput::make('telefono_principal')->label('Teléfono principal'),
@@ -79,8 +126,10 @@ class Configuracion extends Page implements HasForms
                     ->columns(2),
                 Forms\Components\Section::make('Redes sociales')
                     ->schema([
-                        Forms\Components\TextInput::make('facebook')->url(),
-                        Forms\Components\TextInput::make('instagram')->url(),
+                        Forms\Components\TextInput::make('facebook')->label('Facebook')->url(),
+                        Forms\Components\TextInput::make('instagram')->label('Instagram')->url(),
+                        Forms\Components\TextInput::make('youtube')->label('YouTube')->url(),
+                        Forms\Components\TextInput::make('tiktok')->label('TikTok')->url(),
                         Forms\Components\TextInput::make('twitter')->label('Twitter / X')->url(),
                     ])
                     ->columns(3),
@@ -92,6 +141,37 @@ class Configuracion extends Page implements HasForms
                         Forms\Components\TextInput::make('anio_fundacion')->label('Año de fundación')->numeric(),
                     ])
                     ->columns(2),
+                Forms\Components\Section::make('Web pública y analítica')
+                    ->schema([
+                        Forms\Components\Toggle::make('public_site_enabled')
+                            ->label('Web pública activa')
+                            ->helperText('Permite dejar registrado si la web pública está operativa o en pausa.'),
+                        Forms\Components\TextInput::make('google_analytics_id')
+                            ->label('Google Analytics ID')
+                            ->placeholder('G-XXXXXXXXXX')
+                            ->maxLength(255),
+                        Forms\Components\Textarea::make('maintenance_message')
+                            ->label('Mensaje de mantenimiento')
+                            ->rows(2)
+                            ->columnSpanFull(),
+                    ])
+                    ->columns(2),
+                Forms\Components\Section::make('Backups y recuperación')
+                    ->description('El backup manual se genera desde esta pantalla. Estos valores también los usa el comando automático cuando está activo.')
+                    ->schema([
+                        Forms\Components\Toggle::make('backup_enabled')
+                            ->label('Backups automáticos activos'),
+                        Forms\Components\TextInput::make('backup_schedule')
+                            ->label('Horario programado')
+                            ->placeholder('02:30')
+                            ->helperText('Formato 24 horas. Si se cambia, conviene reiniciar el scheduler/cron.'),
+                        Forms\Components\TextInput::make('backup_keep_days')
+                            ->label('Días de retención')
+                            ->numeric()
+                            ->minValue(1)
+                            ->helperText('Los backups más viejos se eliminan al correr el comando automático.'),
+                    ])
+                    ->columns(3),
                 Forms\Components\Section::make('Correo SMTP')
                     ->description('Estos datos quedan preparados para cuando la comisión apruebe el servicio de correo. Si está desactivado, el sistema seguirá usando la configuración actual del proyecto.')
                     ->schema([
@@ -160,7 +240,32 @@ class Configuracion extends Page implements HasForms
     {
         $data = $this->form->getState();
 
+        SiteSetting::current()->update([
+            'site_name' => $data['site_name'] ?: ($data['nombre_sitio'] ?? 'ATSA Tucumán'),
+            'logo_path' => $this->uploadPath($data['logo_path'] ?? null),
+            'favicon_path' => $this->uploadPath($data['favicon_path'] ?? null),
+            'address' => $data['direccion'] ?? null,
+            'phone' => $data['telefono_principal'] ?? null,
+            'whatsapp' => $data['whatsapp'] ?? null,
+            'email' => $data['email_contacto'] ?? null,
+            'schedule' => $data['horarios'] ?? null,
+            'facebook_url' => $data['facebook'] ?? null,
+            'instagram_url' => $data['instagram'] ?? null,
+            'youtube_url' => $data['youtube'] ?? null,
+            'tiktok_url' => $data['tiktok'] ?? null,
+            'institutional_text' => $data['institutional_text'] ?? null,
+            'footer_text' => $data['footer_text'] ?? null,
+            'google_analytics_id' => $data['google_analytics_id'] ?? null,
+            'mail_from_address' => $data['smtp_from_address'] ?? null,
+            'mail_from_name' => $data['smtp_from_name'] ?? null,
+        ]);
+
         $meta = [
+            'site_name' => ['sitio', 'texto', 'Nombre público del sitio'],
+            'logo_path' => ['sitio', 'texto', 'Logo principal'],
+            'favicon_path' => ['sitio', 'texto', 'Icono / favicon'],
+            'institutional_text' => ['sitio', 'texto', 'Texto institucional público'],
+            'footer_text' => ['sitio', 'texto', 'Texto de pie de página'],
             'telefono_principal' => ['contacto', 'telefono', 'Teléfono principal'],
             'telefono_cent' => ['contacto', 'telefono', 'Telefono CENT N°74'],
             'direccion' => ['contacto', 'texto', 'Dirección institucional'],
@@ -169,11 +274,19 @@ class Configuracion extends Page implements HasForms
             'horarios' => ['contacto', 'texto', 'Horarios de atención'],
             'facebook' => ['redes_sociales', 'url', 'Facebook oficial'],
             'instagram' => ['redes_sociales', 'url', 'Instagram oficial'],
+            'youtube' => ['redes_sociales', 'url', 'YouTube oficial'],
+            'tiktok' => ['redes_sociales', 'url', 'TikTok oficial'],
             'twitter' => ['redes_sociales', 'url', 'Twitter / X oficial'],
             'nombre_sitio' => ['sitio', 'texto', 'Nombre del sitio'],
             'descripcion_sitio' => ['sitio', 'texto', 'Descripción institucional'],
             'secretario_general' => ['sitio', 'texto', 'Secretario General'],
             'anio_fundacion' => ['sitio', 'numero', 'Año de fundación'],
+            'google_analytics_id' => ['sitio', 'texto', 'Google Analytics ID'],
+            'public_site_enabled' => ['sitio', 'numero', 'Web pública activa'],
+            'maintenance_message' => ['sitio', 'texto', 'Mensaje de mantenimiento'],
+            'backup_enabled' => ['backups', 'numero', 'Backups automáticos activos'],
+            'backup_schedule' => ['backups', 'texto', 'Horario de backups automáticos'],
+            'backup_keep_days' => ['backups', 'numero', 'Días de retención de backups'],
             'smtp_enabled' => ['correo', 'numero', 'SMTP habilitado desde admin'],
             'smtp_host' => ['correo', 'texto', 'Servidor SMTP'],
             'smtp_port' => ['correo', 'numero', 'Puerto SMTP'],
@@ -189,6 +302,14 @@ class Configuracion extends Page implements HasForms
 
             if ($clave === 'smtp_enabled') {
                 $valor = ! empty($data[$clave]) ? '1' : '0';
+            }
+
+            if (in_array($clave, ['public_site_enabled', 'backup_enabled'], true)) {
+                $valor = ! empty($data[$clave]) ? '1' : '0';
+            }
+
+            if (in_array($clave, ['logo_path', 'favicon_path'], true)) {
+                $valor = $this->uploadPath($data[$clave] ?? null) ?? '';
             }
 
             if ($clave === 'smtp_password') {
@@ -244,5 +365,14 @@ class Configuracion extends Page implements HasForms
     public function canManageBackups(): bool
     {
         return auth()->user()?->hasPermission('admin.backups.manage') ?? false;
+    }
+
+    private function uploadPath(mixed $value): ?string
+    {
+        if (is_array($value)) {
+            $value = Arr::first($value);
+        }
+
+        return filled($value) ? (string) $value : null;
     }
 }

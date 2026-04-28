@@ -3,8 +3,11 @@
 namespace App\Console\Commands;
 
 use App\Helpers\LogActividad;
+use App\Models\Configuracion;
 use App\Support\BackupSupport;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Schema;
+use Throwable;
 
 class RunBackups extends Command
 {
@@ -14,14 +17,14 @@ class RunBackups extends Command
 
     public function handle(): int
     {
-        if (! config('backup.enabled', true)) {
+        if (! $this->backupsEnabled()) {
             $this->warn('Los backups automáticos están desactivados por configuración.');
 
             return self::SUCCESS;
         }
 
         $keepDays = $this->option('keep-days');
-        $keepDays = is_numeric($keepDays) ? max((int) $keepDays, 0) : (int) config('backup.keep_days', 14);
+        $keepDays = is_numeric($keepDays) ? max((int) $keepDays, 0) : $this->configuredKeepDays();
 
         $filename = BackupSupport::create();
         $deleted = BackupSupport::pruneOlderThanDays($keepDays);
@@ -37,5 +40,39 @@ class RunBackups extends Command
         $this->info('Backups eliminados por retención: '.$deleted);
 
         return self::SUCCESS;
+    }
+
+    private function backupsEnabled(): bool
+    {
+        try {
+            if (Schema::hasTable('configuraciones')) {
+                $configured = Configuracion::get('backup_enabled');
+
+                if ($configured !== null) {
+                    return $configured === '1';
+                }
+            }
+        } catch (Throwable) {
+            //
+        }
+
+        return (bool) config('backup.enabled', true);
+    }
+
+    private function configuredKeepDays(): int
+    {
+        try {
+            if (Schema::hasTable('configuraciones')) {
+                $configured = Configuracion::get('backup_keep_days');
+
+                if (is_numeric($configured)) {
+                    return max((int) $configured, 0);
+                }
+            }
+        } catch (Throwable) {
+            //
+        }
+
+        return (int) config('backup.keep_days', 14);
     }
 }
