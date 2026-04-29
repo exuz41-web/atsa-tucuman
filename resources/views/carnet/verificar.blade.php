@@ -49,6 +49,15 @@
             <h2 class="mt-5 text-3xl font-black text-[#1e3a5f]">{{ $afiliado->name }}</h2>
             <p class="mt-1 text-sm font-bold text-slate-500">{{ $afiliado->numero_afiliado }}</p>
 
+            <div class="mx-auto mt-8 max-w-xs rounded-2xl border-4 border-slate-100 bg-white p-4 shadow-sm">
+                <img
+                    src="data:image/png;base64,{{ $qrCode }}"
+                    alt="QR de verificación del carnet"
+                    class="mx-auto h-64 w-64 max-w-full rounded-xl object-contain"
+                >
+                <p class="mt-3 text-xs font-black uppercase tracking-widest text-slate-500">QR del carnet</p>
+            </div>
+
             <dl class="mx-auto mt-8 grid max-w-xl gap-3 text-left sm:grid-cols-2">
                 <div class="rounded-lg bg-slate-50 p-4"><dt class="text-xs font-black uppercase text-slate-500">DNI</dt><dd class="mt-1 font-black">{{ CarnetSupport::maskedDni($afiliado->dni) }}</dd></div>
                 <div class="rounded-lg bg-slate-50 p-4"><dt class="text-xs font-black uppercase text-slate-500">Filial</dt><dd class="mt-1 font-black">{{ $afiliado->filial?->name ?: 'Central' }}</dd></div>
@@ -72,5 +81,4 @@
     </footer>
 </body>
 </html>
-
 

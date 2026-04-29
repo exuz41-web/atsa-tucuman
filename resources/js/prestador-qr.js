@@ -103,6 +103,14 @@ const scanFrame = () => {
     animationFrame = requestAnimationFrame(scanFrame);
 };
 
+const decodeCanvas = (context, width, height) => {
+    const imageData = context.getImageData(0, 0, width, height);
+
+    return jsQR(imageData.data, imageData.width, imageData.height, {
+        inversionAttempts: 'attemptBoth',
+    });
+};
+
 const decodeImageFile = (file) => {
     if (!file || !qrCanvas) {
         return;
@@ -112,21 +120,39 @@ const decodeImageFile = (file) => {
 
     const image = new Image();
     image.onload = () => {
-        const maxSide = 1600;
-        const scale = Math.min(1, maxSide / Math.max(image.naturalWidth, image.naturalHeight));
-        const width = Math.max(1, Math.round(image.naturalWidth * scale));
-        const height = Math.max(1, Math.round(image.naturalHeight * scale));
-
-        qrCanvas.width = width;
-        qrCanvas.height = height;
-
         const context = qrCanvas.getContext('2d', { willReadFrequently: true });
-        context.drawImage(image, 0, 0, width, height);
+        const maxSideOptions = [2400, 1800, 1200, 800];
+        let code = null;
 
-        const imageData = context.getImageData(0, 0, width, height);
-        const code = jsQR(imageData.data, imageData.width, imageData.height, {
-            inversionAttempts: 'attemptBoth',
-        });
+        for (const maxSide of maxSideOptions) {
+            const scale = Math.min(1, maxSide / Math.max(image.naturalWidth, image.naturalHeight));
+            const width = Math.max(1, Math.round(image.naturalWidth * scale));
+            const height = Math.max(1, Math.round(image.naturalHeight * scale));
+
+            qrCanvas.width = width;
+            qrCanvas.height = height;
+            context.drawImage(image, 0, 0, width, height);
+
+            code = decodeCanvas(context, width, height);
+
+            if (code?.data) {
+                break;
+            }
+
+            const cropSize = Math.floor(Math.min(width, height) * 0.82);
+            const cropX = Math.floor((width - cropSize) / 2);
+            const cropY = Math.floor((height - cropSize) / 2);
+
+            qrCanvas.width = cropSize;
+            qrCanvas.height = cropSize;
+            context.drawImage(image, cropX / scale, cropY / scale, cropSize / scale, cropSize / scale, 0, 0, cropSize, cropSize);
+
+            code = decodeCanvas(context, cropSize, cropSize);
+
+            if (code?.data) {
+                break;
+            }
+        }
 
         URL.revokeObjectURL(image.src);
 

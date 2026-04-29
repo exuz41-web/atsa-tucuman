@@ -87,7 +87,10 @@ class SecurityAccessTest extends TestCase
 
         $this->get(route('carnet.verificar', $afiliado->id))->assertOk()->assertSee('Carnet no encontrado');
         $this->get(route('carnet.verificar', $afiliado->numero_afiliado))->assertOk()->assertSee($afiliado->name);
-        $this->get(route('carnet.verificar', $afiliado->afiliado_public_token))->assertOk()->assertSee($afiliado->name);
+        $this->get(route('carnet.verificar', $afiliado->afiliado_public_token))
+            ->assertOk()
+            ->assertSee($afiliado->name)
+            ->assertSee('QR del carnet');
     }
 
     public function test_cent_preinscripcion_files_are_private_and_pdf_uses_public_token(): void

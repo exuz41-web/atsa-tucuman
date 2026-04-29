@@ -92,8 +92,10 @@ class CarnetController extends Controller
 
         $estado = $afiliado->carnet_activo ? 'activo' : 'inactivo';
         $vencido = $afiliado->carnet_vencimiento && $afiliado->carnet_vencimiento->lt(now()->startOfDay());
+        $urlVerificacion = CarnetSupport::verificationUrl($afiliado);
+        $qrCode = CarnetSupport::qrBase64($urlVerificacion, 360);
 
-        return view('carnet.verificar', compact('afiliado', 'estado', 'vencido'));
+        return view('carnet.verificar', compact('afiliado', 'estado', 'vencido', 'qrCode', 'urlVerificacion'));
     }
 
     public function walletData()
