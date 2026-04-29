@@ -23,12 +23,20 @@ class Prestador extends Model
         'observaciones',
         'activo',
         'portal_token',
+        'portal_username',
+        'portal_password',
+        'portal_last_login_at',
+    ];
+
+    protected $hidden = [
+        'portal_password',
     ];
 
     protected function casts(): array
     {
         return [
             'activo' => 'boolean',
+            'portal_last_login_at' => 'datetime',
         ];
     }
 
@@ -47,6 +55,11 @@ class Prestador extends Model
     public function portalUrl(): string
     {
         return route('prestadores.portal', $this->portal_token);
+    }
+
+    public function loginUrl(): string
+    {
+        return route('prestadores.login');
     }
 
     public static function tipos(): array

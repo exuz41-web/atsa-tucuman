@@ -58,11 +58,12 @@
                                 @endif
 
                                 @if (in_array($orden->estado, ['emitida', 'aceptada', 'observada'], true))
-                                    <form method="POST" action="{{ route('prestadores.ordenes.entregar', [$prestador->portal_token, $orden]) }}">
-                                        @csrf
-                                        <input type="hidden" name="respuesta_prestador" value="Entrega registrada desde portal de prestador.">
-                                        <button class="btn btn-sm btn-success shadow-none" type="submit">Registrar entrega</button>
-                                    </form>
+                                    <a
+                                        href="{{ route('prestadores.validar', ['token' => $prestador->portal_token, 'codigo' => $orden->codigo]) }}"
+                                        class="btn btn-sm btn-success shadow-none"
+                                    >
+                                        Escanear y entregar
+                                    </a>
                                 @endif
                             </div>
                         </td>

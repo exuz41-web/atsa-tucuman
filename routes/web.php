@@ -39,11 +39,18 @@ use Illuminate\Support\Facades\Route;
 Route::get('/verificar/{numero_afiliado}', [CarnetController::class, 'verificar'])
     ->name('carnet.verificar');
 
-Route::prefix('prestadores/{token}')->name('prestadores.')->middleware('throttle:60,1')->group(function () {
-    Route::get('/', [PrestadorPortalController::class, 'index'])->name('portal');
-    Route::get('/validar', [PrestadorPortalController::class, 'validar'])->name('validar');
-    Route::post('/ordenes/{orden}/aceptar', [PrestadorPortalController::class, 'aceptar'])->name('ordenes.aceptar');
-    Route::post('/ordenes/{orden}/entregar', [PrestadorPortalController::class, 'entregar'])->name('ordenes.entregar');
+Route::prefix('prestadores')->name('prestadores.')->middleware('throttle:60,1')->group(function () {
+    Route::get('/login', [PrestadorPortalController::class, 'showLogin'])->name('login');
+    Route::post('/login', [PrestadorPortalController::class, 'login'])->name('login.submit')->middleware('throttle:10,1');
+    Route::post('/logout', [PrestadorPortalController::class, 'logout'])->name('logout');
+    Route::get('/manifest.json', [PrestadorPortalController::class, 'manifest'])->name('manifest');
+
+    Route::prefix('{token}')->group(function () {
+        Route::get('/', [PrestadorPortalController::class, 'index'])->name('portal');
+        Route::get('/validar', [PrestadorPortalController::class, 'validar'])->name('validar');
+        Route::post('/ordenes/{orden}/aceptar', [PrestadorPortalController::class, 'aceptar'])->name('ordenes.aceptar');
+        Route::post('/ordenes/{orden}/entregar', [PrestadorPortalController::class, 'entregar'])->name('ordenes.entregar');
+    });
 });
 
 Route::get('/admin/salir', function (Request $request) {

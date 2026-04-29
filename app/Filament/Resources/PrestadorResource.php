@@ -11,6 +11,7 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 class PrestadorResource extends Resource
@@ -96,20 +97,43 @@ class PrestadorResource extends Resource
                 ]),
 
             Forms\Components\Section::make('Acceso al portal')
-                ->columns(1)
-                ->visible(fn (?Prestador $record): bool => filled($record?->portal_token))
+                ->columns(2)
                 ->schema([
+                    Forms\Components\TextInput::make('portal_username')
+                        ->label('Usuario')
+                        ->maxLength(255)
+                        ->unique(ignoreRecord: true)
+                        ->helperText('Puede iniciar sesión con este usuario, email o CUIT.'),
+
+                    Forms\Components\TextInput::make('portal_password')
+                        ->label('Contraseña')
+                        ->password()
+                        ->revealable()
+                        ->afterStateHydrated(fn (Forms\Components\TextInput $component): mixed => $component->state(null))
+                        ->dehydrated(fn (?string $state): bool => filled($state))
+                        ->dehydrateStateUsing(fn (string $state): string => Hash::make($state))
+                        ->helperText('Dejar vacío para conservar la contraseña actual.'),
+
                     Forms\Components\TextInput::make('portal_url')
                         ->label('Link privado del prestador')
                         ->formatStateUsing(fn (?string $state, ?Prestador $record): string => $record?->portalUrl() ?? '')
                         ->disabled()
                         ->dehydrated(false)
-                        ->helperText('Compartir este enlace solo con el prestador. Si se filtra, usar la acción Regenerar acceso.'),
+                        ->visible(fn (?Prestador $record): bool => filled($record?->portal_token))
+                        ->helperText('El link identifica al prestador; para operar debe iniciar sesión.')
+                        ->columnSpanFull(),
 
                     Forms\Components\TextInput::make('portal_token')
                         ->label('Token')
                         ->disabled()
-                        ->dehydrated(false),
+                        ->dehydrated(false)
+                        ->visible(fn (?Prestador $record): bool => filled($record?->portal_token))
+                        ->columnSpanFull(),
+
+                    Forms\Components\Placeholder::make('portal_last_login_at')
+                        ->label('Último ingreso')
+                        ->content(fn (?Prestador $record): string => $record?->portal_last_login_at?->format('d/m/Y H:i') ?: 'Sin ingresos')
+                        ->visible(fn (?Prestador $record): bool => filled($record?->id)),
                 ]),
         ]);
     }
@@ -149,7 +173,7 @@ class PrestadorResource extends Resource
 
                 Tables\Columns\TextColumn::make('portal_token')
                     ->label('Portal')
-                    ->formatStateUsing(fn (?string $state, Prestador $record): string => $record->portalUrl())
+                    ->formatStateUsing(fn (?string $state, Prestador $record): string => $record->portal_username ?: $record->portalUrl())
                     ->url(fn (Prestador $record): string => $record->portalUrl(), true)
                     ->limit(34)
                     ->copyable()
@@ -159,6 +183,12 @@ class PrestadorResource extends Resource
                 Tables\Columns\IconColumn::make('activo')
                     ->label('Activo')
                     ->boolean(),
+
+                Tables\Columns\TextColumn::make('portal_last_login_at')
+                    ->label('Último ingreso')
+                    ->dateTime('d/m/Y H:i')
+                    ->placeholder('—')
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('tipo')
@@ -187,6 +217,28 @@ class PrestadorResource extends Resource
                         Notification::make()
                             ->title('Acceso regenerado')
                             ->body('Nuevo link: '.$record->fresh()->portalUrl())
+                            ->success()
+                            ->send();
+                    }),
+
+                Tables\Actions\Action::make('reset_password')
+                    ->label('Nueva contraseña')
+                    ->icon('heroicon-o-lock-closed')
+                    ->color('gray')
+                    ->form([
+                        Forms\Components\TextInput::make('password')
+                            ->label('Nueva contraseña')
+                            ->password()
+                            ->revealable()
+                            ->required()
+                            ->minLength(8),
+                    ])
+                    ->action(function (Prestador $record, array $data): void {
+                        $record->update(['portal_password' => Hash::make($data['password'])]);
+
+                        Notification::make()
+                            ->title('Contraseña actualizada')
+                            ->body('Ya puede ingresar al portal con la nueva contraseña.')
                             ->success()
                             ->send();
                     }),

@@ -4,7 +4,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="theme-color" content="#1e3a5f">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <title>@yield('title', 'Portal de prestadores') | ATSA Tucumán</title>
+    <link rel="manifest" href="{{ route('prestadores.manifest') }}">
     <link rel="stylesheet" href="{{ asset('modernize/css/styles.css') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.41.1/dist/tabler-icons.min.css">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -32,9 +36,17 @@
                     <h1 class="h4 fw-bolder mb-0 text-dark">{{ $prestador->nombre }}</h1>
                 </div>
             </a>
-            <a href="{{ route('prestadores.validar', $prestador->portal_token) }}" class="btn btn-primary shadow-none">
-                <i class="ti ti-qrcode me-2"></i>Validar afiliado
-            </a>
+            <div class="d-flex gap-2 flex-wrap justify-content-end">
+                <a href="{{ route('prestadores.validar', $prestador->portal_token) }}" class="btn btn-primary shadow-none">
+                    <i class="ti ti-qrcode me-2"></i>Validar afiliado
+                </a>
+                <form method="POST" action="{{ route('prestadores.logout') }}">
+                    @csrf
+                    <button class="btn btn-light shadow-none" type="submit">
+                        <i class="ti ti-logout me-2"></i>Salir
+                    </button>
+                </form>
+            </div>
         </div>
     </header>
 
@@ -48,5 +60,11 @@
         @yield('content')
     </main>
 </div>
+<script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+    }
+</script>
+@stack('scripts')
 </body>
 </html>

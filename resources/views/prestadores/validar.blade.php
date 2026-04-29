@@ -23,7 +23,19 @@
                 <form method="GET" action="{{ route('prestadores.validar', $prestador->portal_token) }}" class="d-grid gap-3">
                     <div>
                         <label class="form-label fw-bold">QR / link del carnet</label>
-                        <input class="form-control" name="qr" value="{{ $busqueda['qr'] ?? '' }}" placeholder="Pegá el link escaneado del carnet">
+                        <div class="input-group">
+                            <input id="qr-input" class="form-control" name="qr" value="{{ $busqueda['qr'] ?? '' }}" placeholder="Pegá el link escaneado del carnet">
+                            <button id="start-scanner" class="btn btn-outline-primary" type="button">
+                                <i class="ti ti-qrcode"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="scanner-panel" class="d-none">
+                        <video id="qr-video" class="w-100 rounded-3 bg-dark" playsinline muted style="aspect-ratio: 4 / 3; object-fit: cover;"></video>
+                        <button id="stop-scanner" class="btn btn-sm btn-light mt-2 w-100" type="button">Detener cámara</button>
+                    </div>
+                    <div id="scanner-help" class="small text-muted">
+                        En celulares compatibles podés escanear el QR con la cámara. Si no, pegá el link del carnet.
                     </div>
                     <div>
                         <label class="form-label fw-bold">N° afiliado</label>
@@ -107,8 +119,14 @@
                                 @if ($afiliadoValido && in_array($orden->estado, ['emitida', 'aceptada', 'observada'], true))
                                     <form method="POST" action="{{ route('prestadores.ordenes.entregar', [$prestador->portal_token, $orden]) }}" class="d-grid gap-2" style="min-width:260px;">
                                         @csrf
+                                        <input type="hidden" name="qr" value="{{ $busqueda['qr'] ?? '' }}">
                                         <textarea class="form-control" name="respuesta_prestador" rows="2" placeholder="Observación de entrega"></textarea>
-                                        <button class="btn btn-success shadow-none" type="submit">Registrar entrega</button>
+                                        <button class="btn btn-success shadow-none" type="submit" @disabled(blank($busqueda['qr'] ?? null))>
+                                            Registrar entrega
+                                        </button>
+                                        @if (blank($busqueda['qr'] ?? null))
+                                            <p class="small text-muted mb-0">Para entregar, primero escaneá el QR del carnet del afiliado.</p>
+                                        @endif
                                     </form>
                                 @endif
                             </div>
@@ -123,3 +141,74 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+<script>
+    const qrInput = document.getElementById('qr-input');
+    const startScanner = document.getElementById('start-scanner');
+    const stopScanner = document.getElementById('stop-scanner');
+    const scannerPanel = document.getElementById('scanner-panel');
+    const qrVideo = document.getElementById('qr-video');
+    let scannerStream = null;
+    let scannerTimer = null;
+
+    const stopCamera = () => {
+        if (scannerTimer) {
+            clearInterval(scannerTimer);
+            scannerTimer = null;
+        }
+
+        if (scannerStream) {
+            scannerStream.getTracks().forEach((track) => track.stop());
+            scannerStream = null;
+        }
+
+        scannerPanel?.classList.add('d-none');
+    };
+
+    const submitWithQr = (value) => {
+        if (!value) {
+            return;
+        }
+
+        qrInput.value = value;
+        stopCamera();
+        qrInput.closest('form').submit();
+    };
+
+    startScanner?.addEventListener('click', async () => {
+        if (!('BarcodeDetector' in window) || !navigator.mediaDevices?.getUserMedia) {
+            alert('Este navegador no permite escanear QR desde la cámara. Pegá el link del carnet en el campo QR.');
+            return;
+        }
+
+        try {
+            scannerStream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: 'environment' },
+                audio: false,
+            });
+
+            qrVideo.srcObject = scannerStream;
+            await qrVideo.play();
+            scannerPanel.classList.remove('d-none');
+
+            const detector = new BarcodeDetector({ formats: ['qr_code'] });
+            scannerTimer = setInterval(async () => {
+                try {
+                    const codes = await detector.detect(qrVideo);
+                    if (codes.length > 0) {
+                        submitWithQr(codes[0].rawValue);
+                    }
+                } catch (error) {
+                    stopCamera();
+                }
+            }, 650);
+        } catch (error) {
+            alert('No se pudo abrir la cámara. Revisá permisos del navegador o pegá el link del carnet.');
+        }
+    });
+
+    stopScanner?.addEventListener('click', stopCamera);
+    window.addEventListener('beforeunload', stopCamera);
+</script>
+@endpush
