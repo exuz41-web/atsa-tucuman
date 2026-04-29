@@ -4,7 +4,6 @@ namespace App\Filament\Resources;
 
 use App\Filament\Concerns\HasResourcePermissionAccess;
 use App\Filament\Resources\UserResource\Pages;
-use App\Models\Filial;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -87,10 +86,9 @@ class UserResource extends Resource
                     Forms\Components\Select::make('estado_afiliado')
                         ->label('Estado sindical')
                         ->options([
-                            'activo'    => 'Activo',
-                            'inactivo'  => 'Inactivo',
-                            'suspendido'=> 'Suspendido',
-                            'baja'      => 'Baja',
+                            'activo' => 'Activo',
+                            'suspendido' => 'Suspendido',
+                            'baja' => 'Baja',
                         ])
                         ->native(false),
                 ]),
@@ -124,10 +122,8 @@ class UserResource extends Resource
                     Forms\Components\Select::make('tipo_afiliado')
                         ->label('Tipo de afiliado')
                         ->options([
-                            'docente'       => 'Docente',
-                            'no_docente'    => 'No docente',
-                            'jubilado'      => 'Jubilado',
-                            'otro'          => 'Otro',
+                            'estatal' => 'Estatal',
+                            'privado' => 'Privado',
                         ])
                         ->native(false),
 
@@ -224,10 +220,9 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('tipo_afiliado')
                     ->label('Tipo')
                     ->formatStateUsing(fn (?string $state): string => match ($state) {
-                        'docente'    => 'Docente',
-                        'no_docente' => 'No docente',
-                        'jubilado'   => 'Jubilado',
-                        default      => ucfirst($s ?? '—'),
+                        'estatal' => 'Estatal',
+                        'privado' => 'Privado',
+                        default => ucfirst($state ?? '—'),
                     })
                     ->badge()
                     ->color('info')
@@ -244,17 +239,15 @@ class UserResource extends Resource
                 Tables\Columns\BadgeColumn::make('estado_afiliado')
                     ->label('Estado')
                     ->formatStateUsing(fn (?string $state): string => match ($state) {
-                        'activo'     => 'Activo',
-                        'inactivo'   => 'Inactivo',
+                        'activo' => 'Activo',
                         'suspendido' => 'Suspendido',
-                        'baja'       => 'Baja',
-                        default      => 'Activo',
+                        'baja' => 'Baja',
+                        default => 'Activo',
                     })
                     ->colors([
                         'success' => 'activo',
-                        'warning' => 'inactivo',
-                        'danger'  => fn (?string $state) => in_array($s, ['suspendido', 'baja']),
-                        'gray'    => fn (?string $state) => $s === null,
+                        'danger' => fn (?string $state) => in_array($state, ['suspendido', 'baja'], true),
+                        'gray' => fn (?string $state) => $state === null,
                     ]),
 
                 Tables\Columns\IconColumn::make('active')
@@ -276,19 +269,16 @@ class UserResource extends Resource
                 Tables\Filters\SelectFilter::make('tipo_afiliado')
                     ->label('Tipo')
                     ->options([
-                        'docente'    => 'Docente',
-                        'no_docente' => 'No docente',
-                        'jubilado'   => 'Jubilado',
-                        'otro'       => 'Otro',
+                        'estatal' => 'Estatal',
+                        'privado' => 'Privado',
                     ]),
 
                 Tables\Filters\SelectFilter::make('estado_afiliado')
                     ->label('Estado sindical')
                     ->options([
-                        'activo'     => 'Activo',
-                        'inactivo'   => 'Inactivo',
+                        'activo' => 'Activo',
                         'suspendido' => 'Suspendido',
-                        'baja'       => 'Baja',
+                        'baja' => 'Baja',
                     ]),
 
                 Tables\Filters\TernaryFilter::make('carnet_activo')
@@ -312,9 +302,9 @@ class UserResource extends Resource
                     ])
                     ->action(function (User $record, array $data): void {
                         $record->update([
-                            'carnet_activo'    => true,
+                            'carnet_activo' => true,
                             'carnet_vencimiento' => $data['carnet_vencimiento'],
-                            'carnet_emitido_at'  => now(),
+                            'carnet_emitido_at' => now(),
                         ]);
                         Notification::make()
                             ->title('Carnet emitido')
@@ -337,7 +327,7 @@ class UserResource extends Resource
                     ])
                     ->action(fn (User $record, array $data) => $record->update([
                         'carnet_vencimiento' => $data['carnet_vencimiento'],
-                        'carnet_emitido_at'  => now(),
+                        'carnet_emitido_at' => now(),
                     ])),
 
                 Tables\Actions\Action::make('reset_password')
@@ -367,9 +357,9 @@ class UserResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListUsers::route('/'),
+            'index' => Pages\ListUsers::route('/'),
             'create' => Pages\CreateUser::route('/create'),
-            'edit'   => Pages\EditUser::route('/{record}/edit'),
+            'edit' => Pages\EditUser::route('/{record}/edit'),
         ];
     }
 }

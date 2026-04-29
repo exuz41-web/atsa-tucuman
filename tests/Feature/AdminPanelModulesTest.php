@@ -26,4 +26,36 @@ class AdminPanelModulesTest extends TestCase
             ->assertSee('Afiliación y padrón')
             ->assertSee('Configuración y seguridad');
     }
+
+    public function test_critical_admin_pages_render_without_filament_errors(): void
+    {
+        $admin = User::factory()->create([
+            'role' => 'admin',
+            'active' => true,
+        ]);
+
+        User::factory()->create([
+            'role' => 'afiliado',
+            'active' => true,
+            'tipo_afiliado' => 'estatal',
+            'estado_afiliado' => 'activo',
+            'carnet_activo' => true,
+        ]);
+
+        foreach ([
+            '/admin/users',
+            '/admin/beneficios',
+            '/admin/pedidos',
+            '/admin/solicitudes-beneficios',
+            '/admin/ordenes-prestacion',
+            '/admin/prestadores',
+            '/admin/posts',
+            '/admin/configuracion',
+            '/admin/gestion-carnets',
+        ] as $path) {
+            $this->actingAs($admin)
+                ->get($path)
+                ->assertOk();
+        }
+    }
 }

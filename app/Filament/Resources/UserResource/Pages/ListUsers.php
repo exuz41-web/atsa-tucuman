@@ -41,8 +41,8 @@ class ListUsers extends ListRecords
                 ->badge($base()->where('es_delegado_gremial', true)->count())
                 ->modifyQueryUsing(fn (Builder $q) => $q->where('es_delegado_gremial', true)),
 
-            'inactivos' => Tab::make('Inactivos / Baja')
-                ->modifyQueryUsing(fn (Builder $q) => $q->whereIn('estado_afiliado', ['inactivo', 'suspendido', 'baja'])),
+            'inactivos' => Tab::make('Suspendidos / Baja')
+                ->modifyQueryUsing(fn (Builder $q) => $q->whereIn('estado_afiliado', ['suspendido', 'baja'])),
         ];
     }
 }
