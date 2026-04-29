@@ -35,6 +35,12 @@ const setIdleState = () => {
     captureScanner?.classList.add('d-none');
 };
 
+const setImageOnlyState = () => {
+    startScanner?.classList.add('d-none');
+    retryScanner?.classList.add('d-none');
+    captureScanner?.classList.remove('d-none');
+};
+
 const stopCamera = () => {
     if (animationFrame) {
         cancelAnimationFrame(animationFrame);
@@ -144,10 +150,13 @@ const decodeImageFile = (file) => {
 const startCamera = async () => {
     clearScannerError();
 
+    if (!window.isSecureContext) {
+        setImageOnlyState();
+        return;
+    }
+
     if (!navigator.mediaDevices?.getUserMedia) {
-        showScannerError('Este navegador no habilita cámara en vivo desde esta dirección. Tocá "Tomar foto del QR" y lo leo desde la imagen.');
-        retryScanner?.classList.remove('d-none');
-        captureScanner?.classList.remove('d-none');
+        setImageOnlyState();
         return;
     }
 
@@ -170,7 +179,7 @@ const startCamera = async () => {
         animationFrame = requestAnimationFrame(scanFrame);
     } catch (error) {
         stopCamera();
-        showScannerError('No se pudo abrir la cámara en vivo. Permití el acceso o tocá "Tomar foto del QR".');
+        showScannerError('No se pudo abrir la cámara en vivo. Permití el acceso o usá la foto del QR.');
         retryScanner?.classList.remove('d-none');
         captureScanner?.classList.remove('d-none');
     }
@@ -187,6 +196,10 @@ stopScanner?.addEventListener('click', () => {
 });
 
 window.addEventListener('beforeunload', stopCamera);
+
+if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
+    setImageOnlyState();
+}
 
 if (form?.dataset.autoScan === '1') {
     startCamera();

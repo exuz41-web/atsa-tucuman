@@ -35,7 +35,7 @@
 
         @media (max-width: 575.98px) {
             body { background: #f2f5f9; }
-            .provider-header-inner { align-items: stretch !important; gap: 1rem !important; }
+            .provider-header-inner { align-items: stretch !important; flex-direction: column; gap: 1rem !important; }
             .provider-brand { gap: .85rem !important; }
             .provider-logo { width: 106px; height: 56px; flex: 0 0 106px; }
             .provider-title .fs-2 { font-size: .86rem !important; line-height: 1.35; }
@@ -43,6 +43,7 @@
             .provider-actions { display: grid !important; grid-template-columns: 1fr auto; width: 100%; gap: .7rem !important; }
             .provider-actions .btn { min-height: 48px; display: inline-flex; align-items: center; justify-content: center; border-radius: 12px; }
             .provider-actions form { margin: 0; }
+            .provider-actions form .btn { width: 100%; }
             main.container { padding-inline: .85rem; padding-top: 1rem !important; }
             .provider-card { border-radius: 14px; box-shadow: 0 10px 24px rgba(42, 53, 71, .06); }
             .provider-card.p-4 { padding: 1.15rem !important; }

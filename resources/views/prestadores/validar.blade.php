@@ -35,7 +35,7 @@
                         <button id="retry-scanner" class="btn btn-outline-primary shadow-none d-none" type="button">
                             <i class="ti ti-refresh me-2"></i>Volver a escanear
                         </button>
-                        <button id="capture-scanner" class="btn btn-outline-primary shadow-none d-none" type="button">
+                        <button id="capture-scanner" class="btn btn-primary btn-lg shadow-none d-none" type="button">
                             <i class="ti ti-camera-up me-2"></i>Tomar foto del QR
                         </button>
                         <input id="qr-image-input" class="d-none" type="file" accept="image/*" capture="environment">
