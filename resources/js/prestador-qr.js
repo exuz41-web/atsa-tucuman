@@ -7,6 +7,7 @@ const retryScanner = document.getElementById('retry-scanner');
 const captureScanner = document.getElementById('capture-scanner');
 const stopScanner = document.getElementById('stop-scanner');
 const scannerPanel = document.getElementById('scanner-panel');
+const scannerStatus = document.getElementById('scanner-status');
 const scannerError = document.getElementById('scanner-error');
 const qrVideo = document.getElementById('qr-video');
 const qrCanvas = document.getElementById('qr-canvas');
@@ -21,12 +22,29 @@ const showScannerError = (message) => {
         return;
     }
 
+    scannerStatus?.classList.add('d-none');
     scannerError.textContent = message;
     scannerError.classList.remove('d-none');
+    scannerError.scrollIntoView({ behavior: 'smooth', block: 'center' });
 };
 
 const clearScannerError = () => {
     scannerError?.classList.add('d-none');
+};
+
+const showScannerStatus = (message) => {
+    if (!scannerStatus) {
+        return;
+    }
+
+    scannerError?.classList.add('d-none');
+    scannerStatus.textContent = message;
+    scannerStatus.classList.remove('d-none');
+    scannerStatus.scrollIntoView({ behavior: 'smooth', block: 'center' });
+};
+
+const clearScannerStatus = () => {
+    scannerStatus?.classList.add('d-none');
 };
 
 const setIdleState = () => {
@@ -65,6 +83,7 @@ const submitWithQr = (value) => {
     }
 
     isSubmitting = true;
+    showScannerStatus('QR leído. Validando afiliado...');
     qrInput.value = value;
     stopCamera();
     form.submit();
@@ -111,43 +130,105 @@ const decodeCanvas = (context, width, height) => {
     });
 };
 
+const drawImageVariant = (context, image, width, height, rotation = 0, mirror = false) => {
+    qrCanvas.width = width;
+    qrCanvas.height = height;
+    context.save();
+    context.clearRect(0, 0, width, height);
+
+    if (rotation === 90) {
+        context.translate(width, 0);
+        context.rotate(Math.PI / 2);
+    } else if (rotation === 180) {
+        context.translate(width, height);
+        context.rotate(Math.PI);
+    } else if (rotation === 270) {
+        context.translate(0, height);
+        context.rotate((3 * Math.PI) / 2);
+    }
+
+    if (mirror) {
+        context.scale(-1, 1);
+        context.translate(-image.naturalWidth, 0);
+    }
+
+    if (rotation === 90 || rotation === 270) {
+        context.drawImage(image, 0, 0, image.naturalHeight, image.naturalWidth);
+    } else {
+        context.drawImage(image, 0, 0, width, height);
+    }
+
+    context.restore();
+};
+
 const decodeImageFile = (file) => {
     if (!file || !qrCanvas) {
         return;
     }
 
     clearScannerError();
+    showScannerStatus('Procesando foto del QR...');
+    captureScanner?.setAttribute('disabled', 'disabled');
 
     const image = new Image();
     image.onload = () => {
         const context = qrCanvas.getContext('2d', { willReadFrequently: true });
-        const maxSideOptions = [2400, 1800, 1200, 800];
+        const maxSideOptions = [2600, 2000, 1600, 1200, 900];
+        const rotations = [0, 90, 180, 270];
         let code = null;
 
         for (const maxSide of maxSideOptions) {
             const scale = Math.min(1, maxSide / Math.max(image.naturalWidth, image.naturalHeight));
-            const width = Math.max(1, Math.round(image.naturalWidth * scale));
-            const height = Math.max(1, Math.round(image.naturalHeight * scale));
 
-            qrCanvas.width = width;
-            qrCanvas.height = height;
-            context.drawImage(image, 0, 0, width, height);
+            for (const rotation of rotations) {
+                const rotated = rotation === 90 || rotation === 270;
+                const width = Math.max(1, Math.round((rotated ? image.naturalHeight : image.naturalWidth) * scale));
+                const height = Math.max(1, Math.round((rotated ? image.naturalWidth : image.naturalHeight) * scale));
 
-            code = decodeCanvas(context, width, height);
+                qrCanvas.width = width;
+                qrCanvas.height = height;
+                context.save();
+                context.clearRect(0, 0, width, height);
 
-            if (code?.data) {
-                break;
+                if (rotation === 90) {
+                    context.translate(width, 0);
+                    context.rotate(Math.PI / 2);
+                    context.drawImage(image, 0, 0, height, width);
+                } else if (rotation === 180) {
+                    context.translate(width, height);
+                    context.rotate(Math.PI);
+                    context.drawImage(image, 0, 0, width, height);
+                } else if (rotation === 270) {
+                    context.translate(0, height);
+                    context.rotate((3 * Math.PI) / 2);
+                    context.drawImage(image, 0, 0, height, width);
+                } else {
+                    context.drawImage(image, 0, 0, width, height);
+                }
+
+                context.restore();
+
+                code = decodeCanvas(context, width, height);
+
+                if (code?.data) {
+                    break;
+                }
+
+                const cropSize = Math.floor(Math.min(width, height) * 0.82);
+                const cropX = Math.floor((width - cropSize) / 2);
+                const cropY = Math.floor((height - cropSize) / 2);
+
+                const fullImage = context.getImageData(cropX, cropY, cropSize, cropSize);
+                qrCanvas.width = cropSize;
+                qrCanvas.height = cropSize;
+                context.putImageData(fullImage, 0, 0);
+
+                code = decodeCanvas(context, cropSize, cropSize);
+
+                if (code?.data) {
+                    break;
+                }
             }
-
-            const cropSize = Math.floor(Math.min(width, height) * 0.82);
-            const cropX = Math.floor((width - cropSize) / 2);
-            const cropY = Math.floor((height - cropSize) / 2);
-
-            qrCanvas.width = cropSize;
-            qrCanvas.height = cropSize;
-            context.drawImage(image, cropX / scale, cropY / scale, cropSize / scale, cropSize / scale, 0, 0, cropSize, cropSize);
-
-            code = decodeCanvas(context, cropSize, cropSize);
 
             if (code?.data) {
                 break;
@@ -155,6 +236,8 @@ const decodeImageFile = (file) => {
         }
 
         URL.revokeObjectURL(image.src);
+        captureScanner?.removeAttribute('disabled');
+        clearScannerStatus();
 
         if (code?.data) {
             submitWithQr(code.data);
@@ -166,11 +249,14 @@ const decodeImageFile = (file) => {
     };
 
     image.onerror = () => {
+        captureScanner?.removeAttribute('disabled');
+        clearScannerStatus();
         showScannerError('No pude abrir esa imagen. Probá tomar la foto nuevamente.');
         captureScanner?.classList.remove('d-none');
     };
 
     image.src = URL.createObjectURL(file);
+    qrImageInput.value = '';
 };
 
 const startCamera = async () => {

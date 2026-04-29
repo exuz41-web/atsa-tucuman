@@ -52,6 +52,7 @@
                     <div id="scanner-help" class="provider-help-card small text-muted p-3">
                         Apuntá la cámara al QR del carnet digital del afiliado. Al detectarlo, el sistema valida automáticamente.
                     </div>
+                    <div id="scanner-status" class="alert alert-info border-0 d-none mb-0"></div>
                     <div id="scanner-error" class="alert alert-warning border-0 d-none mb-0"></div>
 
                     <div class="border-top pt-3">
