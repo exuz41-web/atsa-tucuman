@@ -8,6 +8,7 @@ use App\Models\Prestador;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class PrestadorPortalTest extends TestCase
@@ -46,7 +47,7 @@ class PrestadorPortalTest extends TestCase
         $oldToken = $prestador->portal_token;
         $this->assertSame(route('prestadores.portal', $oldToken), $prestador->portalUrl());
 
-        $prestador->update(['portal_token' => (string) \Illuminate\Support\Str::uuid()]);
+        $prestador->update(['portal_token' => (string) Str::uuid()]);
 
         $prestador->refresh();
         $this->assertNotSame($oldToken, $prestador->portal_token);
@@ -192,6 +193,25 @@ class PrestadorPortalTest extends TestCase
             ->assertOk()
             ->assertSee('AFILIADO HABILITADO')
             ->assertSee($orden->codigo);
+    }
+
+    public function test_prestador_validation_page_prioritizes_qr_scanner(): void
+    {
+        $prestador = Prestador::create([
+            'nombre' => 'Óptica Centro',
+            'tipo' => 'optica',
+            'activo' => true,
+            'portal_username' => 'optica-centro',
+            'portal_password' => Hash::make('secret123'),
+        ]);
+
+        $this->loginPrestador($prestador);
+
+        $this->get(route('prestadores.validar', ['token' => $prestador->portal_token, 'scan' => 1]))
+            ->assertOk()
+            ->assertSee('Abrir lector QR')
+            ->assertSee('Escaneá el QR del carnet')
+            ->assertDontSee('Pegá el link', false);
     }
 
     public function test_prestador_cannot_deliver_when_affiliate_is_not_enabled(): void
