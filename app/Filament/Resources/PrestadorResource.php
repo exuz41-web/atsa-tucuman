@@ -22,7 +22,7 @@ class PrestadorResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-building-office-2';
 
-    protected static ?string $navigationGroup = 'Atención al afiliado';
+    protected static ?string $navigationGroup = 'Secretarías y beneficios';
 
     protected static ?string $navigationLabel = 'Prestadores';
 
@@ -32,7 +32,7 @@ class PrestadorResource extends Resource
 
     protected static ?string $slug = 'prestadores';
 
-    protected static ?int $navigationSort = 6;
+    protected static ?int $navigationSort = 40;
 
     protected static ?string $panelScope = 'admin';
 

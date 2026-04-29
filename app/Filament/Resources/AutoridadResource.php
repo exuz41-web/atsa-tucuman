@@ -19,9 +19,11 @@ class AutoridadResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
 
-    protected static ?string $navigationGroup = 'Institución';
+    protected static ?string $navigationGroup = 'Institucional y gremial';
 
     protected static ?string $navigationLabel = 'Autoridades';
+
+    protected static ?int $navigationSort = 10;
 
     protected static ?string $modelLabel = 'autoridad';
 

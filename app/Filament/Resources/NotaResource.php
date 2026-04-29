@@ -11,9 +11,11 @@ class NotaResource extends GenericResource
 
     protected static ?string $navigationIcon = 'heroicon-o-pencil-square';
 
-    protected static ?string $navigationGroup = 'Académico';
+    protected static ?string $navigationGroup = 'Gestión académica';
 
     protected static ?string $navigationLabel = 'Notas';
+
+    protected static ?int $navigationSort = 60;
 
     protected static ?string $slug = 'notas';
 

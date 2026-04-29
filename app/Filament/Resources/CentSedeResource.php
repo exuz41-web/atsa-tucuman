@@ -19,7 +19,7 @@ class CentSedeResource extends Resource
 
     protected static ?string $model = CentSede::class;
     protected static ?string $navigationIcon = 'heroicon-o-map-pin';
-    protected static ?string $navigationGroup = 'CENT N°74';
+    protected static ?string $navigationGroup = 'Gestión académica';
     protected static ?string $modelLabel = 'sede CENT';
     protected static ?string $pluralModelLabel = 'sedes CENT';
     protected static ?string $panelScope = 'cent';

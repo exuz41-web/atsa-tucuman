@@ -20,9 +20,11 @@ class TestimonioResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-chat-bubble-oval-left-ellipsis';
 
-    protected static ?string $navigationGroup = 'Gestión web';
+    protected static ?string $navigationGroup = 'Prensa y web pública';
 
     protected static ?string $navigationLabel = 'Testimonios';
+
+    protected static ?int $navigationSort = 50;
 
     protected static ?string $modelLabel = 'testimonio';
 

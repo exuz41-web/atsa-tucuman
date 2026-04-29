@@ -11,9 +11,11 @@ class PreinscripcionCentResource extends GenericResource
 
     protected static ?string $navigationIcon = 'heroicon-o-document-plus';
 
-    protected static ?string $navigationGroup = 'Ingresantes';
+    protected static ?string $navigationGroup = 'Ingresantes CENT';
 
     protected static ?string $navigationLabel = 'Preinscripciones';
+
+    protected static ?int $navigationSort = 10;
 
     protected static ?string $slug = 'preinscripciones-cent';
 

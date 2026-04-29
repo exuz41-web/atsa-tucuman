@@ -11,9 +11,11 @@ class InscripcionResource extends GenericResource
 
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
 
-    protected static ?string $navigationGroup = 'Académico';
+    protected static ?string $navigationGroup = 'Gestión académica';
 
     protected static ?string $navigationLabel = 'Inscripciones académicas';
+
+    protected static ?int $navigationSort = 50;
 
     protected static ?string $slug = 'inscripciones-academicas';
 

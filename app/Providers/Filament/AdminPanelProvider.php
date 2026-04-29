@@ -4,6 +4,7 @@ namespace App\Providers\Filament;
 
 use App\Filament\Pages\Dashboard;
 use App\Filament\Widgets\ActividadMensual;
+use App\Filament\Widgets\AdminModuleShortcuts;
 use App\Filament\Widgets\AtencionPrestadoresOverview;
 use App\Filament\Widgets\PedidosPorEstado;
 use App\Filament\Widgets\ProximasEfemerides;
@@ -92,6 +93,7 @@ class AdminPanelProvider extends PanelProvider
                 Dashboard::class,
             ])
             ->widgets([
+                AdminModuleShortcuts::class,
                 StatsOverview::class,
                 AtencionPrestadoresOverview::class,
                 PedidosPorEstado::class,
@@ -164,13 +166,12 @@ class AdminPanelProvider extends PanelProvider
                     ->sort(1),
             ])
             ->navigationGroups([
-                NavigationGroup::make('Padrón sindical'),
-                NavigationGroup::make('Institución'),
-                NavigationGroup::make('Gremial'),
-                NavigationGroup::make('Atención al afiliado'),
-                NavigationGroup::make('Afiliados'),
-                NavigationGroup::make('Gestión web'),
-                NavigationGroup::make('Configuración'),
+                NavigationGroup::make('Prensa y web pública'),
+                NavigationGroup::make('Recepción y atención'),
+                NavigationGroup::make('Secretarías y beneficios'),
+                NavigationGroup::make('Afiliación y padrón'),
+                NavigationGroup::make('Institucional y gremial'),
+                NavigationGroup::make('Configuración y seguridad'),
             ])
             ->middleware([
                 EncryptCookies::class,

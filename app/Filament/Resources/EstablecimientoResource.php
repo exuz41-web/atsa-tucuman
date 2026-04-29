@@ -21,7 +21,7 @@ class EstablecimientoResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-building-office-2';
 
-    protected static ?string $navigationGroup = 'Institución';
+    protected static ?string $navigationGroup = 'Afiliación y padrón';
 
     protected static ?string $navigationLabel = 'Establecimientos';
 
@@ -31,7 +31,7 @@ class EstablecimientoResource extends Resource
 
     protected static ?string $slug = 'establecimientos';
 
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 40;
 
     protected static ?string $panelScope = 'admin';
 

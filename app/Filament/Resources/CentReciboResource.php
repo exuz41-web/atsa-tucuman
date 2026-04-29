@@ -22,8 +22,10 @@ class CentReciboResource extends Resource
     protected static ?string $model = CentRecibo::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-receipt-refund';
-    protected static ?string $navigationGroup = 'Administración';
+    protected static ?string $navigationGroup = 'Administración CENT';
     protected static ?string $navigationLabel = 'Recibos';
+
+    protected static ?int $navigationSort = 20;
     protected static ?string $modelLabel = 'recibo';
     protected static ?string $pluralModelLabel = 'recibos oficiales';
     protected static ?string $slug = 'recibos';

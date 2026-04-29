@@ -22,7 +22,7 @@ class ConsultaResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-chat-bubble-left-right';
 
-    protected static ?string $navigationGroup = 'Atención al afiliado';
+    protected static ?string $navigationGroup = 'Recepción y atención';
 
     protected static ?string $navigationLabel = 'Consultas';
 
@@ -32,7 +32,7 @@ class ConsultaResource extends Resource
 
     protected static ?string $slug = 'consultas';
 
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 20;
 
     protected static ?string $panelScope = 'admin';
 

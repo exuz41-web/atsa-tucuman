@@ -22,6 +22,8 @@ class CentClaseResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-calendar-days';
     protected static ?string $navigationGroup = 'Aula virtual';
     protected static ?string $navigationLabel = 'Clases';
+
+    protected static ?int $navigationSort = 10;
     protected static ?string $modelLabel = 'clase';
     protected static ?string $pluralModelLabel = 'clases';
     protected static ?string $slug = 'clases';

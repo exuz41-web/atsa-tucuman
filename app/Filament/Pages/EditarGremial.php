@@ -21,12 +21,12 @@ class EditarGremial extends Page implements HasForms
     use InteractsWithForms;
 
     protected static ?string $navigationIcon = 'heroicon-o-scale';
-    protected static ?string $navigationGroup = 'Editor del sitio - ATSA';
+    protected static ?string $navigationGroup = 'Prensa y web pública';
     protected static ?string $navigationLabel = 'Gremial';
     protected static ?string $title = 'Editar - Pagina Gremial';
     protected static string $view = 'filament.pages.editar-gremial';
     protected static ?string $slug = 'editar-gremial';
-    protected static ?int $navigationSort = 30;
+    protected static ?int $navigationSort = 3;
     protected static bool $shouldRegisterNavigation = false;
 
     public ?array $data = [];

@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Filament\Widgets\ActividadMensual;
+use App\Filament\Widgets\AdminModuleShortcuts;
 use App\Filament\Widgets\AtencionPrestadoresOverview;
 use App\Filament\Widgets\PedidosPorEstado;
 use App\Filament\Widgets\ProximasEfemerides;
@@ -18,6 +19,7 @@ class Dashboard extends BaseDashboard
     public function getWidgets(): array
     {
         return [
+            AdminModuleShortcuts::class,
             StatsOverview::class,
             AtencionPrestadoresOverview::class,
             PedidosPorEstado::class,

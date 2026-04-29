@@ -23,6 +23,8 @@ class CentEntregaTrabajoResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-inbox-arrow-down';
     protected static ?string $navigationGroup = 'Aula virtual';
     protected static ?string $navigationLabel = 'Entregas';
+
+    protected static ?int $navigationSort = 40;
     protected static ?string $modelLabel = 'entrega';
     protected static ?string $pluralModelLabel = 'entregas';
     protected static ?string $slug = 'entregas';

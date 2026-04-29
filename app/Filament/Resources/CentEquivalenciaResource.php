@@ -19,8 +19,10 @@ class CentEquivalenciaResource extends Resource
 
     protected static ?string $model = CentEquivalencia::class;
     protected static ?string $navigationIcon = 'heroicon-o-arrows-right-left';
-    protected static ?string $navigationGroup = 'Académico';
+    protected static ?string $navigationGroup = 'Alumnos y legajos';
     protected static ?string $navigationLabel = 'Equivalencias';
+
+    protected static ?int $navigationSort = 50;
     protected static ?string $modelLabel = 'equivalencia';
     protected static ?string $pluralModelLabel = 'equivalencias';
     protected static ?string $slug = 'equivalencias';

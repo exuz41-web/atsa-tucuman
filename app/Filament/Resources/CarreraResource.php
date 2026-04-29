@@ -11,9 +11,11 @@ class CarreraResource extends GenericResource
 
     protected static ?string $navigationIcon = 'heroicon-o-academic-cap';
 
-    protected static ?string $navigationGroup = 'Académico';
+    protected static ?string $navigationGroup = 'Gestión académica';
 
     protected static ?string $navigationLabel = 'Carreras';
+
+    protected static ?int $navigationSort = 20;
 
     protected static ?string $slug = 'carreras';
 

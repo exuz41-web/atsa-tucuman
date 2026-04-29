@@ -1246,7 +1246,7 @@ body[data-modernize-theme='dark'] .modernize-notification-item:hover {
     font-size: 20px !important;
     font-weight: 700 !important;
     color: #2a3547 !important;
-    letter-spacing: -0.01em !important;
+    letter-spacing: 0 !important;
     line-height: 1.3 !important;
 }
 
@@ -2055,6 +2055,247 @@ textarea.fi-input:focus {
     color: #7c8aa5;
     font-size: 12px;
     font-weight: 700;
+}
+
+/* ============================================================
+   ADMIN MODULE POLISH
+   ============================================================ */
+
+.fi-main {
+    background:
+        radial-gradient(circle at top left, rgba(93, 135, 255, .10), transparent 32rem),
+        linear-gradient(180deg, #f7f9fc 0%, #eef3f9 100%) !important;
+}
+
+.topbar {
+    background: rgba(255, 255, 255, .92) !important;
+    backdrop-filter: blur(14px);
+}
+
+.left-sidebar {
+    border-right: 0 !important;
+    box-shadow: 8px 0 30px rgba(30, 58, 95, .08) !important;
+}
+
+.sidebar-module {
+    margin-bottom: 7px;
+}
+
+.sidebar-module-summary {
+    border: 1px solid transparent;
+    background: #fff;
+}
+
+.sidebar-module-details[open] > .sidebar-module-summary {
+    background: linear-gradient(135deg, #1e3a5f 0%, #345f96 100%);
+    box-shadow: 0 10px 22px rgba(30, 58, 95, .18);
+}
+
+.module-summary-icon {
+    width: 32px;
+    min-width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    background: #ecf2ff;
+    color: #5d87ff;
+}
+
+.sidebar-module-details[open] .module-summary-icon {
+    background: rgba(255, 255, 255, .16);
+    color: #fff;
+}
+
+.sidebar-module-list {
+    padding: 5px 0 3px;
+}
+
+.sidebar-link {
+    margin-left: 8px;
+    border-left: 3px solid transparent;
+}
+
+.sidebar-link:hover {
+    background: #f6f9ff;
+    border-left-color: rgba(93, 135, 255, .28);
+}
+
+.sidebar-item.selected > .sidebar-link,
+.sidebar-link.active {
+    background: #ecf2ff;
+    color: #1e3a5f;
+    border-left-color: #5d87ff;
+    box-shadow: inset 0 0 0 1px rgba(93, 135, 255, .14);
+}
+
+.fi-section,
+.fi-ta-ctn,
+.fi-wi-widget > div,
+.fi-fo-tabs,
+.fi-modal-window {
+    border: 1px solid rgba(226, 232, 240, .92) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 18px 40px rgba(30, 58, 95, .08) !important;
+}
+
+.fi-section-header {
+    border-bottom-color: #edf2f7 !important;
+}
+
+.fi-header {
+    background:
+        linear-gradient(135deg, #ffffff 0%, #f2f7ff 68%, #eaf2ff 100%) !important;
+    border: 1px solid rgba(226, 232, 240, .9) !important;
+    box-shadow: 0 16px 42px rgba(30, 58, 95, .08) !important;
+}
+
+.fi-header::after {
+    opacity: .55 !important;
+    filter: saturate(.9);
+}
+
+.fi-header-heading {
+    font-size: 23px !important;
+}
+
+.fi-wi-stats-overview-stat {
+    border-radius: 16px !important;
+    overflow: hidden;
+}
+
+.fi-wi-stats-overview-stat::before {
+    content: '';
+    display: block;
+    height: 4px;
+    margin: -1rem -1rem .75rem;
+    background: linear-gradient(90deg, #5d87ff, #13deb9);
+}
+
+.atsa-module-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.atsa-module-card {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #e5edf6;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 18px 40px rgba(30, 58, 95, .08);
+}
+
+.atsa-module-card::after {
+    content: '';
+    position: absolute;
+    inset: auto -48px -70px auto;
+    width: 132px;
+    height: 132px;
+    border-radius: 999px;
+    background: var(--module-soft);
+}
+
+.atsa-module-card__main {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    min-height: 132px;
+    gap: 14px;
+    padding: 18px;
+    color: #2a3547;
+    text-decoration: none;
+}
+
+.atsa-module-card__main:hover {
+    color: #2a3547;
+    text-decoration: none;
+}
+
+.atsa-module-card__icon {
+    display: flex;
+    width: 46px;
+    height: 46px;
+    flex: 0 0 46px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 13px;
+    color: var(--module-strong);
+    background: var(--module-soft);
+    font-size: 24px;
+}
+
+.atsa-module-card__copy {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.atsa-module-card__copy strong {
+    display: block;
+    margin-bottom: 6px;
+    color: #1e3a5f;
+    font-size: 15px;
+    font-weight: 800;
+    line-height: 1.25;
+}
+
+.atsa-module-card__copy small {
+    display: block;
+    color: #64748b;
+    font-size: 12.5px;
+    font-weight: 600;
+    line-height: 1.45;
+}
+
+.atsa-module-card__arrow {
+    color: var(--module-strong);
+    font-size: 18px;
+}
+
+.atsa-module-card__links {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0 18px 18px;
+}
+
+.atsa-module-card__links a {
+    border-radius: 999px;
+    padding: 7px 10px;
+    color: var(--module-strong);
+    background: var(--module-soft);
+    font-size: 11.5px;
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.atsa-module-card__links a:hover {
+    background: var(--module-strong);
+    color: #fff;
+}
+
+.atsa-module-card--blue { --module-strong: #2563eb; --module-soft: #dbeafe; }
+.atsa-module-card--green { --module-strong: #0f766e; --module-soft: #ccfbf1; }
+.atsa-module-card--orange { --module-strong: #c2410c; --module-soft: #ffedd5; }
+.atsa-module-card--purple { --module-strong: #7c3aed; --module-soft: #ede9fe; }
+.atsa-module-card--slate { --module-strong: #334155; --module-soft: #e2e8f0; }
+.atsa-module-card--red { --module-strong: #b91c1c; --module-soft: #fee2e2; }
+
+@media (max-width: 1280px) {
+    .atsa-module-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .atsa-module-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .fi-header::after {
+        display: none !important;
+    }
 }
 
 /* ============================================================

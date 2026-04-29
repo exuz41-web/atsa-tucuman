@@ -24,7 +24,7 @@ class OrdenPrestacionResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-check';
 
-    protected static ?string $navigationGroup = 'Atención al afiliado';
+    protected static ?string $navigationGroup = 'Secretarías y beneficios';
 
     protected static ?string $navigationLabel = 'Órdenes a prestadores';
 
@@ -34,7 +34,7 @@ class OrdenPrestacionResource extends Resource
 
     protected static ?string $slug = 'ordenes-prestacion';
 
-    protected static ?int $navigationSort = 7;
+    protected static ?int $navigationSort = 30;
 
     protected static ?string $panelScope = 'admin';
 

@@ -22,8 +22,10 @@ class CentNotificacionResource extends Resource
     protected static ?string $model = CentNotificacion::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-bell-alert';
-    protected static ?string $navigationGroup = 'Administración';
+    protected static ?string $navigationGroup = 'Comunicación CENT';
     protected static ?string $navigationLabel = 'Notificaciones';
+
+    protected static ?int $navigationSort = 50;
     protected static ?string $modelLabel = 'notificación';
     protected static ?string $pluralModelLabel = 'notificaciones';
     protected static ?string $slug = 'notificaciones';

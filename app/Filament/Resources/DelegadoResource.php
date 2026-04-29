@@ -20,7 +20,7 @@ class DelegadoResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-identification';
 
-    protected static ?string $navigationGroup = 'Gremial';
+    protected static ?string $navigationGroup = 'Institucional y gremial';
 
     protected static ?string $navigationLabel = 'Delegados';
 
@@ -30,7 +30,7 @@ class DelegadoResource extends Resource
 
     protected static ?string $slug = 'delegados';
 
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 20;
 
     protected static ?string $panelScope = 'admin';
 

@@ -21,13 +21,13 @@ class EditarInicio extends Page implements HasForms
     use InteractsWithForms;
 
     protected static ?string $navigationIcon = 'heroicon-o-home';
-    protected static ?string $navigationGroup = 'Editor del sitio - ATSA';
+    protected static ?string $navigationGroup = 'Prensa y web pública';
     protected static ?string $navigationLabel = 'Inicio';
     protected static bool $shouldRegisterNavigation = false;
     protected static ?string $title = 'Editor de sitio';
     protected static string $view = 'filament.pages.editar-inicio';
     protected static ?string $slug = 'editar-inicio';
-    protected static ?int $navigationSort = 10;
+    protected static ?int $navigationSort = 1;
 
     public ?array $data = [];
 

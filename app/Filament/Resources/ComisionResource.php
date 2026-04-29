@@ -11,9 +11,11 @@ class ComisionResource extends GenericResource
 
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
 
-    protected static ?string $navigationGroup = 'Académico';
+    protected static ?string $navigationGroup = 'Gestión académica';
 
     protected static ?string $navigationLabel = 'Comisiones';
+
+    protected static ?int $navigationSort = 40;
 
     protected static ?string $slug = 'comisiones';
 

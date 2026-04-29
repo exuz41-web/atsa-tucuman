@@ -11,9 +11,11 @@ class MatriculaCentResource extends GenericResource
 
     protected static ?string $navigationIcon = 'heroicon-o-identification';
 
-    protected static ?string $navigationGroup = 'Alumnos';
+    protected static ?string $navigationGroup = 'Alumnos y legajos';
 
     protected static ?string $navigationLabel = 'Matrículas';
+
+    protected static ?int $navigationSort = 20;
 
     protected static ?string $slug = 'matriculas-cent';
 

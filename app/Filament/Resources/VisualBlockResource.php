@@ -11,9 +11,11 @@ class VisualBlockResource extends GenericResource
 
     protected static ?string $navigationIcon = 'heroicon-o-photo';
 
-    protected static ?string $navigationGroup = 'Gestión web';
+    protected static ?string $navigationGroup = 'Prensa y web pública';
 
     protected static ?string $navigationLabel = 'Bloques visuales';
+
+    protected static ?int $navigationSort = 60;
 
     protected static ?string $slug = 'bloques-visuales';
 

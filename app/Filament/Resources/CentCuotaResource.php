@@ -23,8 +23,10 @@ class CentCuotaResource extends Resource
 
     protected static ?string $model = CentCuota::class;
     protected static ?string $navigationIcon = 'heroicon-o-banknotes';
-    protected static ?string $navigationGroup = 'Administración';
+    protected static ?string $navigationGroup = 'Administración CENT';
     protected static ?string $navigationLabel = 'Cuotas';
+
+    protected static ?int $navigationSort = 10;
     protected static ?string $modelLabel = 'cuota';
     protected static ?string $pluralModelLabel = 'cuotas y pagos';
     protected static ?string $slug = 'cuotas';

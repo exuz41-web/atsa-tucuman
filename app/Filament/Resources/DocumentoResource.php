@@ -19,7 +19,7 @@ class DocumentoResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
-    protected static ?string $navigationGroup = 'Institución';
+    protected static ?string $navigationGroup = 'Institucional y gremial';
 
     protected static ?string $navigationLabel = 'Documentos';
 
@@ -29,7 +29,7 @@ class DocumentoResource extends Resource
 
     protected static ?string $slug = 'documentos';
 
-    protected static ?int $navigationSort = 4;
+    protected static ?int $navigationSort = 40;
 
     protected static ?string $panelScope = 'admin';
 

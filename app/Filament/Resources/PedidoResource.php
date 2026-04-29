@@ -26,7 +26,7 @@ class PedidoResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
 
-    protected static ?string $navigationGroup = 'Atención al afiliado';
+    protected static ?string $navigationGroup = 'Recepción y atención';
 
     protected static ?string $navigationLabel = 'Pedidos';
 
@@ -36,7 +36,7 @@ class PedidoResource extends Resource
 
     protected static ?string $slug = 'pedidos';
 
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 10;
 
     protected static ?string $panelScope = 'admin';
 

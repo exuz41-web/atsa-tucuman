@@ -23,8 +23,10 @@ class CentPermisoExamenResource extends Resource
 
     protected static ?string $model = CentPermisoExamen::class;
     protected static ?string $navigationIcon = 'heroicon-o-qr-code';
-    protected static ?string $navigationGroup = 'Administración';
+    protected static ?string $navigationGroup = 'Alumnos y legajos';
     protected static ?string $navigationLabel = 'Permisos de examen';
+
+    protected static ?int $navigationSort = 40;
     protected static ?string $modelLabel = 'permiso de examen';
     protected static ?string $pluralModelLabel = 'permisos de examen';
     protected static ?string $slug = 'permisos-examen';

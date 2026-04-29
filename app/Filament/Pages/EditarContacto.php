@@ -22,7 +22,7 @@ class EditarContacto extends Page implements HasForms
 
     protected static ?string $navigationIcon = 'heroicon-o-phone';
 
-    protected static ?string $navigationGroup = 'Editor del sitio - ATSA';
+    protected static ?string $navigationGroup = 'Prensa y web pública';
 
     protected static ?string $navigationLabel = 'Contacto y datos generales';
 
@@ -32,7 +32,7 @@ class EditarContacto extends Page implements HasForms
 
     protected static ?string $slug = 'editar-contacto';
 
-    protected static ?int $navigationSort = 50;
+    protected static ?int $navigationSort = 5;
 
     protected static bool $shouldRegisterNavigation = false;
 

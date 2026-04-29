@@ -11,9 +11,11 @@ class AvisoCentResource extends GenericResource
 
     protected static ?string $navigationIcon = 'heroicon-o-megaphone';
 
-    protected static ?string $navigationGroup = 'Comunicación';
+    protected static ?string $navigationGroup = 'Comunicación CENT';
 
     protected static ?string $navigationLabel = 'Avisos';
+
+    protected static ?int $navigationSort = 40;
 
     protected static ?string $slug = 'avisos-cent';
 

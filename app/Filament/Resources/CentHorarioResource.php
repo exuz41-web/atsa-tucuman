@@ -17,11 +17,11 @@ class CentHorarioResource extends Resource
 
     protected static ?string $model = CentHorario::class;
     protected static ?string $navigationIcon = 'heroicon-o-clock';
-    protected static ?string $navigationGroup = 'Contenido diario – CENT';
+    protected static ?string $navigationGroup = 'Comunicación CENT';
     protected static ?string $modelLabel = 'horario de cursado';
     protected static ?string $pluralModelLabel = 'horarios de cursado';
     protected static ?string $slug = 'horarios-cent';
-    protected static ?int $navigationSort = 5;
+    protected static ?int $navigationSort = 30;
     protected static ?string $panelScope = 'cent';
 
     public static function form(Form $form): Form

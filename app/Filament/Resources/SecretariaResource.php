@@ -21,7 +21,7 @@ class SecretariaResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-briefcase';
 
-    protected static ?string $navigationGroup = 'Institución';
+    protected static ?string $navigationGroup = 'Secretarías y beneficios';
 
     protected static ?string $navigationLabel = 'Secretarías';
 
@@ -31,7 +31,7 @@ class SecretariaResource extends Resource
 
     protected static ?string $slug = 'secretarias';
 
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 50;
 
     protected static ?string $panelScope = 'admin';
 

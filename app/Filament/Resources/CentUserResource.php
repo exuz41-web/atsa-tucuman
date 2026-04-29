@@ -21,8 +21,10 @@ class CentUserResource extends Resource
 
     protected static ?string $model = User::class;
     protected static ?string $navigationIcon = 'heroicon-o-users';
-    protected static ?string $navigationGroup = 'CENT N°74';
+    protected static ?string $navigationGroup = 'Alumnos y legajos';
     protected static ?string $navigationLabel = 'Usuarios CENT';
+
+    protected static ?int $navigationSort = 10;
     protected static ?string $modelLabel = 'usuario CENT';
     protected static ?string $pluralModelLabel = 'usuarios CENT';
     protected static ?string $slug = 'usuarios';

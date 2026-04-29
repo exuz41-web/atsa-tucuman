@@ -11,9 +11,11 @@ class PostCommentResource extends GenericResource
 
     protected static ?string $navigationIcon = 'heroicon-o-chat-bubble-bottom-center-text';
 
-    protected static ?string $navigationGroup = 'Gestión web';
+    protected static ?string $navigationGroup = 'Prensa y web pública';
 
     protected static ?string $navigationLabel = 'Comentarios';
+
+    protected static ?int $navigationSort = 20;
 
     protected static ?string $slug = 'comentarios';
 

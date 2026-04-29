@@ -96,17 +96,14 @@ class CentPanelProvider extends PanelProvider
                 CentConfiguracionResource::class,
             ])
             ->navigationGroups([
-                NavigationGroup::make('Editor del sitio — CENT'),
-                NavigationGroup::make('CENT N°74'),
-                NavigationGroup::make('Académico'),
-                NavigationGroup::make('Ingresantes'),
-                NavigationGroup::make('Alumnos'),
+                NavigationGroup::make('Web CENT'),
+                NavigationGroup::make('Gestión académica'),
+                NavigationGroup::make('Ingresantes CENT'),
+                NavigationGroup::make('Alumnos y legajos'),
                 NavigationGroup::make('Aula virtual'),
-                NavigationGroup::make('Administración'),
-                NavigationGroup::make('Contenido diario – CENT'),
-                NavigationGroup::make('Comunicación'),
-                NavigationGroup::make('Auditoría'),
-                NavigationGroup::make('Configuración'),
+                NavigationGroup::make('Administración CENT'),
+                NavigationGroup::make('Comunicación CENT'),
+                NavigationGroup::make('Auditoría y configuración'),
             ])
             ->widgets([
                 CentStatsOverview::class,

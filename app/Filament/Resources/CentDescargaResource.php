@@ -17,11 +17,11 @@ class CentDescargaResource extends Resource
 
     protected static ?string $model = CentDescarga::class;
     protected static ?string $navigationIcon = 'heroicon-o-arrow-down-tray';
-    protected static ?string $navigationGroup = 'Contenido diario – CENT';
+    protected static ?string $navigationGroup = 'Comunicación CENT';
     protected static ?string $modelLabel = 'descarga CENT';
     protected static ?string $pluralModelLabel = 'descargas CENT';
     protected static ?string $slug = 'descargas-cent';
-    protected static ?int $navigationSort = 6;
+    protected static ?int $navigationSort = 20;
     protected static ?string $panelScope = 'cent';
 
     public static function form(Form $form): Form

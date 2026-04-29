@@ -21,7 +21,7 @@ class FilialResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-map-pin';
 
-    protected static ?string $navigationGroup = 'Institución';
+    protected static ?string $navigationGroup = 'Afiliación y padrón';
 
     protected static ?string $navigationLabel = 'Filiales';
 
@@ -31,7 +31,7 @@ class FilialResource extends Resource
 
     protected static ?string $slug = 'filials';
 
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 30;
 
     protected static ?string $panelScope = 'admin';
 

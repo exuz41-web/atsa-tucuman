@@ -23,7 +23,7 @@ class UserResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
 
-    protected static ?string $navigationGroup = 'Padrón sindical';
+    protected static ?string $navigationGroup = 'Afiliación y padrón';
 
     protected static ?string $navigationLabel = 'Afiliados';
 
@@ -33,7 +33,7 @@ class UserResource extends Resource
 
     protected static ?string $slug = 'users';
 
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 10;
 
     protected static ?string $panelScope = 'admin';
 

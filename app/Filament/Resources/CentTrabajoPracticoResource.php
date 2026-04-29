@@ -22,6 +22,8 @@ class CentTrabajoPracticoResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-pencil-square';
     protected static ?string $navigationGroup = 'Aula virtual';
     protected static ?string $navigationLabel = 'Trabajos prácticos';
+
+    protected static ?int $navigationSort = 30;
     protected static ?string $modelLabel = 'trabajo práctico';
     protected static ?string $pluralModelLabel = 'trabajos prácticos';
     protected static ?string $slug = 'trabajos-practicos';

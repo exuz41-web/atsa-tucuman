@@ -19,7 +19,7 @@ class TurismoConsultaResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-sun';
 
-    protected static ?string $navigationGroup = 'Afiliados';
+    protected static ?string $navigationGroup = 'Secretarías y beneficios';
 
     protected static ?string $navigationLabel = 'Consultas de turismo';
 
@@ -29,7 +29,7 @@ class TurismoConsultaResource extends Resource
 
     protected static ?string $slug = 'turismo-consultas';
 
-    protected static ?int $navigationSort = 4;
+    protected static ?int $navigationSort = 70;
 
     protected static ?string $panelScope = 'admin';
 

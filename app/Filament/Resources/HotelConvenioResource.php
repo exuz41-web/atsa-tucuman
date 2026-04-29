@@ -19,7 +19,7 @@ class HotelConvenioResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-building-storefront';
 
-    protected static ?string $navigationGroup = 'Afiliados';
+    protected static ?string $navigationGroup = 'Secretarías y beneficios';
 
     protected static ?string $navigationLabel = 'Hoteles convenio';
 
@@ -29,7 +29,7 @@ class HotelConvenioResource extends Resource
 
     protected static ?string $slug = 'hotel-convenios';
 
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 60;
 
     protected static ?string $panelScope = 'admin';
 

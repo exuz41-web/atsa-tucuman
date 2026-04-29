@@ -19,8 +19,10 @@ class CentConfiguracionResource extends Resource
     protected static ?string $model = CentConfiguracion::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-cog-6-tooth';
-    protected static ?string $navigationGroup = 'Configuración';
+    protected static ?string $navigationGroup = 'Auditoría y configuración';
     protected static ?string $navigationLabel = 'Configuración CENT';
+
+    protected static ?int $navigationSort = 20;
     protected static ?string $modelLabel = 'configuración';
     protected static ?string $pluralModelLabel = 'configuraciones';
     protected static ?string $slug = 'configuracion-cent';

@@ -21,8 +21,10 @@ class CentLegajoDocumentoResource extends Resource
 
     protected static ?string $model = CentLegajoDocumento::class;
     protected static ?string $navigationIcon = 'heroicon-o-folder-open';
-    protected static ?string $navigationGroup = 'Administración';
+    protected static ?string $navigationGroup = 'Alumnos y legajos';
     protected static ?string $navigationLabel = 'Legajos';
+
+    protected static ?int $navigationSort = 30;
     protected static ?string $modelLabel = 'documento de legajo';
     protected static ?string $pluralModelLabel = 'legajos digitales';
     protected static ?string $slug = 'legajos';

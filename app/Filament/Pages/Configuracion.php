@@ -23,9 +23,11 @@ class Configuracion extends Page implements HasForms
 
     protected static ?string $navigationIcon = 'heroicon-o-cog-6-tooth';
 
-    protected static ?string $navigationGroup = 'Configuración';
+    protected static ?string $navigationGroup = 'Configuración y seguridad';
 
     protected static ?string $navigationLabel = 'Configuración general';
+
+    protected static ?int $navigationSort = 10;
 
     protected static ?string $title = 'Configuración general';
 

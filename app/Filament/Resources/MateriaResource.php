@@ -11,9 +11,11 @@ class MateriaResource extends GenericResource
 
     protected static ?string $navigationIcon = 'heroicon-o-book-open';
 
-    protected static ?string $navigationGroup = 'Académico';
+    protected static ?string $navigationGroup = 'Gestión académica';
 
     protected static ?string $navigationLabel = 'Materias';
+
+    protected static ?int $navigationSort = 30;
 
     protected static ?string $slug = 'materias';
 

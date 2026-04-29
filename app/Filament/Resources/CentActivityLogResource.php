@@ -18,8 +18,10 @@ class CentActivityLogResource extends Resource
 
     protected static ?string $model = CentActivityLog::class;
     protected static ?string $navigationIcon = 'heroicon-o-clock';
-    protected static ?string $navigationGroup = 'Auditoría';
+    protected static ?string $navigationGroup = 'Auditoría y configuración';
     protected static ?string $navigationLabel = 'Actividad';
+
+    protected static ?int $navigationSort = 10;
     protected static ?string $modelLabel = 'actividad';
     protected static ?string $pluralModelLabel = 'auditoría';
     protected static ?string $slug = 'auditoria';

@@ -19,9 +19,11 @@ class GestionCarnets extends Page implements HasTable
 
     protected static ?string $navigationIcon = 'heroicon-o-identification';
 
-    protected static ?string $navigationGroup = 'Afiliados';
+    protected static ?string $navigationGroup = 'Afiliación y padrón';
 
     protected static ?string $navigationLabel = 'Carnets';
+
+    protected static ?int $navigationSort = 50;
 
     protected static ?string $title = 'Gestión de carnets';
 

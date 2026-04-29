@@ -23,7 +23,7 @@ class PostResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-newspaper';
 
-    protected static ?string $navigationGroup = 'Gestión web';
+    protected static ?string $navigationGroup = 'Prensa y web pública';
 
     protected static ?string $navigationLabel = 'Noticias y novedades';
 
@@ -33,7 +33,7 @@ class PostResource extends Resource
 
     protected static ?string $slug = 'posts';
 
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 10;
 
     protected static ?string $panelScope = 'admin';
 

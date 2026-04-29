@@ -21,7 +21,7 @@ class BeneficioResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-gift';
 
-    protected static ?string $navigationGroup = 'Afiliados';
+    protected static ?string $navigationGroup = 'Secretarías y beneficios';
 
     protected static ?string $navigationLabel = 'Beneficios';
 
@@ -31,7 +31,7 @@ class BeneficioResource extends Resource
 
     protected static ?string $slug = 'beneficios';
 
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 10;
 
     protected static ?string $panelScope = 'admin';
 

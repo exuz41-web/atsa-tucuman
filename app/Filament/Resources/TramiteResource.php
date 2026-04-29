@@ -19,7 +19,7 @@ class TramiteResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-folder';
 
-    protected static ?string $navigationGroup = 'Atención al afiliado';
+    protected static ?string $navigationGroup = 'Recepción y atención';
 
     protected static ?string $navigationLabel = 'Trámites';
 
@@ -29,7 +29,7 @@ class TramiteResource extends Resource
 
     protected static ?string $slug = 'tramites';
 
-    protected static ?int $navigationSort = 5;
+    protected static ?int $navigationSort = 30;
 
     protected static ?string $panelScope = 'admin';
 

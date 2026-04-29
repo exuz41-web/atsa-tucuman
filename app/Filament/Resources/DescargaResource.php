@@ -11,9 +11,11 @@ class DescargaResource extends GenericResource
 
     protected static ?string $navigationIcon = 'heroicon-o-arrow-down-tray';
 
-    protected static ?string $navigationGroup = 'Gestión web';
+    protected static ?string $navigationGroup = 'Prensa y web pública';
 
     protected static ?string $navigationLabel = 'Descargas';
+
+    protected static ?int $navigationSort = 40;
 
     protected static ?string $slug = 'descargas';
 

@@ -18,9 +18,10 @@ class CentEventoResource extends Resource
 
     protected static ?string $model = CentEvento::class;
     protected static ?string $navigationIcon = 'heroicon-o-calendar-days';
-    protected static ?string $navigationGroup = 'Contenido diario – CENT';
-    protected static ?int    $navigationSort  = 2;
+    protected static ?string $navigationGroup = 'Comunicación CENT';
     protected static ?string $navigationLabel = 'Calendario / Mesas';
+
+    protected static ?int $navigationSort = 10;
     protected static ?string $modelLabel = 'evento';
     protected static ?string $pluralModelLabel = 'calendario académico';
     protected static ?string $slug = 'calendario';

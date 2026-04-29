@@ -23,6 +23,8 @@ class CentMaterialResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-document-arrow-down';
     protected static ?string $navigationGroup = 'Aula virtual';
     protected static ?string $navigationLabel = 'Materiales';
+
+    protected static ?int $navigationSort = 20;
     protected static ?string $modelLabel = 'material';
     protected static ?string $pluralModelLabel = 'materiales';
     protected static ?string $slug = 'materiales';

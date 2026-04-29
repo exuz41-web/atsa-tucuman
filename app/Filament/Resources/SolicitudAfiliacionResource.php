@@ -22,7 +22,7 @@ class SolicitudAfiliacionResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-user-plus';
 
-    protected static ?string $navigationGroup = 'Afiliados';
+    protected static ?string $navigationGroup = 'Afiliación y padrón';
 
     protected static ?string $navigationLabel = 'Solicitudes de afiliación';
 
@@ -32,7 +32,7 @@ class SolicitudAfiliacionResource extends Resource
 
     protected static ?string $slug = 'solicitudes-afiliacion';
 
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 20;
 
     protected static ?string $panelScope = 'admin';
 

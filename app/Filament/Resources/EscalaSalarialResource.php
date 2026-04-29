@@ -19,7 +19,7 @@ class EscalaSalarialResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-banknotes';
 
-    protected static ?string $navigationGroup = 'Gremial';
+    protected static ?string $navigationGroup = 'Institucional y gremial';
 
     protected static ?string $navigationLabel = 'Escalas salariales';
 
@@ -29,7 +29,7 @@ class EscalaSalarialResource extends Resource
 
     protected static ?string $slug = 'escalas-salariales';
 
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 30;
 
     protected static ?string $panelScope = 'admin';
 

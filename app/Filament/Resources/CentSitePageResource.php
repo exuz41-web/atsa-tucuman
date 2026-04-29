@@ -31,11 +31,12 @@ class CentSitePageResource extends Resource
 
     protected static ?string $model = SitePage::class;
     protected static ?string $navigationIcon  = 'heroicon-o-paint-brush';
-    protected static ?string $navigationGroup = 'Editor del sitio — CENT';
+    protected static ?string $navigationGroup = 'Web CENT';
     protected static ?string $navigationLabel = 'Páginas del sitio';
+
+    protected static ?int $navigationSort = 10;
     protected static ?string $modelLabel      = 'página';
     protected static ?string $pluralModelLabel = 'páginas del sitio';
-    protected static ?int    $navigationSort  = 1;
     protected static ?string $panelScope = 'cent';
 
     // ──────────────────────────────────────────────────────────────────────────

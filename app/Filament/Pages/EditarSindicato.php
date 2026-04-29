@@ -22,12 +22,12 @@ class EditarSindicato extends Page implements HasForms
     use InteractsWithForms;
 
     protected static ?string $navigationIcon = 'heroicon-o-building-office-2';
-    protected static ?string $navigationGroup = 'Editor del sitio - ATSA';
+    protected static ?string $navigationGroup = 'Prensa y web pública';
     protected static ?string $navigationLabel = 'El Sindicato';
     protected static ?string $title = 'Editar - El Sindicato';
     protected static string $view = 'filament.pages.editar-sindicato';
     protected static ?string $slug = 'editar-sindicato';
-    protected static ?int $navigationSort = 20;
+    protected static ?int $navigationSort = 2;
     protected static bool $shouldRegisterNavigation = false;
 
     public ?array $data = [];
