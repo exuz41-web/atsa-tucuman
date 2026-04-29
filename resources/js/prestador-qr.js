@@ -130,6 +130,24 @@ const decodeCanvas = (context, width, height) => {
     });
 };
 
+const drawAttempt = (context, image, sourceWidth, sourceHeight, maxSide, cropRatio) => {
+    const sourceSide = Math.min(sourceWidth, sourceHeight);
+    const cropWidth = cropRatio === 1 ? sourceWidth : sourceSide * cropRatio;
+    const cropHeight = cropRatio === 1 ? sourceHeight : sourceSide * cropRatio;
+    const cropX = Math.max(0, (sourceWidth - cropWidth) / 2);
+    const cropY = Math.max(0, (sourceHeight - cropHeight) / 2);
+    const scale = Math.min(1, maxSide / Math.max(cropWidth, cropHeight));
+    const width = Math.max(1, Math.round(cropWidth * scale));
+    const height = Math.max(1, Math.round(cropHeight * scale));
+
+    qrCanvas.width = width;
+    qrCanvas.height = height;
+    context.clearRect(0, 0, width, height);
+    context.drawImage(image, cropX, cropY, cropWidth, cropHeight, 0, 0, width, height);
+
+    return { width, height };
+};
+
 const waitForPaint = () => new Promise((resolve) => setTimeout(resolve, 25));
 
 const loadImage = async (file) => {
@@ -175,33 +193,14 @@ const decodeImageFile = async (file) => {
         const context = qrCanvas.getContext('2d', { willReadFrequently: true });
         const sourceWidth = image.width || image.naturalWidth;
         const sourceHeight = image.height || image.naturalHeight;
-        const maxSideOptions = [1200, 900, 700];
-        const cropRatios = [1, 0.86, 0.7];
+        const maxSideOptions = [1400, 1100, 850];
+        const cropRatios = [1, 0.9, 0.78, 0.62];
         let code = null;
 
         for (const maxSide of maxSideOptions) {
-            const scale = Math.min(1, maxSide / Math.max(sourceWidth, sourceHeight));
-            const width = Math.max(1, Math.round(sourceWidth * scale));
-            const height = Math.max(1, Math.round(sourceHeight * scale));
-
-            qrCanvas.width = width;
-            qrCanvas.height = height;
-            context.clearRect(0, 0, width, height);
-            context.drawImage(image, 0, 0, width, height);
-
             for (const cropRatio of cropRatios) {
-                if (cropRatio === 1) {
-                    code = decodeCanvas(context, width, height);
-                } else {
-                    const cropSize = Math.floor(Math.min(width, height) * cropRatio);
-                    const cropX = Math.max(0, Math.floor((width - cropSize) / 2));
-                    const cropY = Math.max(0, Math.floor((height - cropSize) / 2));
-                    const fullImage = context.getImageData(cropX, cropY, cropSize, cropSize);
-                    qrCanvas.width = cropSize;
-                    qrCanvas.height = cropSize;
-                    context.putImageData(fullImage, 0, 0);
-                    code = decodeCanvas(context, cropSize, cropSize);
-                }
+                const { width, height } = drawAttempt(context, image, sourceWidth, sourceHeight, maxSide, cropRatio);
+                code = decodeCanvas(context, width, height);
 
                 if (code?.data) {
                     break;
@@ -220,11 +219,11 @@ const decodeImageFile = async (file) => {
             return;
         }
 
-        showScannerError('No pude leer el QR de esa imagen. Sacá la foto más cerca, que solo se vea el QR grande, y evitá reflejos.');
+        showScannerError('No pude leer el QR de esa imagen. Abrí el QR grande del carnet, sacá la foto de cerca para que solo se vea el cuadrado del QR y evitá reflejos.');
         captureScanner?.classList.remove('d-none');
     } catch (error) {
         clearScannerStatus();
-        showScannerError('No pude procesar esa foto. Probá sacar otra más cerca del QR.');
+        showScannerError('No pude procesar esa foto. Probá con el QR grande del carnet y sacá otra foto más cerca.');
         captureScanner?.classList.remove('d-none');
     } finally {
         loaded?.cleanup();

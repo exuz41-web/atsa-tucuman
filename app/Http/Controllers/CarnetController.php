@@ -98,6 +98,23 @@ class CarnetController extends Controller
         return view('carnet.verificar', compact('afiliado', 'estado', 'vencido', 'qrCode', 'urlVerificacion'));
     }
 
+    public function qr(string $token)
+    {
+        $afiliado = User::with('filial')
+            ->where('afiliado_public_token', $token)
+            ->orWhere('numero_afiliado', $token)
+            ->first();
+
+        if (! $afiliado) {
+            return view('carnet.no-encontrado');
+        }
+
+        $urlVerificacion = CarnetSupport::verificationUrl($afiliado);
+        $qrCode = CarnetSupport::qrBase64($urlVerificacion, 720);
+
+        return view('carnet.qr', compact('afiliado', 'qrCode'));
+    }
+
     public function walletData()
     {
         $user = auth()->user()->load('filial');

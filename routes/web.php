@@ -38,6 +38,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/verificar/{numero_afiliado}', [CarnetController::class, 'verificar'])
     ->name('carnet.verificar');
+Route::get('/verificar/{numero_afiliado}/qr', [CarnetController::class, 'qr'])
+    ->name('carnet.qr');
 
 Route::prefix('prestadores')->name('prestadores.')->middleware('throttle:60,1')->group(function () {
     Route::get('/login', [PrestadorPortalController::class, 'showLogin'])->name('login');

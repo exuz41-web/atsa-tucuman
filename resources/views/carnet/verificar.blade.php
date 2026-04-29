@@ -49,13 +49,19 @@
             <h2 class="mt-5 text-3xl font-black text-[#1e3a5f]">{{ $afiliado->name }}</h2>
             <p class="mt-1 text-sm font-bold text-slate-500">{{ $afiliado->numero_afiliado }}</p>
 
-            <div class="mx-auto mt-8 max-w-xs rounded-2xl border-4 border-slate-100 bg-white p-4 shadow-sm">
+            <div class="mx-auto mt-8 max-w-sm rounded-2xl border-4 border-slate-100 bg-white p-4 shadow-sm">
                 <img
                     src="data:image/png;base64,{{ $qrCode }}"
                     alt="QR de verificación del carnet"
-                    class="mx-auto h-64 w-64 max-w-full rounded-xl object-contain"
+                    class="mx-auto aspect-square w-full max-w-80 rounded-xl object-contain"
                 >
                 <p class="mt-3 text-xs font-black uppercase tracking-widest text-slate-500">QR del carnet</p>
+                <a
+                    href="{{ route('carnet.qr', $afiliado->afiliado_public_token ?: $afiliado->numero_afiliado) }}"
+                    class="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-[#1e3a5f] px-4 py-3 text-sm font-black text-white"
+                >
+                    Ver QR grande para prestador
+                </a>
             </div>
 
             <dl class="mx-auto mt-8 grid max-w-xl gap-3 text-left sm:grid-cols-2">
@@ -81,4 +87,3 @@
     </footer>
 </body>
 </html>
-
