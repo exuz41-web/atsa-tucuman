@@ -14,13 +14,18 @@
 @endphp
 
 @section('content')
-    <div class="row g-4">
-        <div class="col-lg-4">
-            <div class="provider-card p-4">
+    <div class="row g-4 justify-content-center">
+        <div class="col-lg-5 col-xl-4">
+            <div class="provider-card provider-scan-card p-4">
                 <p class="text-primary fw-bold fs-3 mb-1">VALIDACIÓN</p>
                 <h2 class="h4 fw-bolder mb-3">Escanear QR del afiliado</h2>
 
-                <form method="GET" action="{{ route('prestadores.validar', $prestador->portal_token) }}" class="d-grid gap-3">
+                <form
+                    method="GET"
+                    action="{{ route('prestadores.validar', $prestador->portal_token) }}"
+                    class="d-grid gap-3"
+                    data-auto-scan="{{ request()->boolean('scan') ? '1' : '0' }}"
+                >
                     <input id="qr-input" type="hidden" name="qr" value="{{ $busqueda['qr'] ?? '' }}">
 
                     <div class="d-grid gap-2">
@@ -30,19 +35,24 @@
                         <button id="retry-scanner" class="btn btn-outline-primary shadow-none d-none" type="button">
                             <i class="ti ti-refresh me-2"></i>Volver a escanear
                         </button>
+                        <button id="capture-scanner" class="btn btn-outline-primary shadow-none d-none" type="button">
+                            <i class="ti ti-camera-up me-2"></i>Tomar foto del QR
+                        </button>
+                        <input id="qr-image-input" class="d-none" type="file" accept="image/*" capture="environment">
                     </div>
 
                     <div id="scanner-panel" class="d-none">
-                        <video id="qr-video" class="w-100 rounded-3 bg-dark" playsinline muted style="aspect-ratio: 4 / 3; object-fit: cover;"></video>
+                        <video id="qr-video" class="provider-scan-video w-100 rounded-3 bg-dark" playsinline muted></video>
+                        <canvas id="qr-canvas" class="d-none"></canvas>
                         <button id="stop-scanner" class="btn btn-sm btn-light mt-2 w-100" type="button">Detener cámara</button>
                     </div>
-                    <div id="scanner-help" class="small text-muted">
+                    <div id="scanner-help" class="provider-help-card small text-muted p-3">
                         Apuntá la cámara al QR del carnet digital del afiliado. Al detectarlo, el sistema valida automáticamente.
                     </div>
                     <div id="scanner-error" class="alert alert-warning border-0 d-none mb-0"></div>
 
                     <div class="border-top pt-3">
-                        <button class="btn btn-link p-0 text-muted small fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#manual-search">
+                        <button class="provider-manual-toggle btn btn-link p-0 small fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#manual-search">
                             Búsqueda manual de respaldo
                         </button>
                         <div id="manual-search" class="collapse mt-3">
@@ -70,7 +80,7 @@
             </div>
         </div>
 
-        <div class="col-lg-8">
+        <div class="col-lg-7 col-xl-8">
             <div class="provider-card p-4 mb-4">
                 @if (! array_filter($busqueda))
                     <div class="text-center py-4">
@@ -156,103 +166,5 @@
 @endsection
 
 @push('scripts')
-<script>
-    const qrInput = document.getElementById('qr-input');
-    const startScanner = document.getElementById('start-scanner');
-    const retryScanner = document.getElementById('retry-scanner');
-    const stopScanner = document.getElementById('stop-scanner');
-    const scannerPanel = document.getElementById('scanner-panel');
-    const scannerError = document.getElementById('scanner-error');
-    const qrVideo = document.getElementById('qr-video');
-    let scannerStream = null;
-    let scannerTimer = null;
-
-    const showScannerError = (message) => {
-        if (!scannerError) {
-            return;
-        }
-
-        scannerError.textContent = message;
-        scannerError.classList.remove('d-none');
-    };
-
-    const clearScannerError = () => {
-        scannerError?.classList.add('d-none');
-    };
-
-    const stopCamera = () => {
-        if (scannerTimer) {
-            clearInterval(scannerTimer);
-            scannerTimer = null;
-        }
-
-        if (scannerStream) {
-            scannerStream.getTracks().forEach((track) => track.stop());
-            scannerStream = null;
-        }
-
-        scannerPanel?.classList.add('d-none');
-    };
-
-    const submitWithQr = (value) => {
-        if (!value) {
-            return;
-        }
-
-        qrInput.value = value;
-        stopCamera();
-        qrInput.closest('form').submit();
-    };
-
-    const startCamera = async () => {
-        clearScannerError();
-
-        if (!('BarcodeDetector' in window) || !navigator.mediaDevices?.getUserMedia) {
-            showScannerError('Este navegador no permite lector QR en vivo. Probá con Chrome desde el celular o usá la búsqueda manual de respaldo.');
-            return;
-        }
-
-        try {
-            scannerStream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: 'environment' },
-                audio: false,
-            });
-
-            qrVideo.srcObject = scannerStream;
-            await qrVideo.play();
-            scannerPanel.classList.remove('d-none');
-            startScanner?.classList.add('d-none');
-            retryScanner?.classList.add('d-none');
-
-            const detector = new BarcodeDetector({ formats: ['qr_code'] });
-            scannerTimer = setInterval(async () => {
-                try {
-                    const codes = await detector.detect(qrVideo);
-                    if (codes.length > 0) {
-                        submitWithQr(codes[0].rawValue);
-                    }
-                } catch (error) {
-                    stopCamera();
-                }
-            }, 650);
-        } catch (error) {
-            showScannerError('No se pudo abrir la cámara. Permití el acceso a cámara del navegador y volvé a intentar.');
-            retryScanner?.classList.remove('d-none');
-        }
-    };
-
-    startScanner?.addEventListener('click', startCamera);
-    retryScanner?.addEventListener('click', startCamera);
-
-    stopScanner?.addEventListener('click', () => {
-        stopCamera();
-        startScanner?.classList.remove('d-none');
-        retryScanner?.classList.add('d-none');
-    });
-    window.addEventListener('beforeunload', stopCamera);
-
-    if (new URLSearchParams(window.location.search).get('scan') === '1') {
-        startCamera();
-    }
-</script>
+    @vite('resources/js/prestador-qr.js')
 @endpush
