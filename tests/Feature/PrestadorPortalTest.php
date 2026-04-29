@@ -214,6 +214,52 @@ class PrestadorPortalTest extends TestCase
             ->assertDontSee('Pegá el link', false);
     }
 
+    public function test_delivery_from_order_code_requires_qr_before_submit_button(): void
+    {
+        $afiliado = User::factory()->create([
+            'role' => 'afiliado',
+            'active' => true,
+            'estado_afiliado' => 'activo',
+            'numero_afiliado' => 'A-102',
+            'carnet_activo' => true,
+            'carnet_vencimiento' => now()->addMonth(),
+        ]);
+
+        $prestador = Prestador::create([
+            'nombre' => 'Óptica Centro',
+            'tipo' => 'optica',
+            'activo' => true,
+            'portal_username' => 'optica-centro',
+            'portal_password' => Hash::make('secret123'),
+        ]);
+
+        $orden = OrdenPrestacion::create([
+            'prestador_id' => $prestador->id,
+            'afiliado_id' => $afiliado->id,
+            'tipo' => 'anteojos',
+            'detalle' => 'Entrega de lentes.',
+        ]);
+
+        $this->loginPrestador($prestador);
+
+        $this->get(route('prestadores.validar', [
+            'token' => $prestador->portal_token,
+            'codigo' => $orden->codigo,
+        ]))
+            ->assertOk()
+            ->assertSee('Validar QR para entregar')
+            ->assertDontSee('Registrar entrega');
+
+        $this->get(route('prestadores.validar', [
+            'token' => $prestador->portal_token,
+            'codigo' => $orden->codigo,
+            'qr' => route('carnet.verificar', $afiliado->afiliado_public_token),
+        ]))
+            ->assertOk()
+            ->assertSee('Registrar entrega')
+            ->assertDontSee('Validar QR para entregar');
+    }
+
     public function test_prestador_cannot_deliver_when_affiliate_is_not_enabled(): void
     {
         $afiliado = User::factory()->create([

@@ -27,6 +27,9 @@
                     data-auto-scan="{{ request()->boolean('scan') ? '1' : '0' }}"
                 >
                     <input id="qr-input" type="hidden" name="qr" value="{{ $busqueda['qr'] ?? '' }}">
+                    @if (filled($busqueda['codigo'] ?? null))
+                        <input type="hidden" name="codigo" value="{{ $busqueda['codigo'] }}">
+                    @endif
 
                     <div class="d-grid gap-2">
                         <button id="start-scanner" class="btn btn-primary btn-lg shadow-none" type="button">
@@ -144,11 +147,15 @@
                                         @csrf
                                         <input type="hidden" name="qr" value="{{ $busqueda['qr'] ?? '' }}">
                                         <textarea class="form-control" name="respuesta_prestador" rows="2" placeholder="Observación de entrega"></textarea>
-                                        <button class="btn btn-success shadow-none" type="submit" @disabled(blank($busqueda['qr'] ?? null))>
-                                            Registrar entrega
-                                        </button>
-                                        @if (blank($busqueda['qr'] ?? null))
-                                            <p class="small text-muted mb-0">Para entregar, primero escaneá el QR del carnet del afiliado.</p>
+                                        @if (filled($busqueda['qr'] ?? null))
+                                            <button class="btn btn-success shadow-none" type="submit">
+                                                Registrar entrega
+                                            </button>
+                                        @else
+                                            <a href="{{ route('prestadores.validar', ['token' => $prestador->portal_token, 'codigo' => $orden->codigo, 'scan' => 1]) }}" class="btn btn-primary shadow-none">
+                                                <i class="ti ti-qrcode me-2"></i>Validar QR para entregar
+                                            </a>
+                                            <p class="small text-muted mb-0">La entrega se habilita después de validar el QR del carnet.</p>
                                         @endif
                                     </form>
                                 @endif
