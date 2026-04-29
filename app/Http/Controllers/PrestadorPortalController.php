@@ -85,14 +85,14 @@ class PrestadorPortalController extends Controller
 
         $afiliado = $this->buscarAfiliado($data);
         $ordenes = collect();
+        $ordenSeleccionada = null;
 
-        if (! $afiliado && filled($data['codigo'] ?? null)) {
-            $orden = OrdenPrestacion::query()
+        if (filled($data['codigo'] ?? null)) {
+            $ordenSeleccionada = OrdenPrestacion::query()
+                ->with('afiliado')
                 ->where('prestador_id', $prestador->id)
                 ->where('codigo', $data['codigo'])
                 ->first();
-
-            $afiliado = $orden?->afiliado;
         }
 
         if ($afiliado) {
@@ -110,6 +110,7 @@ class PrestadorPortalController extends Controller
             'prestador' => $prestador,
             'afiliado' => $afiliado,
             'ordenes' => $ordenes,
+            'ordenSeleccionada' => $ordenSeleccionada,
             'busqueda' => $data,
         ]);
     }

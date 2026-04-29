@@ -91,6 +91,13 @@
                         <h4 class="fw-bolder mb-1">Escaneá el QR del carnet</h4>
                         <p class="text-muted mb-0">La validación se completa automáticamente cuando la cámara lee el QR del afiliado.</p>
                     </div>
+                @elseif (($ordenSeleccionada ?? null) && ! filled($busqueda['qr'] ?? null) && blank($busqueda['numero_afiliado'] ?? null) && blank($busqueda['dni'] ?? null))
+                    <div class="text-center py-4">
+                        <i class="ti ti-qrcode text-muted fs-10 d-block mb-2"></i>
+                        <h4 class="fw-bolder mb-1">Validá el QR para entregar</h4>
+                        <p class="text-muted mb-2">Orden {{ $ordenSeleccionada->codigo }}</p>
+                        <p class="text-muted mb-0">Todavía no se muestra el afiliado hasta leer el QR del carnet.</p>
+                    </div>
                 @elseif (! $afiliado)
                     <div class="alert alert-danger border-0 mb-0">
                         No se encontró un afiliado con los datos ingresados.

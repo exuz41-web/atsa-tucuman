@@ -13,11 +13,6 @@
             <h2 class="fw-bolder mb-1">Panel de {{ $prestador->nombre }}</h2>
             <p class="text-muted mb-0">Desde acá se aceptan y registran entregas de órdenes emitidas por ATSA.</p>
         </div>
-        <div class="d-flex gap-2 flex-wrap align-items-start">
-            <a href="{{ route('prestadores.validar', ['token' => $prestador->portal_token, 'scan' => 1]) }}" class="btn btn-primary shadow-none">
-                <i class="ti ti-qrcode me-2"></i>Validar afiliado
-            </a>
-        </div>
     </div>
 
     <div class="provider-card p-3 p-lg-4">
@@ -62,7 +57,7 @@
                                         href="{{ route('prestadores.validar', ['token' => $prestador->portal_token, 'codigo' => $orden->codigo]) }}"
                                         class="btn btn-sm btn-success shadow-none"
                                     >
-                                        Escanear QR y entregar
+                                        Entregar con QR
                                     </a>
                                 @endif
                             </div>
