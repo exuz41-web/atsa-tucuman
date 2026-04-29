@@ -130,38 +130,35 @@ const decodeCanvas = (context, width, height) => {
     });
 };
 
-const drawImageVariant = (context, image, width, height, rotation = 0, mirror = false) => {
-    qrCanvas.width = width;
-    qrCanvas.height = height;
-    context.save();
-    context.clearRect(0, 0, width, height);
+const waitForPaint = () => new Promise((resolve) => setTimeout(resolve, 25));
 
-    if (rotation === 90) {
-        context.translate(width, 0);
-        context.rotate(Math.PI / 2);
-    } else if (rotation === 180) {
-        context.translate(width, height);
-        context.rotate(Math.PI);
-    } else if (rotation === 270) {
-        context.translate(0, height);
-        context.rotate((3 * Math.PI) / 2);
+const loadImage = async (file) => {
+    if ('createImageBitmap' in window) {
+        try {
+            return {
+                image: await createImageBitmap(file, { imageOrientation: 'from-image' }),
+                cleanup: () => {},
+            };
+        } catch (error) {
+            // Fall back to HTMLImageElement below.
+        }
     }
 
-    if (mirror) {
-        context.scale(-1, 1);
-        context.translate(-image.naturalWidth, 0);
-    }
+    const objectUrl = URL.createObjectURL(file);
+    const image = await new Promise((resolve, reject) => {
+        const fallbackImage = new Image();
+        fallbackImage.onload = () => resolve(fallbackImage);
+        fallbackImage.onerror = reject;
+        fallbackImage.src = objectUrl;
+    });
 
-    if (rotation === 90 || rotation === 270) {
-        context.drawImage(image, 0, 0, image.naturalHeight, image.naturalWidth);
-    } else {
-        context.drawImage(image, 0, 0, width, height);
-    }
-
-    context.restore();
+    return {
+        image,
+        cleanup: () => URL.revokeObjectURL(objectUrl),
+    };
 };
 
-const decodeImageFile = (file) => {
+const decodeImageFile = async (file) => {
     if (!file || !qrCanvas) {
         return;
     }
@@ -170,60 +167,41 @@ const decodeImageFile = (file) => {
     showScannerStatus('Procesando foto del QR...');
     captureScanner?.setAttribute('disabled', 'disabled');
 
-    const image = new Image();
-    image.onload = () => {
+    let loaded = null;
+
+    try {
+        loaded = await loadImage(file);
+        const image = loaded.image;
         const context = qrCanvas.getContext('2d', { willReadFrequently: true });
-        const maxSideOptions = [2600, 2000, 1600, 1200, 900];
-        const rotations = [0, 90, 180, 270];
+        const sourceWidth = image.width || image.naturalWidth;
+        const sourceHeight = image.height || image.naturalHeight;
+        const maxSideOptions = [1200, 900, 700];
+        const cropRatios = [1, 0.86, 0.7];
         let code = null;
 
         for (const maxSide of maxSideOptions) {
-            const scale = Math.min(1, maxSide / Math.max(image.naturalWidth, image.naturalHeight));
+            const scale = Math.min(1, maxSide / Math.max(sourceWidth, sourceHeight));
+            const width = Math.max(1, Math.round(sourceWidth * scale));
+            const height = Math.max(1, Math.round(sourceHeight * scale));
 
-            for (const rotation of rotations) {
-                const rotated = rotation === 90 || rotation === 270;
-                const width = Math.max(1, Math.round((rotated ? image.naturalHeight : image.naturalWidth) * scale));
-                const height = Math.max(1, Math.round((rotated ? image.naturalWidth : image.naturalHeight) * scale));
+            qrCanvas.width = width;
+            qrCanvas.height = height;
+            context.clearRect(0, 0, width, height);
+            context.drawImage(image, 0, 0, width, height);
 
-                qrCanvas.width = width;
-                qrCanvas.height = height;
-                context.save();
-                context.clearRect(0, 0, width, height);
-
-                if (rotation === 90) {
-                    context.translate(width, 0);
-                    context.rotate(Math.PI / 2);
-                    context.drawImage(image, 0, 0, height, width);
-                } else if (rotation === 180) {
-                    context.translate(width, height);
-                    context.rotate(Math.PI);
-                    context.drawImage(image, 0, 0, width, height);
-                } else if (rotation === 270) {
-                    context.translate(0, height);
-                    context.rotate((3 * Math.PI) / 2);
-                    context.drawImage(image, 0, 0, height, width);
+            for (const cropRatio of cropRatios) {
+                if (cropRatio === 1) {
+                    code = decodeCanvas(context, width, height);
                 } else {
-                    context.drawImage(image, 0, 0, width, height);
+                    const cropSize = Math.floor(Math.min(width, height) * cropRatio);
+                    const cropX = Math.max(0, Math.floor((width - cropSize) / 2));
+                    const cropY = Math.max(0, Math.floor((height - cropSize) / 2));
+                    const fullImage = context.getImageData(cropX, cropY, cropSize, cropSize);
+                    qrCanvas.width = cropSize;
+                    qrCanvas.height = cropSize;
+                    context.putImageData(fullImage, 0, 0);
+                    code = decodeCanvas(context, cropSize, cropSize);
                 }
-
-                context.restore();
-
-                code = decodeCanvas(context, width, height);
-
-                if (code?.data) {
-                    break;
-                }
-
-                const cropSize = Math.floor(Math.min(width, height) * 0.82);
-                const cropX = Math.floor((width - cropSize) / 2);
-                const cropY = Math.floor((height - cropSize) / 2);
-
-                const fullImage = context.getImageData(cropX, cropY, cropSize, cropSize);
-                qrCanvas.width = cropSize;
-                qrCanvas.height = cropSize;
-                context.putImageData(fullImage, 0, 0);
-
-                code = decodeCanvas(context, cropSize, cropSize);
 
                 if (code?.data) {
                     break;
@@ -233,30 +211,27 @@ const decodeImageFile = (file) => {
             if (code?.data) {
                 break;
             }
-        }
 
-        URL.revokeObjectURL(image.src);
-        captureScanner?.removeAttribute('disabled');
-        clearScannerStatus();
+            await waitForPaint();
+        }
 
         if (code?.data) {
             submitWithQr(code.data);
             return;
         }
 
-        showScannerError('No pude leer el QR de esa imagen. Acercá más la cámara, evitá reflejos y probá de nuevo.');
+        showScannerError('No pude leer el QR de esa imagen. Sacá la foto más cerca, que solo se vea el QR grande, y evitá reflejos.');
         captureScanner?.classList.remove('d-none');
-    };
-
-    image.onerror = () => {
+    } catch (error) {
+        clearScannerStatus();
+        showScannerError('No pude procesar esa foto. Probá sacar otra más cerca del QR.');
+        captureScanner?.classList.remove('d-none');
+    } finally {
+        loaded?.cleanup();
         captureScanner?.removeAttribute('disabled');
         clearScannerStatus();
-        showScannerError('No pude abrir esa imagen. Probá tomar la foto nuevamente.');
-        captureScanner?.classList.remove('d-none');
-    };
-
-    image.src = URL.createObjectURL(file);
-    qrImageInput.value = '';
+        qrImageInput.value = '';
+    }
 };
 
 const startCamera = async () => {
