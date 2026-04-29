@@ -16,6 +16,7 @@ const qrImageInput = document.getElementById('qr-image-input');
 let scannerStream = null;
 let animationFrame = null;
 let isSubmitting = false;
+let nativeDetectorPromise = null;
 
 const showScannerError = (message) => {
     if (!scannerError) {
@@ -89,7 +90,48 @@ const submitWithQr = (value) => {
     form.submit();
 };
 
-const scanFrame = () => {
+const getNativeDetector = async () => {
+    if (!('BarcodeDetector' in window)) {
+        return null;
+    }
+
+    if (!nativeDetectorPromise) {
+        nativeDetectorPromise = (async () => {
+            try {
+                const formats = await window.BarcodeDetector.getSupportedFormats?.();
+
+                if (Array.isArray(formats) && !formats.includes('qr_code')) {
+                    return null;
+                }
+
+                return new window.BarcodeDetector({ formats: ['qr_code'] });
+            } catch (error) {
+                return null;
+            }
+        })();
+    }
+
+    return nativeDetectorPromise;
+};
+
+const decodeNative = async (source) => {
+    const detector = await getNativeDetector();
+
+    if (!detector) {
+        return null;
+    }
+
+    try {
+        const codes = await detector.detect(source);
+        const value = codes?.[0]?.rawValue;
+
+        return value || null;
+    } catch (error) {
+        return null;
+    }
+};
+
+const scanFrame = async () => {
     if (!qrVideo || !qrCanvas || qrVideo.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) {
         animationFrame = requestAnimationFrame(scanFrame);
         return;
@@ -100,6 +142,13 @@ const scanFrame = () => {
 
     if (!width || !height) {
         animationFrame = requestAnimationFrame(scanFrame);
+        return;
+    }
+
+    const nativeCode = await decodeNative(qrVideo);
+
+    if (nativeCode) {
+        submitWithQr(nativeCode);
         return;
     }
 
@@ -129,6 +178,8 @@ const decodeCanvas = (context, width, height) => {
         inversionAttempts: 'attemptBoth',
     });
 };
+
+const decodeCanvasNative = async (canvas) => decodeNative(canvas);
 
 const drawAttempt = (context, image, sourceWidth, sourceHeight, maxSide, cropRatio) => {
     const sourceSide = Math.min(sourceWidth, sourceHeight);
@@ -196,10 +247,23 @@ const decodeImageFile = async (file) => {
         const maxSideOptions = [1400, 1100, 850];
         const cropRatios = [1, 0.9, 0.78, 0.62];
         let code = null;
+        let nativeCode = await decodeNative(image);
+
+        if (nativeCode) {
+            submitWithQr(nativeCode);
+            return;
+        }
 
         for (const maxSide of maxSideOptions) {
             for (const cropRatio of cropRatios) {
                 const { width, height } = drawAttempt(context, image, sourceWidth, sourceHeight, maxSide, cropRatio);
+                nativeCode = await decodeCanvasNative(qrCanvas);
+
+                if (nativeCode) {
+                    submitWithQr(nativeCode);
+                    return;
+                }
+
                 code = decodeCanvas(context, width, height);
 
                 if (code?.data) {
