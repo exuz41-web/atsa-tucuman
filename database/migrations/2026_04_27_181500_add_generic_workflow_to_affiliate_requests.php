@@ -9,8 +9,10 @@ return new class extends Migration
 {
     public function up(): void
     {
-        DB::statement("ALTER TABLE pedidos MODIFY estado ENUM('pendiente', 'en_revision', 'observado', 'aprobado', 'rechazado', 'entregado') NOT NULL DEFAULT 'pendiente'");
-        DB::statement("ALTER TABLE solicitudes_beneficios MODIFY estado ENUM('pendiente', 'en_revision', 'observada', 'aprobada', 'rechazada', 'entregada') NOT NULL DEFAULT 'pendiente'");
+        if (Schema::getConnection()->getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE pedidos MODIFY estado ENUM('pendiente', 'en_revision', 'observado', 'aprobado', 'rechazado', 'entregado') NOT NULL DEFAULT 'pendiente'");
+            DB::statement("ALTER TABLE solicitudes_beneficios MODIFY estado ENUM('pendiente', 'en_revision', 'observada', 'aprobada', 'rechazada', 'entregada') NOT NULL DEFAULT 'pendiente'");
+        }
 
         Schema::table('pedidos', function (Blueprint $table): void {
             $table->foreignId('secretaria_id')->nullable()->after('tipo')->constrained('secretarias')->nullOnDelete();
@@ -72,7 +74,9 @@ return new class extends Migration
         DB::table('pedidos')->where('estado', 'observado')->update(['estado' => 'pendiente']);
         DB::table('solicitudes_beneficios')->where('estado', 'observada')->update(['estado' => 'pendiente']);
 
-        DB::statement("ALTER TABLE pedidos MODIFY estado ENUM('pendiente', 'en_revision', 'aprobado', 'rechazado', 'entregado') NOT NULL DEFAULT 'pendiente'");
-        DB::statement("ALTER TABLE solicitudes_beneficios MODIFY estado ENUM('pendiente', 'en_revision', 'aprobada', 'rechazada', 'entregada') NOT NULL DEFAULT 'pendiente'");
+        if (Schema::getConnection()->getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE pedidos MODIFY estado ENUM('pendiente', 'en_revision', 'aprobado', 'rechazado', 'entregado') NOT NULL DEFAULT 'pendiente'");
+            DB::statement("ALTER TABLE solicitudes_beneficios MODIFY estado ENUM('pendiente', 'en_revision', 'aprobada', 'rechazada', 'entregada') NOT NULL DEFAULT 'pendiente'");
+        }
     }
 };
