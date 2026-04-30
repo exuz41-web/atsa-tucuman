@@ -54,10 +54,10 @@
 
                                 @if (in_array($orden->estado, ['emitida', 'aceptada', 'observada'], true))
                                     <a
-                                        href="{{ route('prestadores.validar', ['token' => $prestador->portal_token, 'codigo' => $orden->codigo]) }}"
+                                        href="{{ route('prestadores.validar', ['token' => $prestador->portal_token, 'codigo' => $orden->codigo, 'scan' => 1]) }}"
                                         class="btn btn-sm btn-success shadow-none"
                                     >
-                                        Entregar con QR
+                                        <i class="ti ti-qrcode me-1"></i>Escanear QR
                                     </a>
                                 @endif
                             </div>

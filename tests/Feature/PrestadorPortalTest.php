@@ -168,7 +168,6 @@ class PrestadorPortalTest extends TestCase
         $this->get(route('prestadores.validar', [
             'token' => $prestador->portal_token,
             'numero_afiliado' => 'A-100',
-            'qr' => route('carnet.verificar', $afiliado->afiliado_public_token),
         ]))
             ->assertOk()
             ->assertSee('AFILIADO HABILITADO')
@@ -231,9 +230,8 @@ class PrestadorPortalTest extends TestCase
             'token' => $prestador->portal_token,
             'qr' => route('carnet.verificar', $afiliado->afiliado_public_token),
         ]))
-            ->assertOk()
-            ->assertSee('AFILIADO HABILITADO')
-            ->assertSee($orden->codigo);
+            ->assertRedirect(route('prestadores.portal', $prestador->portal_token))
+            ->assertSessionHas('status', 'QR validado: '.$afiliado->name.' está habilitado.');
     }
 
     public function test_prestador_validation_page_prioritizes_qr_scanner(): void
@@ -250,7 +248,7 @@ class PrestadorPortalTest extends TestCase
 
         $this->get(route('prestadores.validar', ['token' => $prestador->portal_token, 'scan' => 1]))
             ->assertOk()
-            ->assertSee('Abrir lector QR')
+            ->assertSee('Escanear QR')
             ->assertSee('Escaneá el QR del carnet')
             ->assertDontSee('Tomar foto del QR')
             ->assertDontSee('Pegá el link', false);
@@ -300,9 +298,8 @@ class PrestadorPortalTest extends TestCase
             'codigo' => $orden->codigo,
             'qr' => route('carnet.verificar', $afiliado->afiliado_public_token),
         ]))
-            ->assertOk()
-            ->assertSee('Registrar entrega')
-            ->assertDontSee('Validar QR para entregar');
+            ->assertRedirect(route('prestadores.portal', $prestador->portal_token))
+            ->assertSessionHas('status', 'QR validado para '.$afiliado->name.' en la orden '.$orden->codigo.'.');
     }
 
     public function test_provider_orders_page_keeps_single_general_validation_button(): void
@@ -331,8 +328,7 @@ class PrestadorPortalTest extends TestCase
 
         $this->get(route('prestadores.portal', $prestador->portal_token))
             ->assertOk()
-            ->assertSee('Validar afiliado')
-            ->assertSee('Entregar con QR')
+            ->assertSee('Escanear QR')
             ->assertDontSee('Escanear QR y entregar');
     }
 

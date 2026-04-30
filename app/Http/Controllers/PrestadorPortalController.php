@@ -72,7 +72,7 @@ class PrestadorPortalController extends Controller
         ]);
     }
 
-    public function validar(Request $request, string $token): View
+    public function validar(Request $request, string $token): View|RedirectResponse
     {
         $prestador = $this->prestador($token, requireLogin: true);
 
@@ -104,6 +104,10 @@ class PrestadorPortalController extends Controller
                 ->when($data['codigo'] ?? null, fn ($query, string $codigo) => $query->where('codigo', $codigo))
                 ->latest()
                 ->get();
+        }
+
+        if (filled($data['qr'] ?? null)) {
+            return $this->finalizarValidacionQr($prestador, $afiliado, $ordenSeleccionada);
         }
 
         return view('prestadores.validar', [
@@ -244,6 +248,35 @@ class PrestadorPortalController extends Controller
         }
 
         return ! $afiliado->carnet_vencimiento || $afiliado->carnet_vencimiento->gte(now()->startOfDay());
+    }
+
+    private function finalizarValidacionQr(Prestador $prestador, ?User $afiliado, ?OrdenPrestacion $ordenSeleccionada): RedirectResponse
+    {
+        if (! $afiliado) {
+            return redirect()
+                ->route('prestadores.portal', $prestador->portal_token)
+                ->with('error', 'No se encontró un afiliado para el QR escaneado.');
+        }
+
+        if (! $this->afiliadoHabilitado($afiliado)) {
+            return redirect()
+                ->route('prestadores.portal', $prestador->portal_token)
+                ->with('error', 'El afiliado '.$afiliado->name.' no está habilitado.');
+        }
+
+        if ($ordenSeleccionada && (int) $ordenSeleccionada->afiliado_id !== (int) $afiliado->id) {
+            return redirect()
+                ->route('prestadores.portal', $prestador->portal_token)
+                ->with('error', 'El QR escaneado no corresponde al afiliado de la orden '.$ordenSeleccionada->codigo.'.');
+        }
+
+        $mensaje = $ordenSeleccionada
+            ? 'QR validado para '.$afiliado->name.' en la orden '.$ordenSeleccionada->codigo.'.'
+            : 'QR validado: '.$afiliado->name.' está habilitado.';
+
+        return redirect()
+            ->route('prestadores.portal', $prestador->portal_token)
+            ->with('status', $mensaje);
     }
 
     private function qrPerteneceAlAfiliado(string $qr, User $afiliado): bool

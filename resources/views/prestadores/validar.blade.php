@@ -33,7 +33,7 @@
 
                     <div class="d-grid gap-2">
                         <button id="start-scanner" class="btn btn-primary btn-lg shadow-none" type="button">
-                            <i class="ti ti-camera me-2"></i>Abrir lector QR
+                            <i class="ti ti-qrcode me-2"></i>Escanear QR
                         </button>
                         <button id="retry-scanner" class="btn btn-outline-primary shadow-none d-none" type="button">
                             <i class="ti ti-refresh me-2"></i>Volver a escanear
