@@ -38,10 +38,6 @@
                         <button id="retry-scanner" class="btn btn-outline-primary shadow-none d-none" type="button">
                             <i class="ti ti-refresh me-2"></i>Volver a escanear
                         </button>
-                        <button id="capture-scanner" class="btn btn-primary btn-lg shadow-none d-none" type="button">
-                            <i class="ti ti-camera-up me-2"></i>Tomar foto del QR
-                        </button>
-                        <input id="qr-image-input" class="d-none" type="file" accept="image/*" capture="environment">
                     </div>
 
                     <div id="scanner-panel" class="d-none">
@@ -52,8 +48,8 @@
                     <div id="scanner-help" class="provider-help-card small text-muted p-3">
                         Apuntá la cámara al QR del carnet digital del afiliado. Al detectarlo, el sistema valida automáticamente.
                     </div>
-                    <div id="scanner-status" class="alert alert-info border-0 d-none mb-0"></div>
-                    <div id="scanner-error" class="alert alert-warning border-0 d-none mb-0"></div>
+                    <div id="scanner-status" class="alert alert-info border-0 d-none mb-0 small"></div>
+                    <div id="scanner-error" class="alert alert-warning border-0 d-none mb-0 small"></div>
 
                     <div class="border-top pt-3">
                         <button class="provider-manual-toggle btn btn-link p-0 small fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#manual-search">

@@ -4,14 +4,13 @@ const form = document.querySelector('[data-auto-scan]');
 const qrInput = document.getElementById('qr-input');
 const startScanner = document.getElementById('start-scanner');
 const retryScanner = document.getElementById('retry-scanner');
-const captureScanner = document.getElementById('capture-scanner');
 const stopScanner = document.getElementById('stop-scanner');
 const scannerPanel = document.getElementById('scanner-panel');
 const scannerStatus = document.getElementById('scanner-status');
 const scannerError = document.getElementById('scanner-error');
+const scannerHelp = document.getElementById('scanner-help');
 const qrVideo = document.getElementById('qr-video');
 const qrCanvas = document.getElementById('qr-canvas');
-const qrImageInput = document.getElementById('qr-image-input');
 
 let scannerStream = null;
 let animationFrame = null;
@@ -19,10 +18,7 @@ let isSubmitting = false;
 let nativeDetectorPromise = null;
 
 const showScannerError = (message) => {
-    if (!scannerError) {
-        return;
-    }
-
+    if (!scannerError) return;
     scannerStatus?.classList.add('d-none');
     scannerError.textContent = message;
     scannerError.classList.remove('d-none');
@@ -34,10 +30,7 @@ const clearScannerError = () => {
 };
 
 const showScannerStatus = (message) => {
-    if (!scannerStatus) {
-        return;
-    }
-
+    if (!scannerStatus) return;
     scannerError?.classList.add('d-none');
     scannerStatus.textContent = message;
     scannerStatus.classList.remove('d-none');
@@ -51,13 +44,15 @@ const clearScannerStatus = () => {
 const setIdleState = () => {
     startScanner?.classList.remove('d-none');
     retryScanner?.classList.add('d-none');
-    captureScanner?.classList.add('d-none');
 };
 
 const setImageOnlyState = () => {
     startScanner?.classList.add('d-none');
     retryScanner?.classList.add('d-none');
-    captureScanner?.classList.remove('d-none');
+
+    if (scannerHelp) {
+        scannerHelp.textContent = 'El lector QR necesita abrir la cámara en vivo. Para usarlo desde celular, ingresá al portal con HTTPS.';
+    }
 };
 
 const stopCamera = () => {
@@ -65,23 +60,18 @@ const stopCamera = () => {
         cancelAnimationFrame(animationFrame);
         animationFrame = null;
     }
-
     if (scannerStream) {
         scannerStream.getTracks().forEach((track) => track.stop());
         scannerStream = null;
     }
-
     if (qrVideo) {
         qrVideo.srcObject = null;
     }
-
     scannerPanel?.classList.add('d-none');
 };
 
 const submitWithQr = (value) => {
-    if (!value || isSubmitting || !qrInput || !form) {
-        return;
-    }
+    if (!value || isSubmitting || !qrInput || !form) return;
 
     isSubmitting = true;
     showScannerStatus('QR leído. Validando afiliado...');
@@ -91,21 +81,15 @@ const submitWithQr = (value) => {
 };
 
 const getNativeDetector = async () => {
-    if (!('BarcodeDetector' in window)) {
-        return null;
-    }
+    if (!('BarcodeDetector' in window)) return null;
 
     if (!nativeDetectorPromise) {
         nativeDetectorPromise = (async () => {
             try {
                 const formats = await window.BarcodeDetector.getSupportedFormats?.();
-
-                if (Array.isArray(formats) && !formats.includes('qr_code')) {
-                    return null;
-                }
-
+                if (Array.isArray(formats) && !formats.includes('qr_code')) return null;
                 return new window.BarcodeDetector({ formats: ['qr_code'] });
-            } catch (error) {
+            } catch {
                 return null;
             }
         })();
@@ -116,17 +100,12 @@ const getNativeDetector = async () => {
 
 const decodeNative = async (source) => {
     const detector = await getNativeDetector();
-
-    if (!detector) {
-        return null;
-    }
+    if (!detector) return null;
 
     try {
         const codes = await detector.detect(source);
-        const value = codes?.[0]?.rawValue;
-
-        return value || null;
-    } catch (error) {
+        return codes?.[0]?.rawValue || null;
+    } catch {
         return null;
     }
 };
@@ -146,7 +125,6 @@ const scanFrame = async () => {
     }
 
     const nativeCode = await decodeNative(qrVideo);
-
     if (nativeCode) {
         submitWithQr(nativeCode);
         return;
@@ -158,10 +136,7 @@ const scanFrame = async () => {
     const context = qrCanvas.getContext('2d', { willReadFrequently: true });
     context.drawImage(qrVideo, 0, 0, width, height);
 
-    const imageData = context.getImageData(0, 0, width, height);
-    const code = jsQR(imageData.data, imageData.width, imageData.height, {
-        inversionAttempts: 'dontInvert',
-    });
+    const code = decodeCanvas(context, width, height);
 
     if (code?.data) {
         submitWithQr(code.data);
@@ -173,139 +148,22 @@ const scanFrame = async () => {
 
 const decodeCanvas = (context, width, height) => {
     const imageData = context.getImageData(0, 0, width, height);
-
     return jsQR(imageData.data, imageData.width, imageData.height, {
         inversionAttempts: 'attemptBoth',
     });
-};
-
-const decodeCanvasNative = async (canvas) => decodeNative(canvas);
-
-const drawAttempt = (context, image, sourceWidth, sourceHeight, maxSide, cropRatio) => {
-    const sourceSide = Math.min(sourceWidth, sourceHeight);
-    const cropWidth = cropRatio === 1 ? sourceWidth : sourceSide * cropRatio;
-    const cropHeight = cropRatio === 1 ? sourceHeight : sourceSide * cropRatio;
-    const cropX = Math.max(0, (sourceWidth - cropWidth) / 2);
-    const cropY = Math.max(0, (sourceHeight - cropHeight) / 2);
-    const scale = Math.min(1, maxSide / Math.max(cropWidth, cropHeight));
-    const width = Math.max(1, Math.round(cropWidth * scale));
-    const height = Math.max(1, Math.round(cropHeight * scale));
-
-    qrCanvas.width = width;
-    qrCanvas.height = height;
-    context.clearRect(0, 0, width, height);
-    context.drawImage(image, cropX, cropY, cropWidth, cropHeight, 0, 0, width, height);
-
-    return { width, height };
-};
-
-const waitForPaint = () => new Promise((resolve) => setTimeout(resolve, 25));
-
-const loadImage = async (file) => {
-    if ('createImageBitmap' in window) {
-        try {
-            return {
-                image: await createImageBitmap(file, { imageOrientation: 'from-image' }),
-                cleanup: () => {},
-            };
-        } catch (error) {
-            // Fall back to HTMLImageElement below.
-        }
-    }
-
-    const objectUrl = URL.createObjectURL(file);
-    const image = await new Promise((resolve, reject) => {
-        const fallbackImage = new Image();
-        fallbackImage.onload = () => resolve(fallbackImage);
-        fallbackImage.onerror = reject;
-        fallbackImage.src = objectUrl;
-    });
-
-    return {
-        image,
-        cleanup: () => URL.revokeObjectURL(objectUrl),
-    };
-};
-
-const decodeImageFile = async (file) => {
-    if (!file || !qrCanvas) {
-        return;
-    }
-
-    clearScannerError();
-    showScannerStatus('Procesando foto del QR...');
-    captureScanner?.setAttribute('disabled', 'disabled');
-
-    let loaded = null;
-
-    try {
-        loaded = await loadImage(file);
-        const image = loaded.image;
-        const context = qrCanvas.getContext('2d', { willReadFrequently: true });
-        const sourceWidth = image.width || image.naturalWidth;
-        const sourceHeight = image.height || image.naturalHeight;
-        const maxSideOptions = [1400, 1100, 850];
-        const cropRatios = [1, 0.9, 0.78, 0.62];
-        let code = null;
-        let nativeCode = await decodeNative(image);
-
-        if (nativeCode) {
-            submitWithQr(nativeCode);
-            return;
-        }
-
-        for (const maxSide of maxSideOptions) {
-            for (const cropRatio of cropRatios) {
-                const { width, height } = drawAttempt(context, image, sourceWidth, sourceHeight, maxSide, cropRatio);
-                nativeCode = await decodeCanvasNative(qrCanvas);
-
-                if (nativeCode) {
-                    submitWithQr(nativeCode);
-                    return;
-                }
-
-                code = decodeCanvas(context, width, height);
-
-                if (code?.data) {
-                    break;
-                }
-            }
-
-            if (code?.data) {
-                break;
-            }
-
-            await waitForPaint();
-        }
-
-        if (code?.data) {
-            submitWithQr(code.data);
-            return;
-        }
-
-        showScannerError('No pude leer el QR de esa imagen. Abrí el QR grande del carnet, sacá la foto de cerca para que solo se vea el cuadrado del QR y evitá reflejos.');
-        captureScanner?.classList.remove('d-none');
-    } catch (error) {
-        clearScannerStatus();
-        showScannerError('No pude procesar esa foto. Probá con el QR grande del carnet y sacá otra foto más cerca.');
-        captureScanner?.classList.remove('d-none');
-    } finally {
-        loaded?.cleanup();
-        captureScanner?.removeAttribute('disabled');
-        clearScannerStatus();
-        qrImageInput.value = '';
-    }
 };
 
 const startCamera = async () => {
     clearScannerError();
 
     if (!window.isSecureContext) {
+        showScannerError('No se puede abrir el lector QR porque el portal está en HTTP. En celular Chrome exige HTTPS para usar cámara en vivo.');
         setImageOnlyState();
         return;
     }
 
     if (!navigator.mediaDevices?.getUserMedia) {
+        showScannerError('Tu dispositivo o navegador no permite abrir la cámara en vivo para leer QR.');
         setImageOnlyState();
         return;
     }
@@ -326,19 +184,21 @@ const startCamera = async () => {
         scannerPanel.classList.remove('d-none');
         startScanner?.classList.add('d-none');
         retryScanner?.classList.add('d-none');
+
+        if (scannerHelp) {
+            scannerHelp.textContent = 'Apuntá la cámara al QR del carnet digital del afiliado. Al detectarlo, el sistema valida automáticamente.';
+        }
+
         animationFrame = requestAnimationFrame(scanFrame);
-    } catch (error) {
+    } catch {
         stopCamera();
-        showScannerError('No se pudo abrir la cámara en vivo. Permití el acceso o usá la foto del QR.');
+        showScannerError('No se pudo abrir la cámara. Verificá los permisos del navegador y volvé a intentar.');
         retryScanner?.classList.remove('d-none');
-        captureScanner?.classList.remove('d-none');
     }
 };
 
 startScanner?.addEventListener('click', startCamera);
 retryScanner?.addEventListener('click', startCamera);
-captureScanner?.addEventListener('click', () => qrImageInput?.click());
-qrImageInput?.addEventListener('change', (event) => decodeImageFile(event.target.files?.[0]));
 
 stopScanner?.addEventListener('click', () => {
     stopCamera();
@@ -349,6 +209,12 @@ window.addEventListener('beforeunload', stopCamera);
 
 if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
     setImageOnlyState();
+
+    if (!window.isSecureContext && scannerError) {
+        scannerError.textContent = 'Lector QR no disponible en HTTP. Para escanear sin foto desde celular, el portal debe abrirse por HTTPS.';
+        scannerError.classList.remove('d-none');
+        scannerError.className = scannerError.className.replace('alert-warning', 'alert-info');
+    }
 }
 
 if (form?.dataset.autoScan === '1') {

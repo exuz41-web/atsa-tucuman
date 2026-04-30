@@ -252,6 +252,7 @@ class PrestadorPortalTest extends TestCase
             ->assertOk()
             ->assertSee('Abrir lector QR')
             ->assertSee('Escaneá el QR del carnet')
+            ->assertDontSee('Tomar foto del QR')
             ->assertDontSee('Pegá el link', false);
     }
 
