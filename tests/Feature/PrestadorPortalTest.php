@@ -7,6 +7,7 @@ use App\Models\Pedido;
 use App\Models\Prestador;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Tests\TestCase;
@@ -77,6 +78,46 @@ class PrestadorPortalTest extends TestCase
         ])->assertRedirect($prestador->portalUrl());
 
         $this->assertNotNull($prestador->fresh()->portal_last_login_at);
+    }
+
+    public function test_prestador_can_generate_generic_portal_access(): void
+    {
+        $prestador = Prestador::create([
+            'nombre' => 'Sanatorio Modelo',
+            'tipo' => 'salud',
+            'activo' => true,
+        ]);
+
+        $credentials = $prestador->asegurarAccesoPortal();
+
+        $this->assertSame('sanatorio-modelo', $credentials['usuario']);
+        $this->assertNotEmpty($credentials['password']);
+        $this->assertTrue($prestador->fresh()->tieneAccesoPortal());
+
+        $this->post(route('prestadores.login.submit'), [
+            'usuario' => $credentials['usuario'],
+            'password' => $credentials['password'],
+        ])->assertRedirect($prestador->fresh()->portalUrl());
+    }
+
+    public function test_command_generates_access_for_all_active_prestadores(): void
+    {
+        $activo = Prestador::create([
+            'nombre' => 'Farmacia Popular',
+            'tipo' => 'farmacia',
+            'activo' => true,
+        ]);
+
+        $inactivo = Prestador::create([
+            'nombre' => 'Comercio Pausado',
+            'tipo' => 'comercio',
+            'activo' => false,
+        ]);
+
+        Artisan::call('prestadores:generar-accesos');
+
+        $this->assertTrue($activo->fresh()->tieneAccesoPortal());
+        $this->assertFalse($inactivo->fresh()->tieneAccesoPortal());
     }
 
     public function test_prestador_can_validate_and_deliver_only_its_own_order(): void

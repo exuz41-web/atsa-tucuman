@@ -180,6 +180,11 @@ class PrestadorResource extends Resource
                     ->copyMessage('Link copiado')
                     ->toggleable(isToggledHiddenByDefault: true),
 
+                Tables\Columns\BadgeColumn::make('portal_password')
+                    ->label('Acceso portal')
+                    ->formatStateUsing(fn (?string $state, Prestador $record): string => $record->tieneAccesoPortal() ? 'Listo' : 'Incompleto')
+                    ->color(fn (?string $state, Prestador $record): string => $record->tieneAccesoPortal() ? 'success' : 'warning'),
+
                 Tables\Columns\IconColumn::make('activo')
                     ->label('Activo')
                     ->boolean(),
@@ -203,6 +208,35 @@ class PrestadorResource extends Resource
                     ->icon('heroicon-o-arrow-top-right-on-square')
                     ->color('info')
                     ->url(fn (Prestador $record): string => $record->portalUrl(), true),
+
+                Tables\Actions\Action::make('activar_portal')
+                    ->label(fn (Prestador $record): string => $record->tieneAccesoPortal() ? 'Resetear acceso' : 'Activar portal')
+                    ->icon('heroicon-o-device-phone-mobile')
+                    ->color(fn (Prestador $record): string => $record->tieneAccesoPortal() ? 'gray' : 'success')
+                    ->requiresConfirmation()
+                    ->modalHeading(fn (Prestador $record): string => $record->tieneAccesoPortal() ? 'Resetear acceso del prestador' : 'Activar portal del prestador')
+                    ->modalDescription('Se generará usuario, token y contraseña si faltan. Si indicás una contraseña nueva, reemplaza la anterior.')
+                    ->form([
+                        Forms\Components\TextInput::make('password')
+                            ->label('Nueva contraseña opcional')
+                            ->password()
+                            ->revealable()
+                            ->minLength(8)
+                            ->helperText('Dejar vacío para generar una contraseña segura automáticamente.'),
+                    ])
+                    ->action(function (Prestador $record, array $data): void {
+                        $credentials = $record->asegurarAccesoPortal(
+                            password: filled($data['password'] ?? null) ? $data['password'] : null,
+                            resetPassword: true,
+                        );
+
+                        Notification::make()
+                            ->title('Portal habilitado')
+                            ->body("Usuario: {$credentials['usuario']} | Contraseña: {$credentials['password']} | Login: {$credentials['login']}")
+                            ->success()
+                            ->persistent()
+                            ->send();
+                    }),
 
                 Tables\Actions\Action::make('regenerar_token')
                     ->label('Regenerar acceso')
@@ -253,6 +287,40 @@ class PrestadorResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\BulkAction::make('activar_portales')
+                        ->label('Activar portales')
+                        ->icon('heroicon-o-device-phone-mobile')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->modalHeading('Activar portal para prestadores seleccionados')
+                        ->modalDescription('Genera usuarios y contraseñas para los prestadores seleccionados que todavía no tengan acceso completo.')
+                        ->action(function ($records): void {
+                            $generados = $records
+                                ->map(fn (Prestador $prestador): array => $prestador->asegurarAccesoPortal())
+                                ->filter(fn (array $credentials): bool => filled($credentials['password']))
+                                ->values();
+
+                            if ($generados->isEmpty()) {
+                                Notification::make()
+                                    ->title('Sin cambios')
+                                    ->body('Los prestadores seleccionados ya tenían acceso completo.')
+                                    ->info()
+                                    ->send();
+
+                                return;
+                            }
+
+                            $resumen = $generados
+                                ->map(fn (array $credentials): string => "{$credentials['nombre']}: {$credentials['usuario']} / {$credentials['password']}")
+                                ->implode("\n");
+
+                            Notification::make()
+                                ->title('Accesos generados')
+                                ->body($resumen)
+                                ->success()
+                                ->persistent()
+                                ->send();
+                        }),
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
