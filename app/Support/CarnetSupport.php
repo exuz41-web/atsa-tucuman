@@ -21,6 +21,12 @@ class CarnetSupport
                 ->generate($url);
         }
 
+        $cacheKey = 'qr_png_'.md5($url.'_'.$size);
+        $cached = cache()->get($cacheKey);
+        if (is_string($cached) && $cached !== '') {
+            return base64_decode($cached);
+        }
+
         $endpoint = 'https://api.qrserver.com/v1/create-qr-code/?format=png&size='.$size.'x'.$size.'&ecc=H&data='.rawurlencode($url);
         $ch = curl_init($endpoint);
         curl_setopt_array($ch, [
@@ -34,7 +40,13 @@ class CarnetSupport
         $binary = curl_exec($ch);
         curl_close($ch);
 
-        return is_string($binary) && $binary !== '' ? $binary : self::placeholderQr($size);
+        if (is_string($binary) && $binary !== '') {
+            cache()->put($cacheKey, base64_encode($binary), now()->addDays(30));
+
+            return $binary;
+        }
+
+        return self::placeholderQr($size);
     }
 
     public static function qrBase64(string $url, int $size = 240): string
@@ -209,4 +221,3 @@ class CarnetSupport
         return $png;
     }
 }
-
