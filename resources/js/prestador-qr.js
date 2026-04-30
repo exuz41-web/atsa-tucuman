@@ -47,11 +47,11 @@ const setIdleState = () => {
 };
 
 const setImageOnlyState = () => {
-    startScanner?.classList.add('d-none');
+    startScanner?.classList.remove('d-none');
     retryScanner?.classList.add('d-none');
 
     if (scannerHelp) {
-        scannerHelp.textContent = 'El lector QR necesita abrir la cámara en vivo. Para usarlo desde celular, ingresá al portal con HTTPS.';
+        scannerHelp.textContent = 'Tocá "Escanear QR" para abrir la cámara y validar el carnet del afiliado.';
     }
 };
 
@@ -209,12 +209,6 @@ window.addEventListener('beforeunload', stopCamera);
 
 if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
     setImageOnlyState();
-
-    if (!window.isSecureContext && scannerError) {
-        scannerError.textContent = 'Lector QR no disponible en HTTP. Para escanear sin foto desde celular, el portal debe abrirse por HTTPS.';
-        scannerError.classList.remove('d-none');
-        scannerError.className = scannerError.className.replace('alert-warning', 'alert-info');
-    }
 }
 
 if (form?.dataset.autoScan === '1') {

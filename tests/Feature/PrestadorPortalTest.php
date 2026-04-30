@@ -329,6 +329,8 @@ class PrestadorPortalTest extends TestCase
         $this->get(route('prestadores.portal', $prestador->portal_token))
             ->assertOk()
             ->assertSee('Escanear QR')
+            ->assertSee(route('prestadores.validar', ['token' => $prestador->portal_token, 'codigo' => OrdenPrestacion::first()->codigo]), false)
+            ->assertDontSee('scan=1')
             ->assertDontSee('Escanear QR y entregar');
     }
 

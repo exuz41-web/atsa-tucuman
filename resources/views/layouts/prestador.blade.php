@@ -65,7 +65,7 @@
                 </div>
             </a>
             <div class="provider-actions d-flex gap-2 flex-wrap justify-content-end">
-                <a href="{{ route('prestadores.validar', ['token' => $prestador->portal_token, 'scan' => 1]) }}" class="btn btn-primary shadow-none">
+                <a href="{{ route('prestadores.validar', $prestador->portal_token) }}" class="btn btn-primary shadow-none">
                     <i class="ti ti-qrcode me-2"></i>Escanear QR
                 </a>
                 <form method="POST" action="{{ route('prestadores.logout') }}">
