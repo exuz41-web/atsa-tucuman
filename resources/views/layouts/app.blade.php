@@ -119,6 +119,28 @@
         .text-atsa-sky { color: var(--atsa-sky) !important; }
         .text-atsa-red { color: var(--atsa-red) !important; }
 
+        .section-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            width: auto;
+            max-width: 100%;
+            padding: 7px 16px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 800;
+            line-height: 1.2;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            vertical-align: middle;
+        }
+
+        .section-badge i {
+            flex: 0 0 auto;
+            font-size: 16px;
+            line-height: 1;
+        }
+
         .btn-atsa {
             background: var(--atsa-blue);
             border-color: var(--atsa-blue);
