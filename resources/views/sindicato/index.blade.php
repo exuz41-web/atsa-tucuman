@@ -37,10 +37,10 @@
 @section('content')
     <section class="atsa-page-hero py-14 position-relative" style="background-image: url('{{ $sindicatoHeroImage }}'); min-height: 500px;">
         <div class="container-fluid text-center position-relative z-1">
-            <div class="section-badge bg-white bg-opacity-20 text-white mb-3">
+            <span class="section-badge bg-white bg-opacity-10 text-white mb-3">
                 <i class="ti ti-building"></i>
                 {{ $sindicatoHeroLabel }}
-            </div>
+            </span>
             <h1 class="fw-bolder display-4 text-white mb-4">{{ $sindicatoHeroTitle }}</h1>
             <p class="fs-5 text-white text-opacity-80 mb-0 col-lg-6 mx-auto">{{ $sindicatoHeroSubtitle }}</p>
         </div>
