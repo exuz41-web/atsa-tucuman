@@ -35,19 +35,26 @@
 @endphp
 
 @section('content')
-    <section class="atsa-page-hero py-14 position-relative" style="background-image: url('{{ $sindicatoHeroImage }}'); min-height: 500px;">
-        <div class="container-fluid text-center position-relative z-1">
-            <span class="section-badge bg-white bg-opacity-10 text-white mb-3">
-                <i class="ti ti-building"></i>
-                {{ $sindicatoHeroLabel }}
-            </span>
-            <h1 class="fw-bolder display-4 text-white mb-4">{{ $sindicatoHeroTitle }}</h1>
-            <p class="fs-5 text-white text-opacity-80 mb-0 col-lg-6 mx-auto">{{ $sindicatoHeroSubtitle }}</p>
-        </div>
-        <div class="position-absolute bottom-0 start-0 w-100">
-            <svg viewBox="0 0 1440 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M0 80L60 72C120 64 240 48 360 40C480 32 600 32 720 36C840 40 960 48 1080 52C1200 56 1320 56 1380 56L1440 56V80H1380C1320 80 1200 80 1080 80C960 80 840 80 720 80C600 80 480 80 360 80C240 80 120 80 60 80H0Z" fill="white"/>
-            </svg>
+    <section class="atsa-page-hero py-14 position-relative" style="background-image: url('{{ $sindicatoHeroImage }}'); min-height: 520px;">
+        <div class="container-fluid position-relative z-1">
+            <div class="col-lg-8">
+                <span class="badge bg-white text-primary fs-3 fw-bolder px-3 py-2 mb-4">
+                    <i class="ti ti-building-bank me-1"></i>{{ $sindicatoHeroLabel }}
+                </span>
+                <h1 class="fw-bolder display-4 text-white mb-4">{{ $sindicatoHeroTitle }}</h1>
+                <p class="fs-5 text-white text-opacity-75 mb-5 col-lg-9">{{ $sindicatoHeroSubtitle }}</p>
+                <div class="d-flex gap-3 flex-wrap">
+                    <a href="#historia" class="btn btn-light text-primary fw-bold py-8 px-9">
+                        <i class="ti ti-book me-2"></i>Historia
+                    </a>
+                    <a href="#autoridades" class="btn btn-outline-light fw-bold py-8 px-9">
+                        <i class="ti ti-users me-2"></i>Autoridades
+                    </a>
+                    <a href="{{ route('documentos.index') }}" class="btn btn-outline-light fw-bold py-8 px-9">
+                        <i class="ti ti-file-text me-2"></i>Documentos
+                    </a>
+                </div>
+            </div>
         </div>
     </section>
 
