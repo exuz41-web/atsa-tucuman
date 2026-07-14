@@ -75,9 +75,55 @@
             letter-spacing: -0.02em;
         }
 
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: #f7f9fd;
+            color: #253248;
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
+        }
+
+        ::selection {
+            background: rgba(73, 190, 255, .26);
+            color: var(--atsa-blue-dark);
+        }
+
+        a,
+        .btn,
+        .dropdown-item,
+        .nav-link {
+            transition: color .18s ease, background-color .18s ease, border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+        }
+
+        .btn:focus-visible,
+        .nav-link:focus-visible,
+        .dropdown-item:focus-visible,
+        .form-control:focus,
+        .form-select:focus {
+            box-shadow: 0 0 0 .24rem rgba(73, 190, 255, .20) !important;
+            outline: 0;
+        }
+
         .header-fp .navbar {
             backdrop-filter: blur(14px);
-            box-shadow: 0 12px 30px rgba(42, 53, 71, .06);
+            background: rgba(236, 242, 255, .94) !important;
+            border-bottom: 1px solid rgba(30, 58, 95, .08);
+            box-shadow: 0 14px 34px rgba(42, 53, 71, .08);
+        }
+
+        .header-fp .navbar-nav .nav-link {
+            border-radius: 12px;
+            padding: 10px 14px !important;
+        }
+
+        .header-fp .navbar-nav .nav-link:hover,
+        .header-fp .navbar-nav .nav-link.active {
+            background: rgba(93, 135, 255, .12);
+            color: #5d87ff !important;
+            transform: translateY(-1px);
         }
 
         .atsa-logo {
@@ -145,12 +191,15 @@
             background: var(--atsa-blue);
             border-color: var(--atsa-blue);
             color: #fff;
+            box-shadow: 0 12px 22px rgba(30, 58, 95, .18);
         }
 
         .btn-atsa:hover {
             background: var(--atsa-blue-dark);
             border-color: var(--atsa-blue-dark);
             color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 16px 28px rgba(30, 58, 95, .22);
         }
 
         .btn-outline-atsa {
@@ -162,12 +211,21 @@
         .btn-outline-atsa:hover {
             background: var(--atsa-blue);
             color: #fff;
+            transform: translateY(-1px);
+        }
+
+        .btn-primary,
+        .btn-light,
+        .btn-atsa,
+        .btn-outline-atsa {
+            border-radius: 12px;
+            font-weight: 700;
         }
 
         .header-fp .dropdown-menu {
-            border: 0;
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(42, 53, 71, .15);
+            border: 1px solid rgba(30, 58, 95, .08);
+            border-radius: 14px;
+            box-shadow: 0 22px 54px rgba(42, 53, 71, .16);
             padding: 14px;
             min-width: 240px;
         }
@@ -182,6 +240,37 @@
         .header-fp .dropdown-item:hover {
             background: var(--atsa-light-blue);
             color: var(--atsa-blue);
+            transform: translateX(2px);
+        }
+
+        .main-wrapper {
+            background: linear-gradient(180deg, #f7f9fd 0%, #fff 36%);
+        }
+
+        .main-wrapper .card,
+        .main-wrapper .atsa-impact-card,
+        .main-wrapper .atsa-blog-card,
+        .main-wrapper .service-card {
+            border: 1px solid rgba(30, 58, 95, .08) !important;
+            box-shadow: 0 16px 34px rgba(42, 53, 71, .07);
+        }
+
+        .main-wrapper .card:hover,
+        .main-wrapper .atsa-impact-card:hover,
+        .main-wrapper .atsa-blog-card:hover,
+        .main-wrapper .service-card:hover {
+            box-shadow: 0 22px 46px rgba(42, 53, 71, .11);
+            transform: translateY(-2px);
+        }
+
+        .section-badge {
+            box-shadow: 0 10px 22px rgba(93, 135, 255, .10);
+        }
+
+        .atsa-hero,
+        .atsa-page-hero {
+            overflow: hidden;
+            box-shadow: inset 0 -1px 0 rgba(255, 255, 255, .22);
         }
 
         .main-wrapper p {
@@ -429,12 +518,21 @@
         }
 
         @media (max-width: 767.98px) {
+            .header-fp .navbar {
+                padding-top: 10px !important;
+                padding-bottom: 10px !important;
+            }
+
+            .atsa-logo {
+                height: 48px;
+            }
+
             .atsa-hero {
-                min-height: 480px;
+                min-height: 560px;
             }
 
             .atsa-page-hero {
-                min-height: 280px;
+                min-height: 340px;
             }
         }
     </style>

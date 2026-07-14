@@ -26,6 +26,7 @@
             min-height: 100%;
             background: #f6f8fb;
             overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
         }
 
         .afiliado-shell {
@@ -45,6 +46,7 @@
             display: flex;
             flex-direction: column;
             transition: transform .22s ease;
+            box-shadow: 14px 0 34px rgba(42, 53, 71, .04);
         }
 
         .afiliado-brand {
@@ -157,6 +159,7 @@
             background: rgba(255,255,255,.96);
             backdrop-filter: blur(16px);
             border-bottom: 1px solid #e5eaef;
+            box-shadow: 0 10px 24px rgba(42, 53, 71, .04);
             z-index: 1030;
             display: flex;
             align-items: center;
@@ -175,6 +178,12 @@
             border: 1px solid #e5eaef;
             border-radius: 18px;
             box-shadow: 0 16px 34px rgba(42, 53, 71, .07);
+            transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+        }
+
+        .portal-card:hover {
+            border-color: #d6e3f2;
+            box-shadow: 0 22px 46px rgba(42, 53, 71, .09);
         }
 
         .portal-icon {
@@ -206,6 +215,20 @@
         .portal-card .form-select:focus {
             border-color: var(--atsa-blue);
             box-shadow: 0 0 0 .22rem rgba(30, 58, 95, .08);
+        }
+
+        .afiliado-main .btn {
+            border-radius: 12px;
+            font-weight: 700;
+        }
+
+        .afiliado-main .btn-primary {
+            box-shadow: 0 12px 24px rgba(30, 58, 95, .16);
+        }
+
+        .afiliado-main .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 16px 30px rgba(30, 58, 95, .20);
         }
 
         .portal-footer {
@@ -249,6 +272,19 @@
         @media (max-width: 575.98px) {
             .afiliado-content {
                 padding: 18px 14px;
+            }
+
+            .afiliado-topbar {
+                height: 68px;
+            }
+
+            .afiliado-main {
+                padding-top: 68px;
+            }
+
+            .portal-card {
+                border-radius: 14px;
+                box-shadow: 0 12px 26px rgba(42, 53, 71, .06);
             }
         }
     </style>

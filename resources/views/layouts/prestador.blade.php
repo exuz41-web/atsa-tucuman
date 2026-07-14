@@ -12,16 +12,17 @@
     <link rel="stylesheet" href="{{ asset('modernize/css/styles.css') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
-        body { background: #f6f8fb; }
-        .provider-shell { min-height: 100vh; }
-        .provider-header { background: #fff; border-bottom: 1px solid #e5eaef; }
+        body { background: #f6f8fb; -webkit-font-smoothing: antialiased; }
+        .provider-shell { min-height: 100vh; background: linear-gradient(180deg, #f6f8fb 0%, #ffffff 100%); }
+        .provider-header { background: rgba(255,255,255,.96); backdrop-filter: blur(16px); border-bottom: 1px solid #e5eaef; box-shadow: 0 10px 26px rgba(42, 53, 71, .05); }
         .provider-header-inner { padding-top: 1rem; padding-bottom: 1rem; }
         .provider-brand { min-width: 0; }
         .provider-logo { height: 58px; max-width: 180px; object-fit: contain; }
         .provider-title { min-width: 0; }
         .provider-title h1 { overflow-wrap: anywhere; line-height: 1.08; }
         .provider-actions { flex-shrink: 0; }
-        .provider-card { background: #fff; border: 1px solid #e5eaef; border-radius: 12px; box-shadow: 0 14px 32px rgba(42, 53, 71, .07); }
+        .provider-card { background: #fff; border: 1px solid #e5eaef; border-radius: 12px; box-shadow: 0 14px 32px rgba(42, 53, 71, .07); transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease; }
+        .provider-card:hover { border-color: #d6e3f2; box-shadow: 0 20px 42px rgba(42, 53, 71, .10); }
         .provider-badge { border-radius: 999px; padding: 6px 12px; font-weight: 800; font-size: 12px; }
         .badge-emitida { background: #fff6df; color: #9a6200; }
         .badge-aceptada { background: #e8f4ff; color: #1e5f99; }
@@ -32,6 +33,11 @@
         .provider-scan-video { aspect-ratio: 3 / 4; max-height: 62vh; object-fit: cover; }
         .provider-manual-toggle { color: #6c7a91; text-underline-offset: 4px; }
         .provider-help-card { background: #f8fafc; border: 1px solid #edf2f7; border-radius: 12px; }
+        .provider-shell .btn { border-radius: 12px; font-weight: 700; transition: transform .18s ease, box-shadow .18s ease; }
+        .provider-shell .btn-primary { box-shadow: 0 12px 24px rgba(30, 58, 95, .16); }
+        .provider-shell .btn:hover { transform: translateY(-1px); }
+        .provider-shell .form-control:focus,
+        .provider-shell .form-select:focus { border-color: #1e3a5f; box-shadow: 0 0 0 .22rem rgba(30, 58, 95, .08); }
 
         @media (max-width: 575.98px) {
             body { background: #f2f5f9; }
