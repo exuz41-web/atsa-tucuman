@@ -82,7 +82,7 @@
                         rows="7"
                         maxlength="500"
                         class="form-control @error('texto') is-invalid @enderror"
-                        placeholder="Escribí tu experiencia con ATSA...">{{ old('texto', $testimonio->texto ?: '') }}</textarea>
+                        placeholder="Escribí tu experiencia con ATSA...">{{ old('texto', $testimonio?->texto ?: '') }}</textarea>
                     <div class="form-text">Tu testimonio aparecerá con tu nombre, foto de perfil y filial.</div>
                     @error('texto')
                     <div class="invalid-feedback">{{ $message }}</div>
@@ -115,11 +115,11 @@
                     </span>
                     <div>
                         <h5 class="fw-bolder mb-1">{{ $user->name }}</h5>
-                        <p class="mb-0 text-muted">{{ $testimonio->cargo ? ($user->categoria_laboral ?: 'Afiliado') }}</p>
+                        <p class="mb-0 text-muted">{{ $testimonio?->cargo ?: ($user->categoria_laboral ?: 'Afiliado') }}</p>
                     </div>
                 </div>
-                <p class=”text-muted fs-4 mb-3”>”{{ $testimonio->texto ?: 'Tu mensaje se verá así cuando lo escribas y sea aprobado.' }}”</p>
-                <span class=”badge bg-primary-subtle text-primary rounded-pill px-3 py-2”>{{ $user->filial?->name ?: 'ATSA Tucumán' }}</span>
+                <p class="text-muted fs-4 mb-3">"{{ $testimonio?->texto ?: 'Tu mensaje se verá así cuando lo escribas y sea aprobado.' }}"</p>
+                <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2">{{ $user->filial?->name ?: 'ATSA Tucumán' }}</span>
             </div>
 
             <div class="alert alert-info mt-4 mb-0">

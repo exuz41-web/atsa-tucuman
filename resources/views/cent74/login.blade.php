@@ -39,6 +39,29 @@
         background: linear-gradient(180deg, rgba(30, 58, 95, .04), rgba(73, 190, 255, .08));
         border-bottom: 1px solid #e5eaef;
     }
+
+    .password-wrap {
+        position: relative;
+    }
+
+    .password-wrap .form-control {
+        padding-right: 52px;
+    }
+
+    .password-toggle {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 40px;
+        height: 40px;
+        border: 0;
+        border-radius: 12px;
+        background: transparent;
+        color: #5a6a85;
+        display: grid;
+        place-items: center;
+    }
 </style>
 @endpush
 
@@ -104,7 +127,12 @@
                             </div>
                             <div class="mb-4">
                                 <label class="form-label fw-bold">Contraseña</label>
-                                <input type="password" name="password" class="form-control form-control-lg" required>
+                                <div class="password-wrap">
+                                    <input id="cent-password" type="password" name="password" class="form-control form-control-lg" required>
+                                    <button class="password-toggle" type="button" data-toggle-password="#cent-password" aria-label="Ver contraseña">
+                                        <i class="ti ti-eye"></i>
+                                    </button>
+                                </div>
                             </div>
                             <div class="cent-muted-box p-3 mb-4">
                                 <div class="small text-muted">
@@ -123,4 +151,19 @@
         </div>
     </div>
 </section>
+<script>
+    document.querySelectorAll('[data-toggle-password]').forEach((button) => {
+        button.addEventListener('click', () => {
+            const input = document.querySelector(button.dataset.togglePassword);
+            const icon = button.querySelector('i');
+            if (!input) return;
+
+            const visible = input.type === 'text';
+            input.type = visible ? 'password' : 'text';
+            button.setAttribute('aria-label', visible ? 'Ver contraseña' : 'Ocultar contraseña');
+            icon?.classList.toggle('ti-eye', visible);
+            icon?.classList.toggle('ti-eye-off', !visible);
+        });
+    });
+</script>
 @endsection

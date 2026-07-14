@@ -37,6 +37,7 @@ class AfiliadoLoginController extends Controller
         $documento = trim($credentials['numero_afiliado']);
         $user = User::where('numero_afiliado', $documento)
             ->orWhere('dni', $documento)
+            ->orWhere('email', $documento)
             ->first();
 
         if (! $user || ! Hash::check($credentials['password'], $user->password)) {
