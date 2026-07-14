@@ -66,6 +66,7 @@ php artisan package:discover --ansi
 php artisan migrate --force
 
 if [ "${RUN_DEMO_SEEDERS:-false}" = "true" ]; then
+    echo "Running ATSA demo seeders..."
     php artisan db:seed --class=SecretariasBaseSeeder --force || true
     php artisan db:seed --class=BeneficiosSeeder --force || true
     php artisan db:seed --class=DemoAccessSeeder --force || true
@@ -73,6 +74,8 @@ if [ "${RUN_DEMO_SEEDERS:-false}" = "true" ]; then
     php artisan db:seed --class=CentConfiguracionSeeder --force || true
     php artisan db:seed --class=CentPremiumDemoSeeder --force || true
     php artisan db:seed --class=CentDemoSeeder --force || true
+else
+    echo "Skipping ATSA demo seeders. RUN_DEMO_SEEDERS is not true."
 fi
 
 php artisan config:cache || true
